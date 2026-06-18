@@ -88,8 +88,8 @@ AdminDataService.loadScenarioMap = AdminDataService.loadScenarioMap || (async fu
 });
 
 const APP = {
-  ADMIN_URL: (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) || "https://script.google.com/macros/s/AKfycbxVM-2aaWLaDBSkv2Z2oJOZP7I7mxtN7o4GDKRGFmGx4xI5agTWPqXUJ41RxbsXV3t1/exec",
-  SURVEY_URL: (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) || "https://script.google.com/macros/s/AKfycbxVM-2aaWLaDBSkv2Z2oJOZP7I7mxtN7o4GDKRGFmGx4xI5agTWPqXUJ41RxbsXV3t1/exec",
+  ADMIN_URL: (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) || "https://script.google.com/macros/s/AKfycbxeY5HTUDkYZgU2_8ICI4XpJp3IepkWTw53dyPaNLXCcpV41xQypIiOdxeB-l538sg/exec",
+  SURVEY_URL: (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) || "https://script.google.com/macros/s/AKfycbxeY5HTUDkYZgU2_8ICI4XpJp3IepkWTw53dyPaNLXCcpV41xQypIiOdxeB-l538sg/exec",
   // AUTH-03: State Management
   auth: {
       role: sessionStorage.getItem('ops_role') || null,
