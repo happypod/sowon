@@ -10,27 +10,43 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function initCounters() {
     try {
-        // Fetch summary data from GAS Backend
-        const res = await App.api.callAction('admin_summary', { region: 'all', period: 'all' });
-        if(res && res.survey) {
-            const counts = res.counts || {};
-            const total = res.survey.responseCount || 0;
-            const resident = counts.resident_total || 0;
-            const tourist = counts.tourist_total || 0;
-            const lodging = counts.lodging_total || 0;
-            const visitor = counts.visitor_total || 0;
+        // Fetch summary data from GAS Backend. Visitor was added later, so fetch
+        // its stats separately as a fallback while older admin_summary caches expire.
+        const [summaryResult, visitorResult] = await Promise.allSettled([
+            App.api.callAction('admin_summary', { region: 'all', period: 'all' }),
+            App.api.callAction('stats_visitor', { region: 'ALL', period: 'all' })
+        ]);
 
-            // Animate each counter
-            animateCounter('hero-total', total);
-            animateCounter('hero-resident', resident);
-            animateCounter('hero-tourist', tourist);
-            animateCounter('hero-lodging', lodging);
-            animateCounter('hero-visitor', visitor);
-        }
+        const res = summaryResult.status === 'fulfilled' ? summaryResult.value : null;
+        const visitorStats = visitorResult.status === 'fulfilled' ? visitorResult.value : null;
+        const counts = res?.counts || {};
+
+        const resident = toCounterNumber(counts.resident_total);
+        const tourist = toCounterNumber(counts.tourist_total);
+        const lodging = toCounterNumber(counts.lodging_total);
+        const visitor = Math.max(
+            toCounterNumber(counts.visitor_total),
+            toCounterNumber(visitorStats?.total)
+        );
+        const total = Math.max(
+            toCounterNumber(res?.survey?.responseCount),
+            resident + tourist + lodging + visitor
+        );
+
+        animateCounter('hero-total', total);
+        animateCounter('hero-resident', resident);
+        animateCounter('hero-tourist', tourist);
+        animateCounter('hero-lodging', lodging);
+        animateCounter('hero-visitor', visitor);
     } catch(err) {
         console.warn('Failed to load real counter data, using fallbacks', err);
         // Fallback or just leave as 0
     }
+}
+
+function toCounterNumber(value) {
+    const num = Number(value);
+    return Number.isFinite(num) && num > 0 ? num : 0;
 }
 
 async function applySurveyCardStatus() {

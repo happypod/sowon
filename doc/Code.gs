@@ -228,7 +228,7 @@ function doGet(e) {
             getRiCharts_(ri),
           ),
         );
-      return json_(getAggData_("admin_summary_v3", runAdminSummary_));
+      return json_(getAggData_("admin_summary_v4", runAdminSummary_));
 
     case "agg_refresh":
       return json_(refreshAllAgg_());
@@ -241,8 +241,8 @@ function doGet(e) {
       const per = String(e.parameter.period || "this_month").toLowerCase();
       const cKey =
         reg === "ALL" && per === "this_month"
-          ? "admin_summary_v3"
-          : `admin_summary_${reg}_${per}_v3`;
+          ? "admin_summary_v4"
+          : `admin_summary_${reg}_${per}_v4`;
       return json_(getAggData_(cKey, () => runAdminSummary_(reg, per)));
     case "kpi_trend_3m":
       return json_(getKpiTrend3m_());
@@ -743,6 +743,9 @@ function clearCaches_() {
     "stats_visitor_v1",
     "stats_combined_v4",
     // New Cache Keys added to ensure invalidation
+    "admin_summary_v4",
+    "admin_summary_ALL_this_month_v4",
+    "admin_summary_ALL_all_v4",
     "admin_summary_v3",
     "admin_summary_ALL_this_month_v3",
     "admin_summary_ALL_all_v3",
@@ -771,6 +774,9 @@ function clearCaches_() {
     "linker_base_summary_의항리_v1",
     // [FIX] getAggData_()는 "agg_" + actionName 키로 ScriptCache에 저장하므로
     // "agg_" prefix 키도 함께 제거해야 실제 캐시 무효화가 됨
+    "agg_admin_summary_v4",
+    "agg_admin_summary_ALL_all_v4",
+    "agg_admin_summary_ALL_this_month_v4",
     "agg_admin_summary_v3",
     "agg_admin_summary_ALL_all_v3",
     "agg_admin_summary_ALL_this_month_v3",
@@ -787,6 +793,9 @@ function clearCaches_() {
     if (aggSheet) {
       const data = aggSheet.getDataRange().getValues();
       const expireKeys = new Set([
+        "admin_summary_v4",
+        "admin_summary_ALL_all_v4",
+        "admin_summary_ALL_this_month_v4",
         "admin_summary_v3",
         "admin_summary_ALL_all_v3",
         "admin_summary_ALL_this_month_v3",
