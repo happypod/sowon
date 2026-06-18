@@ -311,9 +311,16 @@ async function buildCouponImage(phoneLast4, couponCode) {
 
   ctx.save();
   ctx.textAlign = "center";
+
+  ctx.fillStyle = "#0f172a";
+  roundRect(ctx, 210, 1040, 660, 260, 38, true);
+  ctx.fillStyle = "#bae6fd";
+  ctx.font = "700 30px Pretendard, Arial, sans-serif";
+  ctx.fillText("휴대폰 뒷자리", 540, 1134);
+
   ctx.fillStyle = "#ffffff";
-  ctx.font = "900 92px Pretendard, Arial, sans-serif";
-  ctx.fillText(phoneLast4, 540, 1238);
+  ctx.font = "900 88px Arial, sans-serif";
+  drawCenteredTrackingText(ctx, phoneLast4, 540, 1238, 12);
   ctx.fillStyle = "#0f172a";
   ctx.font = "800 34px Pretendard, Arial, sans-serif";
   ctx.fillText(`교환권 코드 ${couponCode}`, 540, 1365);
@@ -323,6 +330,20 @@ async function buildCouponImage(phoneLast4, couponCode) {
   ctx.restore();
 
   return canvas.toDataURL("image/png");
+}
+
+function drawCenteredTrackingText(ctx, text, centerX, y, tracking) {
+  const chars = String(text || "").split("");
+  const widths = chars.map((char) => ctx.measureText(char).width);
+  const totalWidth =
+    widths.reduce((sum, width) => sum + width, 0) +
+    Math.max(0, chars.length - 1) * tracking;
+  let x = centerX - totalWidth / 2;
+
+  chars.forEach((char, index) => {
+    ctx.fillText(char, x + widths[index] / 2, y);
+    x += widths[index] + tracking;
+  });
 }
 
 function loadCouponTemplate() {
