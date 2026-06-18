@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>소원권역 실태조사 대시보드</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ocean: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              900: '#0c4a6e',
+            }
+          },
+          fontFamily: {
+            sans: ['Pretendard', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  
+  <style>
+    body { font-family: 'Pretendard', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .tab-btn {
+      @apply px-4 py-2 text-sm font-medium text-slate-500 hover:text-ocean-600 transition whitespace-nowrap border-b-2 border-transparent;
+    }
+    .tab-btn.active {
+      @apply text-ocean-600 border-ocean-600 font-bold;
+    }
+
+    /* ── REP-GEN-02: Premium Analysis Styles ────────── */
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+      opacity: 0;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── REP-PDF-01: 인쇄 최적화 ───────────────────────── */
+    @media print {
+      /* 탭바·네비게이션·필터헤더·사이드바 숨김 */
+      #app-nav, #dashboard-content > div:first-child,
+      .tab-btn, #rep-filter, .print\:hidden, #rep-loading { display: none !important; }
+
+      /* 페이지 여백 */
+      @page { margin: 15mm 12mm; size: A4; }
+      body { background: #fff !important; }
+
+      /* 보고서 블록 간 페이지 분리 방지 */
+      .print-block {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 20px;
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px;
+        background: white !important;
+      }
+
+      /* 배경 그라데이션 강제 출력 (Header 등) */
+      .bg-gradient-to-r, .bg-ocean-600, .bg-ocean-500 {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      /* 보고서 뷰만 표시 */
+      .view-section { display: none !important; }
+      #view-reports { display: block !important; }
+
+      /* 컬러 배경 인쇄 허용 */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    /* ── MAP-VIS-01: Geographical Map Styles ────────── */
+    .kpi-lv1 { fill: #fecaca !important; background-color: #fecaca !important; } /* Red-200 */
+    .kpi-lv2 { fill: #fed7aa !important; background-color: #fed7aa !important; } /* Amber-200 */
+    .kpi-lv3 { fill: #fef08a !important; background-color: #fef08a !important; } /* Yellow-200 */
+    .kpi-lv4 { fill: #dcfce7 !important; background-color: #dcfce7 !important; } /* Green-200 */
+    .kpi-lv5 { fill: #bbf7d0 !important; background-color: #bbf7d0 !important; } /* Emerald-200 (Strongest) */
+
+    /* Risk indicators for map */
+    .ri-label { letter-spacing: -0.02em; }
+    .poi-dot { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .poi-dot:hover { stroke-width: 2.5px; opacity: 1; filter: brightness(1.1); }
+    
+    #rep-svg-container svg { max-width: 100%; height: auto; max-height: 400px; }
+  </style>
+
+  <!-- Common Assets -->
+  <link rel="stylesheet" href="assets/styles.css">
+  
+  <!-- Fixed Script Order (Ticket R01) -->
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/adminDataService.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/engine.js"></script>
+  <script defer src="assets/js/charts.js"></script>
+  <script defer src="assets/js/example_data.js?v=5"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/tabs/tab_dashboard.js"></script>
+  <script defer src="assets/js/tabs/tab_survey.js?v=11"></script>
+  <script defer src="assets/js/tabs/tab_prog_exec.js?v=3"></script>
+  <script defer src="assets/js/tabs/tab_linker_base.js"></script>
+  <script defer src="assets/js/scenario_engine.js"></script>
+  <script defer src="assets/js/app.js"></script>
+
+  <!-- Chart.js & ECharts -->
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+  <!-- Common Navigation -->
+  <div id="app-nav"></div>
+
+
+
+  <!-- Main Dashboard -->
+  <main id="dashboard-content" class="max-w-7xl mx-auto pt-24 pb-20 px-4">
+      
+      <!-- Top Header -->
+      <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div>
+           <h2 class="text-3xl font-black text-slate-800 tracking-tight">GNB Admin <span class="text-ocean-500">Pro</span></h2>
+           <p class="text-slate-500 text-sm mt-1">데이터 기반 지역 활성화 전략 대시보드</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (New 7-Point IA) -->
+      <div class="grid grid-cols-2 md:flex md:space-x-1 gap-2 md:gap-0 bg-slate-100 p-1 rounded-xl mb-8">
+        <button onclick="APP.admin.showTab('dashboard')" id="tab-dashboard" class="tab-btn active w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-chart-line mr-2"></i>1.전략 대시보드
+        </button>
+        <button onclick="APP.admin.showTab('survey-hub')" id="tab-survey-hub" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-poll mr-2"></i>2.설문·통계
+        </button>
+        <button onclick="APP.admin.showTab('visitor-admin')" id="tab-visitor-admin" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-location-dot mr-2"></i>방문객 설문
+        </button>
+        <button onclick="APP.admin.showTab('local-analysis')" id="tab-local-analysis" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-map-marked-alt mr-2"></i>3.리 단위 분석
+        </button>
+        <button onclick="APP.admin.showTab('prog-exec')" id="tab-prog-exec" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-project-diagram mr-2"></i>4.주민 수요·우선과제 분석
+        </button>
+        <button onclick="APP.admin.showTab('linker-base')" id="tab-linker-base" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-users-cog mr-2"></i>5.참여기반 공동체 분석
+        </button>
+        <button onclick="APP.admin.showTab('routine')" id="tab-routine" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-tasks mr-2"></i>6.운영 루틴
+        </button>
+        <button onclick="APP.admin.showTab('scenario')" id="tab-scenario" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-flask mr-2"></i>7.시나리오 랩
+        </button>
+        <button onclick="APP.admin.showTab('reports')" id="tab-reports" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-file-alt mr-2"></i>8.보고서
+        </button>
+        <button onclick="APP.admin.showTab('data')" id="tab-data" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all col-span-2 md:col-span-1 shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-database mr-2"></i>9.데이터
+        </button>
+        <button onclick="APP.admin.showTab('survey-settings')" id="tab-survey-settings" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all col-span-2 md:col-span-1 shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-toggle-on mr-2"></i>설문 설정
+        </button>
+
+      </div>
+
+    <!-- 1. Strategy Dashboard (Operating Status Board) -->
+    <div id="view-dashboard" class="view-section">
+        <!-- DASH-01: Strategy Filter Header -->
+        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6">
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-filter text-slate-400"></i>
+                    <select id="dash-filter-period" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-ocean-500">
+                        <option value="this_month">이번 달</option>
+                        <option value="3m">최근 3개월</option>
+                        <option value="6m">최근 6개월</option>
+                    </select>
+                </div>
+                <select id="dash-filter-scope" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-ocean-500">
+                    <option value="ALL">전체 (소원권역)</option>
+                    <option value="모항리">모항리</option>
+                    <option value="의항리">의항리</option>
+                </select>
+                <!-- Admin Only -->
+                <select id="dash-filter-source" class="hidden bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-1.5 text-sm font-bold text-indigo-700 outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="raw">원본 데이터</option>
+                    <option value="norm">정규화 (NORM) 적용</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-4 text-xs w-full xl:w-auto justify-end">
+                <div class="text-right border-r border-slate-200 pr-4">
+                    <div class="text-slate-500 font-bold mb-0.5">수집 표본: <span id="dash-sample-n" class="text-ocean-600 font-black text-sm">0</span>명</div>
+                    <div class="text-slate-400 text-[10px]">최근 동기화: <span id="dash-last-updated">-</span></div>
+                </div>
+                <button id="btn-dash-pdf" class="px-3 py-1.5 bg-slate-800 text-white rounded-lg font-bold hover:bg-slate-700 transition flex items-center gap-1.5 whitespace-nowrap shadow-sm">
+                    <i class="fas fa-file-pdf"></i> PDF 요약
+                </button>
+            </div>
+        </div>
+
+        <!-- Top: Core Metrics (RTRI, SII, LSI, CGS, PTS, SUS) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+            <!-- RTRI -->
+            <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm cursor-pointer transition hover:shadow-md hover:border-ocean-300 group flex flex-col justify-between h-32" onclick="APP.admin.showCoreDetails('RTRI')">
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-[12px] font-bold text-slate-500 group-hover:text-ocean-600 transition">RTRI (전환)</p>
+                    <span id="dash-tag-rtri" class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-slate-100 text-slate-400">-</span>
+                </div>
+                <div class="flex items-end gap-2 mb-2">
+                    <h3 class="text-2xl font-black text-slate-800" id="dash-rtri">-</h3>
+                    <span id="dash-delta-rtri" class="text-xs font-bold mb-1">-</span>
+                </div>
+                <div class="text-[10px] text-slate-400 border-t border-slate-50 pt-2 mt-auto" id="dash-meta-rtri">표본 대기중</div>
+            </div>
+            <!-- SII -->
+            <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm cursor-pointer transition hover:shadow-md hover:border-orange-300 group flex flex-col justify-between h-32" onclick="APP.admin.showCoreDetails('SII')">
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-[12px] font-bold text-slate-500 group-hover:text-orange-600 transition">SII (불균형)</p>
+                    <span id="dash-tag-sii" class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-slate-100 text-slate-400">-</span>
+                </div>
+                <div class="flex items-end gap-2 mb-2">
+                    <h3 class="text-2xl font-black text-slate-800" id="dash-sii">-</h3>
+                    <span id="dash-delta-sii" class="text-xs font-bold mb-1">-</span>
+                </div>
+                <div class="text-[10px] text-slate-400 border-t border-slate-50 pt-2 mt-auto" id="dash-meta-sii">표본 대기중</div>
+            </div>
+            <!-- LSI -->
+            <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm cursor-pointer transition hover:shadow-md hover:border-emerald-300 group flex flex-col justify-between h-32" onclick="APP.admin.showCoreDetails('LSI')">
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-[12px] font-bold text-slate-500 group-hover:text-emerald-600 transition">LSI (생활)</p>
+                    <span id="dash-tag-lsi" class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-slate-100 text-slate-400">-</span>
+                </div>
+                <div class="flex items-end gap-2 mb-2">
+                    <h3 class="text-2xl font-black text-slate-800" id="dash-lsi">-</h3>
+                    <span id="dash-delta-lsi" class="text-xs font-bold mb-1">-</span>
+                </div>
+                <div class="text-[10px] text-slate-400 border-t border-slate-50 pt-2 mt-auto" id="dash-meta-lsi">표본 대기중</div>
+            </div>
+            <!-- CGS -->
+            <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm cursor-pointer transition hover:shadow-md hover:border-blue-300 group flex flex-col justify-between h-32" onclick="APP.admin.showCoreDetails('CGS')">
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-[12px] font-bold text-slate-500 group-hover:text-blue-600 transition">CGS (거버넌스)</p>
+                    <span id="dash-tag-cgs" class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-slate-100 text-slate-400">-</span>
+                </div>
+                <div class="flex items-end gap-2 mb-2">
+                    <h3 class="text-2xl font-black text-slate-800" id="dash-cgs">-</h3>
+                    <span id="dash-delta-cgs" class="text-xs font-bold mb-1">-</span>
+                </div>
+                <div class="text-[10px] text-slate-400 border-t border-slate-50 pt-2 mt-auto" id="dash-meta-cgs">표본 대기중</div>
+            </div>
+            <!-- PTS -->
+            <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm cursor-pointer transition hover:shadow-md hover:border-violet-300 group flex flex-col justify-between h-32" onclick="APP.admin.showCoreDetails('PTS')">
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-[12px] font-bold text-slate-500 group-hover:text-violet-600 transition">PTS (전계)</p>
+                    <span id="dash-tag-pts" class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-slate-100 text-slate-400">-</span>
+                </div>
+                <div class="flex items-end gap-2 mb-2">
+                    <h3 class="text-2xl font-black text-slate-800" id="dash-pts">-</h3>
+                    <span id="dash-delta-pts" class="text-xs font-bold mb-1">-</span>
+                </div>
+                <div class="text-[10px] text-slate-400 border-t border-slate-50 pt-2 mt-auto" id="dash-meta-pts">표본 대기중</div>
+            </div>
+            <!-- SUS -->
+            <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm cursor-pointer transition hover:shadow-md hover:border-teal-300 group flex flex-col justify-between h-32" onclick="APP.admin.showCoreDetails('SUS')">
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-[12px] font-bold text-slate-500 group-hover:text-teal-600 transition">SUS (지속가능)</p>
+                    <span id="dash-tag-sus" class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-slate-100 text-slate-400">-</span>
+                </div>
+                <div class="flex items-end gap-2 mb-2">
+                    <h3 class="text-2xl font-black text-slate-800" id="dash-sus">-</h3>
+                    <span id="dash-delta-sus" class="text-xs font-bold mb-1">-</span>
+                </div>
+                <div class="text-[10px] text-slate-400 border-t border-slate-50 pt-2 mt-auto" id="dash-meta-sus">표본 대기중</div>
+            </div>
+        </div>
+
+        <!-- Middle & Bottom Sections (Placeholder) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-100 shadow-sm h-80">
+                <h4 class="font-bold text-slate-700 mb-4">최근 3개월 지표 추이</h4>
+                <div id="chart-trend" class="w-full h-64 flex items-center justify-center text-slate-300">Chart Area</div>
+            </div>
+            <!-- DASH-03: Risk Assessment & Signal Lights -->
+            <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex flex-col h-80">
+                <h4 class="font-bold text-slate-800 mb-4 flex items-center justify-between">
+                    <span class="flex items-center gap-2"><i class="fas fa-traffic-light text-rose-500"></i>리스크 진단</span>
+                    <button class="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded hover:bg-slate-200 transition font-bold" onclick="APP.admin.showTab('data')">데이터 검증</button>
+                </h4>
+                
+                <!-- Data Quality Integrity Banner -->
+                <div id="dash-integrity-banner" class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs p-2.5 rounded-lg flex items-start gap-2 transition-all">
+                    <i class="fas fa-check-circle mt-0.5" id="dash-integrity-icon"></i>
+                    <div>
+                        <strong class="block mb-0.5" id="dash-integrity-title">데이터 품질: 양호</strong>
+                        <span class="text-[10px] opacity-80" id="dash-integrity-desc">결측치 및 이상치가 발견되지 않았습니다.</span>
+                    </div>
+                </div>
+
+                <!-- Signal Lights (Rules based logic) -->
+                <div class="flex-1 overflow-y-auto pr-1 space-y-2.5 custom-scrollbar" id="dash-risk-signals">
+                    <div class="text-center text-slate-400 text-sm mt-10">진단 데이터 로딩 중...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASH-04: Operations Routine Summary -->
+        <div class="bg-slate-800 rounded-xl p-5 mb-6 text-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg shadow-slate-200">
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+                <div class="bg-slate-700/50 p-3 rounded-lg flex-shrink-0 hidden md:block">
+                    <i class="fas fa-clipboard-check text-2xl text-ocean-400"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm mb-1 text-slate-200">이번 달 운영 루틴 이행률</h4>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-3xl font-black text-white" id="dash-routine-rate">-</span>
+                        <span class="text-xs text-slate-400" id="dash-routine-stat">불러오는 중...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-1 w-full bg-slate-900/50 rounded-lg p-3 border border-slate-700">
+                <p class="text-[10px] text-slate-400 font-bold mb-1.5 uppercase tracking-wider">긴급 조치 요망 (미이행 우선순위)</p>
+                <div class="flex flex-col gap-1.5" id="dash-routine-missed">
+                    <span class="text-xs text-slate-500">데이터 연동 중입니다...</span>
+                </div>
+            </div>
+            <div class="flex-shrink-0 w-full md:w-auto text-right">
+                <button onclick="APP.admin.showTab('routine')" class="w-full md:w-auto px-4 py-2 bg-ocean-500 hover:bg-ocean-600 text-white text-sm font-bold rounded-lg transition shadow">
+                    실행 관리 이동 <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- DASH-05~07: Decision & Priorities (3-Column Layout) -->
+        <h3 class="font-black text-slate-800 text-lg mb-4 mt-8 flex items-center gap-2">
+            <i class="fas fa-bullseye text-ocean-600"></i>의사결정 및 우선순위 제안
+        </h3>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- DASH-06: Choropleth Mini Map -->
+            <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex flex-col h-80">
+                <h4 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                    <i class="fas fa-map-marked-alt text-slate-400"></i>권역별 현황 요약
+                </h4>
+                <div class="flex-1 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center relative overflow-hidden" id="dash-mini-map">
+                    <span class="text-xs text-slate-400">지도 데이터 로딩 중...</span>
+                </div>
+            </div>
+
+            <!-- DASH-07: 2x2 Priority Matrix -->
+            <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex flex-col h-80">
+                <h4 class="font-bold text-slate-700 mb-3 flex items-center gap-2 tooltip-wrap">
+                    <i class="fas fa-th-large text-indigo-400"></i>가치-실행 매트릭스
+                    <i class="fas fa-question-circle text-slate-300 text-xs cursor-help"></i>
+                </h4>
+                <div class="flex-1 relative border border-slate-200 bg-slate-50 rounded overflow-hidden" id="dash-priority-matrix">
+                    <div class="absolute inset-0 grid grid-cols-2 grid-rows-2">
+                        <div class="border-b border-r border-slate-200/50 bg-amber-50/30 p-2 text-[10px] text-slate-400 font-bold">결단/설득 요망</div>
+                        <div class="border-b border-slate-200/50 bg-rose-50/30 p-2 text-[10px] text-slate-400 font-bold text-right">긴급 위험 대응</div>
+                        <div class="border-r border-slate-200/50 bg-slate-50/30 p-2 text-[10px] text-slate-400 font-bold flex items-end">장기 프로젝트</div>
+                        <div class="bg-emerald-50/30 p-2 text-[10px] text-slate-400 font-bold flex items-end justify-end">빠른 성과(Quick Win)</div>
+                    </div>
+                </div>
+                <div class="flex justify-between px-2 mt-2 text-[10px] text-slate-400 font-bold">
+                    <span>심각도 (Risk)</span>
+                    <span>실행가능성 (Feasibility)</span>
+                </div>
+            </div>
+
+            <!-- DASH-05: Scenario Presets -->
+            <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex flex-col h-80">
+                <h4 class="font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <i class="fas fa-magic text-purple-400"></i>시나리오 추천 프리셋
+                </h4>
+                <p class="text-[10px] text-slate-500 mb-3 leading-tight">지표 트렌드와 리스크를 기반으로 시스템이 제안하는 정책 패키지입니다.</p>
+                <div class="flex-1 space-y-2 overflow-y-auto pr-1 custom-scrollbar" id="dash-scenario-presets">
+                    <!-- Static Presets for Phase 9 -->
+                    <div class="p-3 bg-slate-50 border border-slate-100 rounded-lg cursor-pointer hover:border-purple-300 hover:bg-purple-50 transition" onclick="APP.admin.showTab('scenario')">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-xs font-bold text-slate-700">인센티브 강화 + 객실 보장</span>
+                            <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1 rounded font-bold">RTRI +5.2 예상</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500 line-clamp-2">전환 객실당 월 20만원 지원 및 6개월 우선보장 제도를 도입합니다.</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 border border-slate-100 rounded-lg cursor-pointer hover:border-purple-300 hover:bg-purple-50 transition" onclick="APP.admin.showTab('scenario')">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-xs font-bold text-slate-700">주민 소셜 다이닝 운영</span>
+                            <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1 rounded font-bold">CGS +8.0 예상</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500 line-clamp-2">마을회관 공간을 거점화하여 주 1회 관계인구 교류 행사를 지원합니다.</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 border border-slate-100 rounded-lg cursor-pointer hover:border-purple-300 hover:bg-purple-50 transition" onclick="APP.admin.showTab('scenario')">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-xs font-bold text-slate-700">비수기 B2B 워케이션</span>
+                            <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1 rounded font-bold">SUS +6.5 예상</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500 line-clamp-2">기업 대상 공유오피스+숙박권 통합 연계를 통해 주중 공실을 방어합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 2. Survey & Stats Hub -->
+    <div id="view-survey-hub" class="view-section hidden">
+        <div class="p-10 text-center text-slate-400">
+            <h2 class="text-2xl font-bold mb-2">설문 · 통계 분석 허브</h2>
+            <p>생활서비스, 주민역량, 관계인구 전환 의향 분석 차트가 이곳에 위치합니다.</p>
+        </div>
+    </div>
+    
+    <!-- 3. Local Analysis -->
+    <div id="view-local-analysis" class="view-section hidden">
+        <div class="p-10 text-center text-slate-400">
+            <h2 class="text-2xl font-bold mb-2">리 단위 분석 모듈</h2>
+            <p>의항리, 모항리, 만리포, 천리포 등 리별 데이터 편차 및 집중 관리 지역.</p>
+        </div>
+    </div>
+
+    <!-- 4. Operation Routine -->
+    <div id="view-routine" class="view-section hidden">
+        <div class="space-y-6">
+            <!-- Month Selection Bar (Ticket OPS-U1) -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <select id="routine-year-select" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-ocean-500" onchange="APP.opsRoutine.changeYear(this.value)">
+                        <option value="2026" selected>2026년</option>
+                        <option value="2027">2027년</option>
+                    </select>
+                    <div class="flex bg-slate-100 p-1 rounded-lg no-scrollbar overflow-x-auto max-w-[calc(100vw-100px)] md:max-w-none">
+                        <div id="routine-month-tabs" class="flex gap-1">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="routine-last-saved" class="text-[10px] text-slate-400 font-medium whitespace-nowrap"></span>
+                    <!-- [A] Lock/Unlock buttons -->
+                    <button id="ops-lock-btn" onclick="APP.opsRoutine.lockMonth()" title="이 달 마감" class="text-xs border border-amber-300 text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg font-bold hover:bg-amber-100 transition flex items-center gap-1">
+                        <i class="fas fa-lock"></i><span class="hidden md:inline">마감</span>
+                    </button>
+                    <button id="ops-unlock-btn" onclick="APP.opsRoutine.unlockMonth()" title="마감 해제" style="display:none" class="text-xs border border-red-300 text-red-600 bg-red-50 px-3 py-1.5 rounded-lg font-bold hover:bg-red-100 transition flex items-center gap-1">
+                        <i class="fas fa-unlock"></i><span class="hidden md:inline">해제</span>
+                    </button>
+                    <button id="ops-save-btn" onclick="APP.opsRoutine.save();" class="bg-ocean-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-ocean-700 transition shadow-sm flex items-center gap-2">
+                        <i class="fas fa-save"></i>
+                        <span class="hidden md:inline">저장</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Block A: Top KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                    <div class="absolute right-0 top-0 p-4 opacity-5"><i class="fas fa-check-circle text-6xl"></i></div>
+                    <h5 class="text-xs font-bold text-slate-500 uppercase mb-2">이번 달 루틴 이행률</h5>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-3xl font-black text-slate-800" id="routine-progress-pct">0</span>
+                        <span class="text-xl font-bold text-slate-400">%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+                        <div id="routine-progress-bar" class="bg-ocean-500 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <!-- [F] Section completion bars -->
+                    <div id="routine-section-bars" class="mt-3 space-y-1.5"></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm col-span-1 md:col-span-2 relative overflow-hidden">
+                    <h5 class="text-xs font-bold text-slate-500 uppercase mb-3">핵심 미완료 TOP 3</h5>
+                    <div id="routine-top-incomplete" class="space-y-2">
+                        <p class="text-sm text-slate-400 italic">완료되지 않은 중요 항목이 이곳에 표시됩니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Block B: Monthly Checklist (Left/Middle) -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden" id="routine-checklist-container">
+                        <!-- Sections (Data, Governance, Pilot, Sustainability) injected here -->
+                        <div class="p-10 text-center text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>루틴 항목을 로드하는 중...</div>
+                    </div>
+                    
+                    <!-- Block D: Issue/Risk Log -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <h4 class="font-black text-slate-800 flex items-center gap-2">
+                                <i class="fas fa-exclamation-triangle text-amber-500"></i>이슈 · 리스크 로그
+                            </h4>
+                            <button onclick="APP.opsRoutine.addIssue()" class="text-xs bg-slate-800 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-slate-700 transition">
+                                <i class="fas fa-plus mr-1"></i>이슈 추가
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-slate-400 uppercase border-b border-slate-50">
+                                    <tr>
+                                        <th class="pb-3 font-bold">이슈명</th>
+                                        <th class="pb-3 font-bold w-24">등급</th>
+                                        <th class="pb-3 font-bold w-24">상태</th>
+                                        <th class="pb-3 font-bold w-10"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="routine-issue-list" class="divide-y divide-slate-50">
+                                    <!-- Injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- [B] Audit Log -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <h4 class="font-black text-slate-800 flex items-center gap-2 mb-4">
+                            <i class="fas fa-history text-slate-400"></i>변경 이력
+                        </h4>
+                        <div id="routine-audit-log" class="max-h-48 overflow-y-auto">
+                            <p class="text-xs text-slate-400 py-2">이력 로드 중...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar: Block C & E -->
+                <div class="space-y-6">
+                    <!-- Block F: 12-Month Trend Chart (Ticket OPS-TOOL-03) -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <h4 class="font-black text-slate-800 mb-4 text-sm flex items-center gap-2">
+                            <i class="fas fa-chart-line text-ocean-500"></i>루틴 이행률 추이
+                        </h4>
+                        <div class="h-40 w-full" id="routine-trend-chart-container">
+                            <canvas id="routine-trend-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Block C: KPI Connection Map -->
+                    <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl relative overflow-hidden">
+                        <div class="absolute right-0 top-0 p-4 opacity-10"><i class="fas fa-project-diagram text-6xl"></i></div>
+                        <h4 class="font-bold text-slate-300 mb-6 text-sm flex items-center gap-2">
+                            <i class="fas fa-link text-ocean-400"></i>KPI 연결 맵
+                        </h4>
+                        <div id="routine-kpi-map" class="space-y-5">
+                            <!-- Injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Block E: Quarterly Roadmap -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-t-4 border-t-ocean-600">
+                        <h4 class="font-black text-slate-800 mb-6 flex items-center gap-2">
+                            <i class="fas fa-map-signs text-ocean-600"></i>분기 로드맵 (2026)
+                        </h4>
+                        <div class="space-y-4 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                            <div class="relative pl-7">
+                                <span class="absolute left-0 top-1 w-4 h-4 rounded-full bg-ocean-600 border-4 border-white shadow-sm"></span>
+                                <h5 class="font-bold text-slate-700 text-sm">Q1: 기반 구축 및 실태 조사</h5>
+                                <p class="text-xs text-slate-400 mt-1">GNB 대시보드 구축 및 데이터 거버넌스 수립</p>
+                            </div>
+                            <div class="relative pl-7 opacity-50">
+                                <span class="absolute left-0 top-1 w-4 h-4 rounded-full bg-slate-300 border-4 border-white shadow-sm"></span>
+                                <h5 class="font-bold text-slate-700 text-sm">Q2: 파일럿 실험 및 고도화</h5>
+                                <p class="text-xs text-slate-400 mt-1">유휴공간 링커 매칭 및 체험 프로그램 실행</p>
+                            </div>
+                            <div class="relative pl-7 opacity-50">
+                                <span class="absolute left-0 top-1 w-4 h-4 rounded-full bg-slate-300 border-4 border-white shadow-sm"></span>
+                                <h5 class="font-bold text-slate-700 text-sm">Q3: 민관 협력 모델 확장</h5>
+                                <p class="text-xs text-slate-400 mt-1">외부 재원 유치 및 파트너 관계 확장</p>
+                            </div>
+                            <div class="relative pl-7 opacity-50">
+                                <span class="absolute left-0 top-1 w-4 h-4 rounded-full bg-slate-200 border-4 border-white shadow-sm"></span>
+                                <h5 class="font-bold text-slate-700 text-sm">Q4: 성과 확산 및 차기 설계</h5>
+                                <p class="text-xs text-slate-400 mt-1">연간 성과 보고 및 시나리오 2.0 수립</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Scenario Lab is below (view-scenario) -->
+
+    <!-- 5. Scenario Lab Tab (Policy Insight Engine) -->
+    <!-- 5. Scenario Lab (Policy Insight Engine) -->
+    <div id="view-scenario" class="view-section hidden">
+        <div class="p-10 text-center text-slate-400">
+            <h2 class="text-2xl font-bold mb-2">시나리오 랩</h2>
+            <p>KPI 변화 시뮬레이션 및 AI 정책 추천.</p>
+        </div>
+    </div>
+
+    <!-- 6. Reports -->
+    <div id="view-reports" class="view-section hidden">
+        <div class="p-10 text-center text-slate-400">
+            <h2 class="text-2xl font-bold mb-2">보고서 및 문서 자동 생성</h2>
+            <p>월간, 분기별 보고서 생성 도구.</p>
+        </div>
+    </div>
+
+    <!-- 7. Data -->
+    <div id="view-data" class="view-section hidden min-h-[500px]">
+        <div class="p-10 text-center">
+            <h2 class="text-2xl font-bold mb-4 text-slate-700">데이터 관리</h2>
+            <p class="text-slate-500 mb-8">설문 데이터 동기화 및 시스템 설정.</p>
+            
+            <button onclick="APP.admin.syncData()" class="px-6 py-3 bg-ocean-600 text-white font-bold rounded-xl shadow-lg hover:bg-ocean-700 transition transform hover:scale-105">
+                <i class="fas fa-sync-alt mr-2"></i>실측 데이터 연동 및 KPI 업데이트
+            </button>
+        </div>
+    </div>
+
+    <!-- Visitor Survey Admin -->
+    <div id="view-visitor-admin" class="view-section hidden min-h-[500px]">
+        <div class="p-10 text-center text-slate-400">
+            <h2 class="text-2xl font-bold mb-2">방문객 설문 관리</h2>
+            <p>방문객 설문 통계, 차트, 응답 표를 불러오는 중입니다.</p>
+        </div>
+    </div>
+
+    <!-- Survey Settings -->
+    <div id="view-survey-settings" class="view-section hidden min-h-[500px]">
+        <div class="p-10 text-center text-slate-400">
+            <h2 class="text-2xl font-bold mb-2">설문 접수 설정</h2>
+            <p>설문별 접수 상태를 불러오는 중입니다.</p>
+        </div>
+    </div>
+
+  <!-- Tab 8.1 View Container -->
+  <div id="view-prog-exec" class="view-section hidden pt-4 pb-20 px-4">
+      <div id="prog-exec-content"></div>
+  </div>
+
+  <!-- Tab 8.2 View Container -->
+  <div id="view-linker-base" class="view-section hidden pt-4 pb-20 px-4">
+      <div id="linker-base-content"></div>
+  </div>
+
+  </main>
+  
+  <!-- Common Footer -->
+  <div id="app-footer"></div>
+
+  <script>
+      // Tab switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+
+        // On Load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Init Common UI
+            UI.init('admin');
+
+            // AUTH-08: Force redirect to login if not authed
+            if (!APP.auth.role) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Sync content visibility and Load Data
+            document.getElementById('dashboard-content').classList.remove('opacity-20');
+            // DBG-07: Auto-init dashboard since we are authed
+            if (APP.admin && typeof APP.admin.init === 'function') {
+                APP.admin.init();
+            }
+        });
+  </script>
+
+  <!-- Core Index Details Modal -->
+  <div id="core-modal" class="fixed inset-0 bg-slate-900/50 hidden z-[200] flex items-center justify-center backdrop-blur-sm" onclick="if(event.target===this) this.classList.add('hidden')">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-[fadeIn_0.2s_ease-out]">
+          <div class="bg-slate-800 p-6 flex justify-between items-center">
+              <div>
+                  <h3 class="text-xl font-bold text-white">종합 전환 타당성 (Core Index)</h3>
+                  <p class="text-slate-400 text-sm">데이터 기반 의사결정 알고리즘</p>
+              </div>
+              <button onclick="document.getElementById('core-modal').classList.add('hidden')" class="text-slate-400 hover:text-white transition">
+                  <i class="fas fa-times text-xl"></i>
+              </button>
+          </div>
+          <div class="p-6 overflow-y-auto max-h-[80vh]">
+              <div class="mb-6 text-center">
+                  <span class="text-4xl font-black text-slate-800" id="modal-core-score">-</span>
+              </div>
+              
+              <div class="space-y-4 text-sm">
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                      <div>
+                          <span class="font-bold text-slate-700">1. 전환 가능 객실 확보</span>
+                          <span class="text-xs text-slate-400 block">전체 객실 대비 전환 가능 객실 비율</span>
+                      </div>
+                      <div class="text-right">
+                          <span class="font-bold text-ocean-600" id="modal-core-potential">-</span>
+                          <span class="text-xs text-slate-400 block">가중치 30%</span>
+                      </div>
+                  </div>
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                      <div>
+                          <span class="font-bold text-slate-700">2. 숙박업주 참여 의지</span>
+                          <span class="text-xs text-slate-400 block">전환 의향 및 월 단위 계약 가능성</span>
+                      </div>
+                      <div class="text-right">
+                          <span class="font-bold text-ocean-600" id="modal-core-intent">-</span>
+                          <span class="text-xs text-slate-400 block">가중치 20%</span>
+                      </div>
+                  </div>
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                      <div>
+                          <span class="font-bold text-slate-700">3. 주민 수용성</span>
+                          <span class="text-xs text-slate-400 block">이용 긍정 및 시설 공유 의향</span>
+                      </div>
+                      <div class="text-right">
+                          <span class="font-bold text-ocean-600" id="modal-core-acceptance">-</span>
+                          <span class="text-xs text-slate-400 block">가중치 20%</span>
+                      </div>
+                  </div>
+                  <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                      <div>
+                          <span class="font-bold text-slate-700">4. 장기체류 시장 수요</span>
+                          <span class="text-xs text-slate-400 block">일주일/한달 살기 의향</span>
+                      </div>
+                      <div class="text-right">
+                          <span class="font-bold text-ocean-600" id="modal-core-demand">-</span>
+                          <span class="text-xs text-slate-400 block">가중치 20%</span>
+                      </div>
+                  </div>
+                  <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-100">
+                      <div>
+                          <span class="font-bold text-red-700">5. 제약 요인 (감점)</span>
+                          <span class="text-xs text-red-400 block">가장 큰 불편 요인 강도</span>
+                      </div>
+                      <div class="text-right">
+                          <span class="font-bold text-red-600" id="modal-core-barrier">-</span>
+                          <span class="text-xs text-red-400 block">가중치 -10%</span>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="mt-6 pt-4 border-t border-slate-100">
+                  <h4 class="font-bold text-slate-800 mb-2 text-xs uppercase">💡 점수 향상 전략</h4>
+                  <p class="text-xs text-slate-500 leading-relaxed">
+                      가장 가중치가 높은 <strong>'전환 가능 객실(30%)'</strong>을 확보하고, 
+                      <strong>'숙박업주를 설득(20%)'</strong>하는 것이 효과적입니다. 
+                      동시에 가장 큰 불편 요인을 해결하여 감점 요인을 제거하세요.
+                  </p>
+              </div>
+          </div>
+      </div>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 로그인 | 소원권역 실태조사</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ocean: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              900: '#0c4a6e',
+            }
+          },
+          fontFamily: {
+            sans: ['Pretendard', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  
+  <style>
+    body { font-family: 'Pretendard', sans-serif; }
+    .animate-float {
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+  </style>
+
+  <!-- Common Assets -->
+  <link rel="stylesheet" href="assets/styles.css">
+  
+  <!-- Core Scripts -->
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/adminDataService.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/app.js"></script>
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4 overflow-hidden relative">
+
+  <!-- Abstract Background Elements -->
+  <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-ocean-600/20 rounded-full blur-[120px] animate-float"></div>
+  <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-ocean-900/40 rounded-full blur-[120px] animate-float" style="animation-delay: -3s;"></div>
+
+  <!-- Login Card -->
+  <div class="bg-white/95 backdrop-blur-md p-10 rounded-[2.5rem] shadow-2xl w-full max-w-lg z-10 border border-white/20 animate-[fadeIn_0.5s_ease-out]">
+    
+    <div class="text-center mb-10">
+      <div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-ocean-600 text-white text-2xl mb-6 shadow-lg shadow-ocean-600/20">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <h1 class="text-3xl font-black text-slate-800 tracking-tight mb-2">관리자 인증</h1>
+      <p class="text-slate-500 font-medium">소원권역 실태조사 대시보드 접근을 위해<br>비밀번호를 입력해주세요.</p>
+    </div>
+
+    <form onsubmit="handleLoginSubmit(event)" class="space-y-6">
+      <div class="space-y-2">
+        <label class="block text-sm font-bold text-slate-700 ml-1">AccessToken / Password</label>
+        <div class="relative group">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-ocean-500 transition">
+            <i class="fas fa-lock"></i>
+          </span>
+          <input type="password" id="login-pw" required
+            class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-ocean-500/10 focus:border-ocean-500 outline-none transition-all font-mono"
+            placeholder="••••••••">
+        </div>
+      </div>
+
+      <div id="login-error" class="hidden p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm font-medium animate-[shake_0.4s_ease-in-out]">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="error-msg">비밀번호가 올바르지 않습니다.</span>
+      </div>
+
+      <button type="submit" id="submit-btn" 
+        class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-slate-800 active:scale-[0.98] transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 group">
+        <span>관리자 접속</span>
+        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+      </button>
+    </form>
+
+    <div class="mt-10 pt-8 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+      <p>© 2026 Sowon Area Anchor Center</p>
+      <a href="index.html" class="hover:text-ocean-600 transition font-bold flex items-center gap-1">
+        <i class="fas fa-home"></i> 메인으로
+      </a>
+    </div>
+  </div>
+
+  <script>
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const pwInput = document.getElementById('login-pw');
+      const btn = document.getElementById('submit-btn');
+      const errorDiv = document.getElementById('login-error');
+      const errorMsg = document.getElementById('error-msg');
+      
+      const pw = pwInput.value.trim();
+      if(!pw) return;
+
+      // Lock UI
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 인증 중...`;
+      errorDiv.classList.add('hidden');
+
+      try {
+        if (!window.APP || !APP.auth || !APP.auth.login) {
+            throw new Error('시스템 초기화 중입니다. 잠시 후 상도 시도해주세요.');
+        }
+
+        const success = await APP.auth.login(pw);
+        
+        if (success) {
+            // Success handles redirection or we can do it here if needed
+            // But APP.auth.login already does full init if on dashboard,
+            // we will update it to redirect if on login.html
+        } else {
+            errorDiv.classList.remove('hidden');
+            pwInput.value = '';
+            pwInput.focus();
+        }
+      } catch (err) {
+        errorDiv.classList.remove('hidden');
+        errorMsg.innerText = err.message || '인증 과정에서 오류가 발생했습니다.';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>관리자 접속</span> <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>`;
+      }
+    }
+
+    // [ shake animation ]
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+
+  <!-- Common Footer will be injected by UI.init if called, but this is a bare page -->
+  <!-- We call it mostly for branding if needed, but keeping it clean -->
+</body>
+</html>

@@ -1,0 +1,641 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>만리포·천리포 숙박 운영 실태 및 공실 구조 조사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Common Assets -->
+    <link rel="stylesheet" href="assets/styles.css">
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/core.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/app.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Pretendard', 'sans-serif'] },
+                    colors: {
+                        ocean: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 800: '#075985', 900: '#0c4a6e' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Standard Navigation -->
+    <div id="app-nav"></div>
+
+    <main class="container mx-auto px-4 pt-28 pb-20 max-w-5xl">
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-black text-slate-900 mb-4">숙박 운영 실태 및 비수기 공실 구조 조사</h1>
+            <p class="text-lg text-slate-600">
+                만리포·천리포 권역 숙박업소 운영 현황을 바탕으로 <b>성수기·비수기 불균형</b>과 <b>장기체류 전환 가능성</b>을 파악하기 위한 조사입니다.<br>
+                응답 내용은 통계 목적으로만 사용되며, 개인·업소 식별 정보는 내부 관리 목적 외 공개하지 않습니다.
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Survey Form -->
+            <div class="lg:col-span-2 bg-white p-8 rounded-2xl shadow-lg border border-gray-100 h-fit">
+                <div class="mb-6 pb-4 border-b border-gray-100">
+                    <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-edit text-ocean-500"></i> 설문 작성하기 (숙박관계자)</h2>
+                    <p class="text-sm text-gray-500 mt-1">소요시간 약 10분</p>
+                </div>
+
+                <form id="surveyForm" onsubmit="event.preventDefault(); submitForm();">
+
+                    <!-- A. Target & Basic -->
+                    <div class="survey-section">
+                        <h3 class="section-header">A. 기본 정보 (필수)</h3>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q1. 업소가 위치한 마을은 어디인가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="의항리"> 의항리</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="모항리"> 모항리</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="기타"> 기타</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q2. 업소 유형은 무엇인가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">   
+                                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="펜션"> 펜션</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="민박"> 민박</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="모텔"> 모텔</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="호텔"> 호텔</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="게스트하우스"> 게스트하우스</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="기타"> 기타</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q3. 객실 수(실제 판매 객실 기준)는 몇 실인가요?</span>
+                            <input type="number" min="0" name="entry.Q3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500" placeholder="예: 12" required>
+                            <p class="text-xs text-gray-500 mt-2">※ 숫자만 입력</p>
+                        </div>
+                    </div>
+
+                    <!-- B. Occupancy -->
+                    <div class="survey-section">
+                        <h3 class="section-header">B. 가동률(점유율) 현황</h3>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q4. 연중 평균 가동률(점유율)은 어느 정도인가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="0~19%"> 0~19%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="20~39%"> 20~39%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="40~59%"> 40~59%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="60~79%"> 60~79%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="80~100%"> 80~100%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="확실하지 않음"> 확실하지 않음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q5. 성수기 평균 가동률(여름·연휴 포함)은 어느 정도인가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">    
+                                <label class="option-label break-words"><input type="radio" name="entry.Q5" value="0~19%"> 0~19%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q5" value="20~39%"> 20~39%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q5" value="40~59%"> 40~59%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q5" value="60~79%"> 60~79%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q5" value="80~100%"> 80~100%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q5" value="확실하지 않음"> 확실하지 않음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q6. 비수기 평균 가동률(겨울·평일 중심)은 어느 정도인가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="0~19%"> 0~19%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="20~39%"> 20~39%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="40~59%"> 40~59%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="60~79%"> 60~79%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="80~100%"> 80~100%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="확실하지 않음"> 확실하지 않음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q7. 연간 공실이 집중되는 기간(개월 수)은 어느 정도인가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q7" value="0개월"> 0개월</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q7" value="1~2개월"> 1~2개월</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q7" value="3~4개월"> 3~4개월</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q7" value="5~6개월"> 5~6개월</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q7" value="7~9개월"> 7~9개월</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q7" value="10~12개월"> 10~12개월</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q7" value="확실하지 않음"> 확실하지 않음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q8. 공실이 가장 큰 시기(복수 선택)</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q8" value="1~3월"> 1~3월</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q8" value="4~6월"> 4~6월</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q8" value="7~8월"> 7~8월</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q8" value="9~10월"> 9~10월</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q8" value="11~12월"> 11~12월</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- C. Operation -->
+                    <div class="survey-section">
+                        <h3 class="section-header">C. 운영 구조</h3>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q9. 주 고객 유형(1순위)은 무엇인가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="관광객(단기)"> 관광객(단기)</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="장기체류(1주+)"> 장기체류(1주+)</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="워케이션"> 워케이션</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="단체/행사"> 단체/행사</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="기타"> 기타</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q10. 성수기 매출 비중(연 매출 중)은 어느 정도인가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="0~29%"> 0~29%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="30~49%"> 30~49%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="50~69%"> 50~69%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="70~89%"> 70~89%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="90~100%"> 90~100%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="확실하지 않음"> 확실하지 않음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q11. 비수기 매출 감소율(성수기 대비)은 어느 정도인가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="0~19% 감소"> 0~19% 감소</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="20~39% 감소"> 20~39% 감소</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="40~59% 감소"> 40~59% 감소</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="60~79% 감소"> 60~79% 감소</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="80% 이상 감소"> 80% 이상 감소</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="확실하지 않음"> 확실하지 않음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q12. 비수기 운영 방식은 어떤가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q12" value="정상 운영"> 정상 운영</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q12" value="일부 객실만 운영"> 일부 객실만 운영</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q12" value="주중 휴무"> 주중 휴무</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q12" value="시즌 휴업(부분/전체)"> 시즌 휴업(부분/전체)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- D. Conversion Potential -->
+                    <div class="survey-section">
+                        <h3 class="section-header">D. 장기체류 전환 가능성</h3>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q13. 비수기 장기 임대(월 단위) 전환 의향이 있으신가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="매우 있음"> 매우 있음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="있음"> 있음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="보통"> 보통</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="없음"> 없음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="전혀 없음"> 전혀 없음</label>
+                            </div>
+                        </div>
+
+                        <!-- 전환 가능 객실 수 (신규) -->
+                        <div class="mb-6">
+                          <span class="q-title">Q14. (비수기 기준) 1개월 이상 장기 체류용으로 전환 가능한 객실 수는 몇 개입니까?</span>
+                          <div class="space-y-2">
+                             <div class="flex items-center gap-2">
+                                <label class="w-24 font-bold text-sm">객실 수</label>
+                                <input type="number" name="entry.Q14" min="0" step="1" placeholder="예: 2" class="p-2 border border-gray-300 rounded w-32" required>
+                                <span class="text-sm">개</span>
+                             </div>
+                             <p class="text-xs text-gray-500">※ 0~전체 객실 수 범위로 입력해 주세요.</p>
+                          </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q15. 월 단위 계약이 가능한가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="가능"> 가능</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="조건부 가능"> 조건부 가능</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="불가"> 불가</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q16. 비수기 기준, 장기체류용으로 전환 가능한 객실 비율은?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="0%"> 0%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="1~10%"> 1~10%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="11~30%"> 11~30%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="31~50%"> 31~50%</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="51% 이상"> 51% 이상</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="확실하지 않음"> 확실하지 않음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q17. 워케이션·청년 체류 프로그램 참여 의향이 있으신가요?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="매우 있음"> 매우 있음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="있음"> 있음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="보통"> 보통</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="없음"> 없음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="전혀 없음"> 전혀 없음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q18. 전환을 위해 필요한 조건(복수 선택)</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="안정적 수요(고정 물량)"> 안정적 수요(고정 물량)</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="보증금/정산 안정"> 보증금/정산 안정</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="시설개선 지원"> 시설개선 지원</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="청소/관리 지원"> 청소/관리 지원</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="민원/분쟁 대응"> 민원/분쟁 대응</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="기타"> 기타</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q19. 전환 시 가장 큰 우려(1개 선택)</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q19" value="시설 훼손"> 시설 훼손</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q19" value="장기 고객 관리 부담"> 장기 고객 관리 부담</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q19" value="가격/수익성"> 가격/수익성</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q19" value="민원"> 민원</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q19" value="운영 인력 부족"> 운영 인력 부족</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q19" value="기타"> 기타</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- E. Service Link -->
+                    <div class="survey-section">
+                        <h3 class="section-header">E. 생활서비스 연계</h3>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q20. 도시락·식사 제공 연계 의향</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="매우 있음"> 매우 있음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="있음"> 있음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="보통"> 보통</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="없음"> 없음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="전혀 없음"> 전혀 없음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q21. 이동서비스·픽업 연계 의향</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q21" value="매우 있음"> 매우 있음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q21" value="있음"> 있음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q21" value="보통"> 보통</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q21" value="없음"> 없음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q21" value="전혀 없음"> 전혀 없음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q22. 주민 대상 할인 또는 협력 의향</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q22" value="매우 있음"> 매우 있음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q22" value="있음"> 있음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q22" value="보통"> 보통</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q22" value="없음"> 없음</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q22" value="전혀 없음"> 전혀 없음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q23. 장기체류 고객이 가장 필요로 할 서비스(복수 선택)</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">    
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q23" value="식사/장보기"> 식사/장보기</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q23" value="세탁"> 세탁</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q23" value="병원·약국 이동"> 병원·약국 이동</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q23" value="대중교통 연계"> 대중교통 연계</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q23" value="공동업무공간"> 공동업무공간</label>
+                                <label class="option-label break-words"><input type="checkbox" name="entry.Q23" value="기타"> 기타</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optional -->
+                    <div class="survey-section border-none">
+                        <h3 class="section-header text-orange-600 border-orange-500">선택 질문</h3>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q24. 전환(장기체류/워케이션)을 위해 ‘지원이 있다면’ 가장 도움이 되는 것은?</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q24" value="시설개선(리모델링/가구)"> 시설개선(리모델링/가구)</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q24" value="예약/정산 시스템 지원"> 예약/정산 시스템 지원</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q24" value="공동 마케팅/수요보장"> 공동 마케팅/수요보장</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q24" value="운영 인력/청소 지원"> 운영 인력/청소 지원</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q24" value="기타/잘 모르겠음"> 기타/잘 모르겠음</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q25. 앵커조직과 협력 방식 선호</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                                <label class="option-label break-words"><input type="radio" name="entry.Q25" value="공동 패키지(숙박+서비스)"> 공동 패키지(숙박+서비스)</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q25" value="바우처/쿠폰 연계"> 바우처/쿠폰 연계</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q25" value="상시 협약"> 상시 협약</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q25" value="필요 시에만"> 필요 시에만</label>
+                                <label class="option-label break-words"><input type="radio" name="entry.Q25" value="잘 모르겠다"> 잘 모르겠다</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="q-title">Q26. 추가 의견 (자유 서술)</span>
+                            <textarea name="entry.Q26" class="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500 resize-none" placeholder="운영상 애로, 비수기 공실 해결 아이디어, 협력 제안 등을 적어주세요."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- G. Contact (필수) -->
+                    <div class="survey-section">
+                        <h3 class="section-header border-l-4 border-slate-600 pl-3">G. 개인정보 (필수)</h3>
+                        <p class="text-sm text-gray-500 mb-6">설문 작성자 확인을 위해 아래 정보를 정확히 입력해주세요.</p>
+
+                        <div class="mb-6">
+                            <span class="q-title">업소명</span>
+                            <input type="text" id="p_name" name="entry.NAME" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500" placeholder="예: ○○펜션" required>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <span class="q-title">대표자/담당자 성명</span>
+                                <input type="text" id="p_dob" name="entry.DOB" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500" placeholder="예: 홍길동" required>
+                            </div>
+                            <div>
+                                <span class="q-title">휴대폰 뒷자리 (4자리)</span>
+                                <input type="text" id="p_phone" name="entry.PHONE" maxlength="4" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500" placeholder="예: 1234" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <label class="flex items-center gap-2 mb-6">
+                            <input type="checkbox" required class="w-5 h-5 accent-ocean-500">
+                            <span class="text-sm text-gray-600 font-bold">개인정보 수집 및 이용에 동의합니다.</span>
+                        </label>
+                        <button type="submit" class="w-full bg-ocean-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-ocean-800 transition transform active:scale-95 text-lg">
+                            설문 제출하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Stats (Right) -->
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 h-fit sticky top-24">
+                <div class="mb-6 pb-4 border-b border-gray-100 flex justify-between items-end">
+                    <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-chart-pie text-orange-500"></i> 참여 현황</h2>
+                    <span class="text-xs text-gray-500" id="last-update">업데이트: 대기중</span>
+                </div>
+
+                <div class="space-y-6" id="stats-dashboard">
+                    <!-- Card 1: Total -->
+                    <div class="bg-ocean-50 rounded-xl p-4 text-center border border-ocean-100">
+                        <p class="text-sm text-ocean-600 font-bold mb-1">총 응답 업소</p>
+                        <p class="text-3xl font-black text-ocean-800" id="stat-total">- 곳</p>
+                    </div>
+
+                    <!-- Card 2: Area (Q1) -->
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-700 mb-2">권역별 응답 분포</h4>
+                        <div id="stat-area" class="space-y-2 text-sm">
+                            <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Type (Q2) -->
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-700 mb-2">업소 유형 분포</h4>
+                        <div id="stat-type" class="space-y-2 text-sm">
+                            <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Off-season Occupancy Avg (Q6) -->
+                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                        <h4 class="text-sm font-bold text-gray-700 mb-1">비수기 가동률(평균)</h4>
+                        <div class="flex items-end gap-2">
+                            <span class="text-2xl font-black text-ocean-600" id="stat-off-avg">-</span>
+                            <span class="text-xs text-gray-500 mb-1">%</span>
+                        </div>
+                        <p class="text-[11px] text-gray-500 mt-1">※ 구간 응답은 중간값으로 환산(추정)</p>
+                    </div>
+
+                    <!-- Card 5: Conversion Intent Top -->
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-700 mb-2">장기체류 전환 의향 (TOP)</h4>
+                        <div id="stat-intent" class="space-y-2 text-sm">
+                            <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
+                        </div>
+                    </div>
+
+                    <!-- Card 6: Service Link -->
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-700 mb-2">생활서비스 연계 의향 (요약)</h4>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-ocean-50 border border-ocean-100 rounded-lg p-2">
+                                <p class="text-[11px] text-gray-600 font-bold">식사</p>
+                                <p class="text-lg font-black text-ocean-800" id="stat-food">-</p>
+                            </div>
+                            <div class="bg-ocean-50 border border-ocean-100 rounded-lg p-2">
+                                <p class="text-[11px] text-gray-600 font-bold">픽업</p>
+                                <p class="text-lg font-black text-ocean-800" id="stat-pickup">-</p>
+                            </div>
+                            <div class="bg-ocean-50 border border-ocean-100 rounded-lg p-2">
+                                <p class="text-[11px] text-gray-600 font-bold">협력</p>
+                                <p class="text-lg font-black text-ocean-800" id="stat-coop">-</p>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-gray-500 mt-2">표시는 “있음 이상” 응답 비율(%)</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 bg-gray-50 rounded-lg text-xs text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i> 집계는 문항(Q1~Q25) 기반이며, 연락처는 집계에 포함되지 않습니다.
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Init UI
+            document.addEventListener('DOMContentLoaded', async () => {
+                UI.init('lodging');
+                fetchStats();
+                setInterval(fetchStats, 60000);
+
+                const isOpen = await APP.guardSurveyOpen('lodging');
+                if (!isOpen) return;
+            });
+
+            // --- Validation & Submission Logic ---
+            async function submitForm() {
+                if (!validateForm()) return;
+
+                const submitBtn = document.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerText;
+                submitBtn.disabled = true;
+                submitBtn.innerText = "제출 중...";
+
+                const formData = {};
+                const getVal = (name) => {
+                    const els = document.querySelectorAll(`[name="${name}"]`);
+                    if (els.length === 0) return '';
+                    if (els[0].type === 'radio') {
+                        const checked = Array.from(els).find(e => e.checked);
+                        return checked ? checked.value : '';
+                    }
+                    if (els[0].type === 'checkbox') {
+                        return Array.from(els).filter(e => e.checked).map(e => e.value).join(', ');
+                    }
+                    return els[0].value;
+                };
+
+                for (let i = 1; i <= 26; i++) formData[`Q${i}`] = getVal(`entry.Q${i}`);
+
+                formData['NAME'] = document.getElementById('p_name').value;
+                formData['DOB'] = document.getElementById('p_dob').value;
+                formData['PHONE'] = document.getElementById('p_phone').value;
+                formData['consent'] = true;
+
+                await APP.submitSurvey('lodging', formData);
+
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
+
+            function validateForm() {
+                const biz = document.getElementById('p_name').value.trim();
+                const manager = document.getElementById('p_dob').value.trim();
+                const phone = document.getElementById('p_phone').value.trim();
+
+                if (!biz) { alert('업소명을 입력해주세요.'); document.getElementById('p_name').focus(); return false; }
+                if (!manager) { alert('대표자/담당자 성명을 입력해주세요.'); document.getElementById('p_dob').focus(); return false; }
+                if (phone.length !== 4) { alert('휴대폰 뒷자리 4자리를 정확히 입력해주세요.'); document.getElementById('p_phone').focus(); return false; }
+
+                // Required Questions Q1 ~ Q26
+                for (let i = 1; i <= 26; i++) {
+                    if(i === 26) continue; // Q26(textarea) can be optional or required, usually textareas are optional in this context. Logic says skip Q25 before? 
+                    // Wait, original code skipped Q25 (text area). Now Q26 is text area. So skip Q26.
+
+                    const qName = `entry.Q${i}`;
+                    const options = document.querySelectorAll(`[name="${qName}"]`);
+                    if (options.length > 0) {
+                        if (options[0].tagName === 'SELECT') {
+                            if (options[0].value === "") {
+                                alert(`Q${i} 항목을 선택해주세요.`); options[0].focus(); return false;
+                            }
+                        } else if (options[0].type === 'number' || options[0].type === 'text') { // For Q3, Q14
+                             if(!options[0].value.trim()) {
+                                 alert(`Q${i} 항목을 입력해주세요.`); options[0].focus(); return false;
+                             }
+                             if(i === 14) {
+                                 const v = Number(options[0].value);
+                                 if(isNaN(v) || v < 0) { alert('Q14는 0 이상의 숫자여야 합니다.'); options[0].focus(); return false; }
+                             }
+                        } else if (!Array.from(options).some(opt => opt.checked)) {
+                            alert(`Q${i} 항목을 답변해주세요.`);
+                            options[0].scrollIntoView({behavior: "smooth", block: "center"});
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            // --- Stats Dashboard Logic ---
+            async function fetchStats() {
+                const stats = await APP.fetchStats('stats_lodging');
+                if(stats) {
+                    renderStats(stats);
+                    document.getElementById('last-update').innerText = '업데이트: ' + new Date().toLocaleTimeString();
+                }
+            }
+
+            function pctFromBucket(label){
+                // Convert bucket text to mid-point percentage (추정)
+                const map = {
+                    "0~19%": 10, "20~39%": 30, "40~59%": 50, "60~79%": 70, "80~100%": 90
+                };
+                return map[label] ?? null;
+            }
+
+            function renderStats(stats) {
+                if (!APP.renderBar && App && App.utils && App.utils.renderBar) {
+                    APP.renderBar = App.utils.renderBar;
+                }
+                const renderList = (id, dataObj) => {
+                    const container = document.getElementById(id);
+                    if(!dataObj) { container.innerHTML = '<p class="text-gray-400">데이터 없음</p>'; return; }
+                    const items = Object.entries(dataObj).map(([k,v]) => ({label:k, count:v})).sort((a,b)=>b.count-a.count);
+                    if(items.length === 0) { container.innerHTML = '<p class="text-gray-400">데이터 없음</p>'; return; }
+                    const max = Math.max(...items.map(i=>i.count));
+                    container.innerHTML = items.map(i => APP.renderBar(i.label, i.count, max)).join('');
+                };
+
+                // Total
+                if(stats.total != null) document.getElementById('stat-total').innerText = stats.total + " 곳";
+
+                // Area Q1, Type Q2
+                renderList('stat-area', stats.q1);
+                renderList('stat-type', stats.q2);
+
+                // Off-season avg
+                if(stats.q6?.avg != null) {
+                    document.getElementById('stat-off-avg').innerText = stats.q6.avg;
+                } else if(stats.q6) {
+                    // derive weighted midpoint average (추정)
+                    let sum = 0, n = 0;
+                    for(const [k,v] of Object.entries(stats.q6)){
+                        const mid = pctFromBucket(k);
+                        if(mid != null){ sum += mid * v; n += v; }
+                    }
+                    document.getElementById('stat-off-avg').innerText = (n>0 ? (sum/n).toFixed(1) : '-');
+                }
+
+                // Intent (Q13) top distribution
+                if(stats.q13?.top3){
+                    const container = document.getElementById('stat-intent');
+                    const items = stats.q13.top3;
+                    const max = Math.max(...items.map(i=>i.count));
+                    container.innerHTML = items.map(i => APP.renderBar(i.label, i.count, max)).join('');
+                } else {
+                    renderList('stat-intent', stats.q13);
+                }
+
+                // Service link ratio: want % of "있음 이상" for Q20,Q21,Q22
+                const showRate = (id, v) => document.getElementById(id).innerText = (v==null?'-':v + '%');
+                
+                if (stats.serviceLink) {
+                    showRate('stat-food', stats.serviceLink.meal?.posRate);
+                    showRate('stat-pickup', stats.serviceLink.pickup?.posRate);
+                    showRate('stat-coop', stats.serviceLink.residentDiscount?.posRate);
+                }
+            }
+        </script>
+
+    </main>
+
+    <!-- Footer -->
+    <div id="app-footer"></div>
+
+</body>
+</html>

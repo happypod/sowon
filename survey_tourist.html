@@ -1,0 +1,423 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>소원권역(만리포·천리포) 관광객 방문·체류 조사</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Common Assets -->
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/app.js"></script>
+
+  <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Pretendard', 'sans-serif'] },
+                    colors: {
+                        ocean: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 800: '#075985', 900: '#0c4a6e' }
+                    }
+                }
+            }
+        }
+    </script>
+
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+  <!-- Standard Navigation -->
+  <div id="app-nav"></div>
+
+  <main class="container mx-auto px-4 pt-28 pb-20 max-w-5xl">
+
+    <div class="text-center mb-12">
+      <h1 class="text-3xl font-black text-slate-900 mb-4">소원권역 관광객 방문·체류 조사</h1>
+      <p class="text-lg text-slate-600">
+        만리포·천리포를 방문해주신 여러분의 소중한 의견을 듣습니다.<br>
+        비수기에도 더 머물고 싶은 여행지를 만들기 위한 기초 자료로 활용됩니다.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- Survey Form -->
+      <div class="lg:col-span-2 bg-white p-8 rounded-2xl shadow-lg border border-gray-100 h-fit">
+        <div class="mb-6 pb-4 border-b border-gray-100">
+          <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-edit text-ocean-500"></i> 설문 작성하기</h2>
+          <p class="text-sm text-gray-500 mt-1">소요시간 약 10분</p>
+        </div>
+
+        <form id="touristForm">
+
+          <!-- A. Visit Pattern -->
+          <div class="survey-section">
+            <h3 class="section-header">A. 방문 형태</h3>
+
+            <div class="mb-6">
+              <span class="q-title">Q1. 어디에서 오셨나요? (거주지)</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="서울/경기/인천" required> 서울/경기/인천</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="충청권"> 충청권 (대전/세종/충남/충북)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="전라권"> 전라권</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="경상권"> 경상권</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="강원/제주/기타"> 강원/제주/기타</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q2. 누구와 함께 오셨나요?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="가족 (아이 동반)" required> 가족 (아이 동반)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="가족 (부부/부모님)"> 가족 (부부/부모님)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="친구/연인"> 친구/연인</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="동호회/단체"> 동호회/단체</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="혼자"> 혼자</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q3. 이번 방문은 몇 박 며칠인가요?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="당일치기" required> 당일치기</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="1박 2일"> 1박 2일</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="2박 3일"> 2박 3일</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="3박 이상"> 3박 이상</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q4. 주로 이용한(할) 교통수단은?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="자가용" required> 자가용</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="대중교통(버스)"> 대중교통(버스)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="렌터카/택시"> 렌터카/택시</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="기타"> 기타</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- B. Consumption -->
+          <div class="survey-section">
+            <h3 class="section-header">B. 여행 활동 및 소비</h3>
+
+            <div class="mb-6">
+              <span class="q-title">Q5. 이번 여행에서 가장 중점을 둔 활동은? (복수선택)</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="해수욕/물놀이"> 해수욕/물놀이</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="맛집/카페 탐방"> 맛집/카페 탐방</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="산책/트레킹"> 산책/트레킹 (수목원 등)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="낚시/해루질"> 낚시/해루질</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="휴식/호캉스"> 휴식/호캉스</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="체험/프로그램 참여"> 체험/프로그램 참여</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="기타"> 기타</label>
+              </div>
+              <p class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle mr-1"></i>복수 선택 가능</p>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q6. 1인당 예상 지출 비용은? (숙박/식비 포함)</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="5만원 미만" required> 5만원 미만</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="5~10만원"> 5~10만원</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="10~20만원"> 10~20만원</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="20~30만원"> 20~30만원</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="30만원 이상"> 30만원 이상</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- C. Satisfaction & Future -->
+          <div class="survey-section">
+            <h3 class="section-header">C. 만족도 및 향후 의향</h3>
+
+            <div class="mb-6">
+              <span class="q-title">Q7. 전반적인 여행 만족도는?</span>
+              <div class="flex justify-between max-w-md px-2">
+                <label class="flex flex-col items-center cursor-pointer gap-1">
+                  <input type="radio" name="entry.Q7" value="매우 불만족" required>
+                  <span class="text-xs text-gray-500">매우 불만족</span>
+                </label>
+                <label class="flex flex-col items-center cursor-pointer gap-1">
+                  <input type="radio" name="entry.Q7" value="불만족">
+                  <span class="text-xs text-gray-500">불만족</span>
+                </label>
+                <label class="flex flex-col items-center cursor-pointer gap-1">
+                  <input type="radio" name="entry.Q7" value="보통">
+                  <span class="text-xs text-gray-500">보통</span>
+                </label>
+                <label class="flex flex-col items-center cursor-pointer gap-1">
+                  <input type="radio" name="entry.Q7" value="만족">
+                  <span class="text-xs text-gray-500">만족</span>
+                </label>
+                <label class="flex flex-col items-center cursor-pointer gap-1">
+                  <input type="radio" name="entry.Q7" value="매우 만족">
+                  <span class="text-xs text-gray-500">매우 만족</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q8. 겨울이나 평일(비수기)에도 다시 오실 의향이 있나요?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="꼭 다시 오고 싶다" required> 꼭 다시 오고 싶다</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="기회가 되면 올 것이다"> 기회가 되면 올 것이다</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="글쎄요"> 글쎄요</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="오지 않을 것이다"> 오지 않을 것이다</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q9. '워케이션(일+휴식)' 프로그램이 있다면 참여 의향이 있나요?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="매우 있음" required> 매우 있음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="있음"> 있음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="보통"> 보통</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="없음"> 없음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="전혀 없음"> 전혀 없음</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q10. '한 달 살기(1개월 이상)' 프로그램이 있다면 참여 의향이 있나요?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="매우 있음" required> 매우 있음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="있음"> 있음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="보통"> 보통</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="없음"> 없음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="전혀 없음"> 전혀 없음</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q11. 실제로 장기 체류를 한다면, 선호 체류 기간은?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="1주~2주" required> 1주~2주</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="3주~1개월"> 3주~1개월</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="1~2개월"> 1~2개월</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="2~3개월"> 2~3개월</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="3개월 이상"> 3개월 이상</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q12. 장기 체류 시, 가장 중요하게 생각하는 조건은? (최대 2개)</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="가격(장기할인)"> 가격(장기할인)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="숙소 품질/청결"> 숙소 품질/청결</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="업무공간/와이파이"> 업무공간/와이파이</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="식사/도시락/장보기"> 식사/도시락/장보기</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="이동(픽업/대중교통)"> 이동(픽업/대중교통)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="체험/커뮤니티 프로그램"> 체험/커뮤니티 프로그램</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="의료/돌봄 접근성"> 의료/돌봄 접근성</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="기타"> 기타</label>
+              </div>
+              <p class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle mr-1"></i>최대 2개 선택 권장(응답 부담 최소화)</p>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q13. 1개월 이상 장기 체류가 어렵다면, 가장 큰 제약 요인은 무엇입니까?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="직장/업무 문제" required> 직장/업무 문제</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="비용 문제"> 비용 문제</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="주거/숙소 환경 부족"> 주거/숙소 환경 부족</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="자녀/가족 문제"> 자녀/가족 문제</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="원격근무/시간 제약"> 원격근무/시간 제약</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="장기 체류 의향 없음"> 장기 체류 의향 없음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="기타"> 기타</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- D. Service Needs -->
+          <div class="survey-section">
+            <h3 class="section-header">D. 필요 서비스 및 운영 방식</h3>
+
+            <div class="mb-6">
+              <span class="q-title">Q14. 장기 체류(워케이션/한달살이) 시, 필요하다고 느끼는 서비스는? (복수선택)</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="공유오피스/업무공간"> 공유오피스/업무공간</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="장보기/생활물류(배송)"> 장보기/생활물류(배송)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="식사/도시락(정기)"> 식사/도시락(정기)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="이동(픽업/셔틀)"> 이동(픽업/셔틀)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="의료/약국 연계"> 의료/약국 연계</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="지역체험/커뮤니티"> 지역체험/커뮤니티</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="기타"> 기타</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q15. 위 서비스가 패키지로 제공된다면, 월 추가 비용 지불 의향은?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="추가 비용 지불 의향 없음" required> 추가 비용 지불 의향 없음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="1만원 미만"> 1만원 미만</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="1~3만원"> 1~3만원</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="3~5만원"> 3~5만원</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="5만원 이상"> 5만원 이상</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q16. 장기 체류 시, 선호하는 숙소 유형은?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="펜션/독채형" required> 펜션/독채형</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="호텔/리조트형"> 호텔/리조트형</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="게스트하우스형"> 게스트하우스형</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="레지던스/장기임대형"> 레지던스/장기임대형</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="캠핑/차박형"> 캠핑/차박형</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q17. 장기 체류를 한다면, 선호 시기는?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="봄(3~5월)" required> 봄(3~5월)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="여름(6~8월)"> 여름(6~8월)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="가을(9~11월)"> 가을(9~11월)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="겨울(12~2월)"> 겨울(12~2월)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="평일 중심"> 평일 중심</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- E. Feedback -->
+          <div class="survey-section">
+            <h3 class="section-header">E. 개선점 및 홍보 채널</h3>
+
+            <div class="mb-6">
+              <span class="q-title">Q18. 방문 정보를 주로 어디에서 얻으셨나요? (복수선택)</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="포털/지도(네이버·카카오)"> 포털/지도(네이버·카카오)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="SNS(인스타·페북 등)"> SNS(인스타·페북 등)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="유튜브/영상"> 유튜브/영상</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="지인 추천"> 지인 추천</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="숙박/업체 홈페이지"> 숙박/업체 홈페이지</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="기타"> 기타</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q19. 불편했거나 개선이 필요했던 점은? (복수선택)</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="주차"> 주차</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="화장실/편의시설"> 화장실/편의시설</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="가격/요금(바가지 등)"> 가격/요금(바가지 등)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="대중교통/이동"> 대중교통/이동</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="쓰레기/환경"> 쓰레기/환경</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="야간 콘텐츠 부족"> 야간 콘텐츠 부족</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="기타"> 기타</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q20. 지인에게 소원권역(만리포·천리포)을 추천할 의향이 있나요?</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
+                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="매우 있음" required> 매우 있음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="있음"> 있음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="보통"> 보통</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="없음"> 없음</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="전혀 없음"> 전혀 없음</label>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <span class="q-title">Q21. 개선되었으면 하는 점이 있다면? (자유 서술)</span>
+              <textarea name="entry.Q21" class="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500 resize-none" placeholder="주차, 화장실, 가격, 볼거리, 비수기 프로그램 등 자유롭게 적어주세요."></textarea>
+            </div>
+          </div>
+
+          <!-- Contact (Optional) -->
+          <div class="survey-section border-none">
+            <h3 class="section-header border-l-4 border-gray-400 pl-3">F. (선택) 이벤트 응모</h3>
+            <p class="text-sm text-gray-500 mb-6">추후 추첨을 통해 소정의 기프티콘을 보내드립니다. (원치 않으시면 비워두셔도 됩니다)</p>
+
+            <div class="mb-6">
+              <span class="q-title">연락처</span>
+              <input type="text" name="entry.PHONE" id="p_phone" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500" placeholder="010-0000-0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+
+            <div class="mb-6">
+              <label class="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" name="consent" id="consent_chk" class="mt-1 w-5 h-5 accent-ocean-500">
+                <div class="text-sm text-gray-600">
+                  <strong>개인정보 수집 이용 동의</strong><br>
+                  수집 항목: 연락처 / 목적: 경품 발송 / 보유기간: 경품 발송 후 파기
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-gray-200">
+            <button type="submit" class="w-full bg-ocean-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-ocean-800 transition transform active:scale-95 text-lg">
+              설문 제출하기
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Stats (Right) -->
+      <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 h-fit sticky top-24">
+        <div class="mb-6 pb-4 border-b border-gray-100 flex justify-between items-end">
+          <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-chart-pie text-emerald-500"></i>응답 현황</h2>
+          <span class="text-xs text-gray-500" id="last-update">업데이트: 대기중</span>
+        </div>
+
+        <div class="space-y-6" id="stats-dashboard">
+          <div class="bg-emerald-50 rounded-xl p-4 text-center border border-emerald-100">
+            <p class="text-sm text-emerald-600 font-bold mb-1">총 응답자</p>
+            <p class="text-3xl font-black text-emerald-800" id="stat-total">- 명</p>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-bold text-gray-700 mb-2">어디에서 오셨나요?</h4>
+            <div id="stat-residence" class="space-y-2 text-sm">
+              <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-bold text-gray-700 mb-2">동반 유형</h4>
+            <div id="stat-companion" class="space-y-2 text-sm">
+              <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-bold text-gray-700 mb-2">체류 기간</h4>
+            <div id="stat-stay" class="space-y-2 text-sm">
+              <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-bold text-gray-700 mb-2">주요 활동 (TOP 3)</h4>
+            <div id="stat-activity" class="space-y-2 text-sm">
+              <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
+            <h4 class="text-sm font-bold text-gray-700 mb-2">비수기 재방문 의향</h4>
+            <div id="stat-revisit" class="space-y-2 text-sm"></div>
+          </div>
+
+        </div>
+        <div class="mt-4 p-4 bg-gray-50 rounded-lg text-xs text-gray-500">
+          <i class="fas fa-info-circle mr-1"></i> 응답 데이터는 실시간으로 집계되어 반영됩니다.
+        </div>
+      </div>
+    </div>
+    <script src="assets/js/tourist.js"></script>
+  </main>
+
+  <!-- Footer -->
+  <div id="app-footer"></div>
+
+</body>
+</html>

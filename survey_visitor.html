@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>태안군 소원면 방문객 설문조사</title>
+  <meta name="description" content="소원권역 어촌신활력증진사업 - 방문자 설문조사">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://survey.kmoalab.com/">
+  <meta property="og:title" content="소원권역 어촌신활력증진사업 - 방문자 설문조사">
+  <meta property="og:description" content="태안군 소원면 일원(천리포·만리포) 방문자 설문조사에 참여해 주세요.">
+  <meta property="og:image" content="https://survey.kmoalab.com/assets/og-visitor.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/app.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Pretendard', 'sans-serif'] },
+          colors: {
+            ocean: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 800: '#075985', 900: '#0c4a6e' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ===== VISITOR SURVEY – VISUAL ENHANCEMENTS ===== */
+
+    /* --- Gender Card (Q1) --- */
+    .gender-card input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .gender-card label {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px; padding: 20px 12px; border-radius: 16px; cursor: pointer;
+      border: 2px solid #e2e8f0; background: #f8fafc;
+      transition: all 0.2s ease; user-select: none; min-height: 100px;
+    }
+    .gender-card label .icon-wrap {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; transition: all 0.2s;
+    }
+    .gender-card label span { font-size: 15px; font-weight: 700; color: #475569; }
+    .gender-card input:checked + label {
+      border-color: #0284c7; background: #eff6ff; box-shadow: 0 0 0 3px #bae6fd;
+    }
+    .gender-card input:checked + label .icon-wrap { transform: scale(1.1); }
+    .gender-card input:checked + label span { color: #0284c7; }
+    .gender-male .icon-wrap   { background: #dbeafe; color: #1d4ed8; }
+    .gender-female .icon-wrap { background: #fce7f3; color: #be185d; }
+    .gender-card input:checked + .gender-male   { border-color: #1d4ed8; background: #eff6ff; box-shadow: 0 0 0 3px #bfdbfe; }
+    .gender-card input:checked + .gender-female { border-color: #be185d; background: #fdf2f8; box-shadow: 0 0 0 3px #fbcfe8; }
+
+    /* --- Age badge (Q2) --- */
+    .age-option { position: relative; }
+    .age-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .age-option label {
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px 8px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px;
+      border: 2px solid #e2e8f0; background: #f8fafc; color: #64748b;
+      transition: all 0.2s ease;
+    }
+    .age-option input:checked + label {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      border-color: transparent; color: white;
+      box-shadow: 0 4px 12px rgba(2,132,199,0.35);
+      transform: translateY(-2px);
+    }
+
+    /* --- Region pin (Q3) --- */
+    .region-option { position: relative; }
+    .region-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .region-option label {
+      display: flex; align-items: center; gap: 10px; padding: 11px 14px;
+      border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px;
+      border: 2px solid #e2e8f0; background: #f8fafc; color: #475569;
+      transition: all 0.2s ease;
+    }
+    .region-option label .pin {
+      width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 12px; background: #e2e8f0; color: #64748b;
+      flex-shrink: 0; transition: all 0.2s;
+    }
+    .region-option input:checked + label {
+      border-color: #0284c7; background: #f0f9ff; color: #0c4a6e;
+    }
+    .region-option input:checked + label .pin {
+      background: #0284c7; color: white;
+    }
+
+    /* --- Visit count (Q4) --- */
+    .visit-option { position: relative; }
+    .visit-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .visit-option label {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px;
+      border: 2px solid #e2e8f0; background: #f8fafc; color: #475569;
+      transition: all 0.2s ease;
+    }
+    .visit-option label .badge {
+      width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center;
+      justify-content: center; font-size: 16px; background: #e2e8f0; flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .visit-option input:checked + label {
+      border-color: #0d9488; background: #f0fdfa; color: #134e4a;
+    }
+    .visit-option input:checked + label .badge {
+      background: #0d9488; color: white;
+    }
+
+    /* --- Companion (Q5) --- */
+    .companion-option { position: relative; }
+    .companion-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .companion-option label {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; padding: 16px 8px; border-radius: 14px; cursor: pointer;
+      border: 2px solid #e2e8f0; background: #f8fafc; color: #64748b;
+      font-weight: 700; font-size: 13px; text-align: center; min-height: 90px;
+      transition: all 0.2s ease;
+    }
+    .companion-option label .icon {
+      font-size: 24px; line-height: 1;
+    }
+    .companion-option input:checked + label {
+      border-color: #7c3aed; background: #f5f3ff; color: #5b21b6;
+      box-shadow: 0 4px 12px rgba(124,58,237,0.2);
+      transform: translateY(-2px);
+    }
+
+    /* --- Motivation checkbox card (Q6) --- */
+    .motive-option { position: relative; }
+    .motive-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .motive-option label {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px;
+      border: 2px solid #e2e8f0; background: #f8fafc; color: #475569;
+      transition: all 0.2s ease;
+    }
+    .motive-option label .micon {
+      font-size: 20px; width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: #f1f5f9; flex-shrink: 0; transition: all 0.2s;
+    }
+    .motive-option input:checked + label {
+      border-color: #f59e0b; background: #fffbeb; color: #92400e;
+    }
+    .motive-option input:checked + label .micon {
+      background: #f59e0b; color: white;
+    }
+
+    /* --- Stay duration (Q7) --- */
+    .stay-option { position: relative; }
+    .stay-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .stay-option label {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px;
+      border: 2px solid #e2e8f0; background: #f8fafc; color: #475569;
+      transition: all 0.2s ease;
+    }
+    .stay-option label .clock {
+      width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 15px; background: #e2e8f0; flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .stay-option input:checked + label {
+      border-color: #0284c7; background: #f0f9ff; color: #0c4a6e;
+    }
+    .stay-option input:checked + label .clock {
+      background: #0284c7; color: white;
+    }
+
+    /* --- Satisfaction emoji scale (Q8~Q15) --- */
+    .satisfaction-card {
+      border-radius: 16px; border: 1.5px solid #e2e8f0;
+      background: #f8fafc; padding: 18px 16px; margin-bottom: 12px;
+      transition: box-shadow 0.2s;
+    }
+    .satisfaction-card:hover { box-shadow: 0 2px 12px rgba(2,132,199,0.08); }
+    .satisfaction-card .card-title {
+      font-weight: 800; color: #1e293b; font-size: 15px; margin-bottom: 2px;
+    }
+    .satisfaction-card .card-hint {
+      font-size: 12px; color: #94a3b8; margin-bottom: 14px;
+    }
+    .sat-option { position: relative; }
+    .sat-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .sat-option label {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; padding: 10px 4px; border-radius: 12px; cursor: pointer;
+      border: 2px solid #e2e8f0; background: white; font-size: 11px; font-weight: 700;
+      color: #64748b; transition: all 0.2s ease; min-height: 72px;
+    }
+    .sat-option label .emoji { font-size: 22px; line-height: 1; }
+    .sat-option.sat-1 input:checked + label { border-color: #10b981; background: #ecfdf5; color: #065f46; box-shadow: 0 2px 10px rgba(16,185,129,0.2); }
+    .sat-option.sat-2 input:checked + label { border-color: #3b82f6; background: #eff6ff; color: #1e40af; box-shadow: 0 2px 10px rgba(59,130,246,0.2); }
+    .sat-option.sat-3 input:checked + label { border-color: #f59e0b; background: #fffbeb; color: #92400e; box-shadow: 0 2px 10px rgba(245,158,11,0.2); }
+    .sat-option.sat-4 input:checked + label { border-color: #f97316; background: #fff7ed; color: #9a3412; box-shadow: 0 2px 10px rgba(249,115,22,0.2); }
+    .sat-option.sat-5 input:checked + label { border-color: #ef4444; background: #fef2f2; color: #991b1b; box-shadow: 0 2px 10px rgba(239,68,68,0.2); }
+
+    /* --- Effect checkbox (Q16) --- */
+    .effect-option { position: relative; }
+    .effect-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .effect-option label {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px;
+      border: 2px solid #e2e8f0; background: #f8fafc; color: #475569;
+      transition: all 0.2s ease;
+    }
+    .effect-option label .eicon {
+      font-size: 20px; width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: #f1f5f9; flex-shrink: 0; transition: all 0.2s;
+    }
+    .effect-option input:checked + label {
+      border-color: #10b981; background: #ecfdf5; color: #065f46;
+    }
+    .effect-option input:checked + label .eicon {
+      background: #10b981; color: white;
+    }
+
+    /* --- Intent Likert (Q17, Q18) --- */
+    .intent-option { position: relative; }
+    .intent-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .intent-option label {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; padding: 10px 4px; border-radius: 12px; cursor: pointer;
+      border: 2px solid #e2e8f0; background: white; font-size: 11px; font-weight: 700;
+      color: #64748b; transition: all 0.2s ease; min-height: 68px;
+    }
+    .intent-option label .intent-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #e2e8f0; flex-shrink: 0; transition: all 0.2s;
+    }
+    .intent-option.int-1 input:checked + label { border-color: #0284c7; background: #f0f9ff; color: #0c4a6e; box-shadow: 0 2px 10px rgba(2,132,199,0.2); }
+    .intent-option.int-1 input:checked + label .intent-dot { background: #0284c7; transform: scale(1.4); }
+    .intent-option.int-2 input:checked + label { border-color: #06b6d4; background: #ecfeff; color: #164e63; }
+    .intent-option.int-2 input:checked + label .intent-dot { background: #06b6d4; transform: scale(1.3); }
+    .intent-option.int-3 input:checked + label { border-color: #6366f1; background: #eef2ff; color: #312e81; }
+    .intent-option.int-3 input:checked + label .intent-dot { background: #6366f1; transform: scale(1.2); }
+    .intent-option.int-4 input:checked + label { border-color: #f59e0b; background: #fffbeb; color: #78350f; }
+    .intent-option.int-4 input:checked + label .intent-dot { background: #f59e0b; }
+    .intent-option.int-5 input:checked + label { border-color: #94a3b8; background: #f1f5f9; color: #475569; }
+    .intent-option.int-5 input:checked + label .intent-dot { background: #94a3b8; }
+
+    /* --- Facility checkbox (Q19) --- */
+    .facility-option { position: relative; }
+    .facility-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .facility-option label {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px;
+      border: 2px solid #e2e8f0; background: #f8fafc; color: #475569;
+      transition: all 0.2s ease;
+    }
+    .facility-option label .ficon {
+      font-size: 18px; width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: #f1f5f9; flex-shrink: 0; transition: all 0.2s;
+    }
+    .facility-option input:checked + label {
+      border-color: #7c3aed; background: #f5f3ff; color: #4c1d95;
+    }
+    .facility-option input:checked + label .ficon {
+      background: #7c3aed; color: white;
+    }
+
+    /* --- Q20 textarea --- */
+    .premium-textarea {
+      width: 100%; border: 2px solid #e2e8f0; border-radius: 14px;
+      padding: 16px; font-size: 14px; font-family: 'Pretendard', sans-serif;
+      color: #334155; background: #f8fafc; resize: vertical; min-height: 130px;
+      transition: all 0.2s; outline: none;
+    }
+    .premium-textarea:focus {
+      border-color: #0284c7; background: white;
+      box-shadow: 0 0 0 3px rgba(2,132,199,0.12);
+    }
+
+    /* --- Section badge --- */
+    .section-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    /* --- text-input shared --- */
+    .vis-text-input {
+      margin-top: 10px; width: 100%; border: 2px solid #e2e8f0; border-radius: 12px;
+      padding: 12px 16px; font-size: 14px; font-family: 'Pretendard', sans-serif;
+      color: #334155; background: white; outline: none; transition: all 0.2s;
+    }
+    .vis-text-input:focus {
+      border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2,132,199,0.1);
+    }
+
+    /* shared q-title */
+    .vis-q-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 15px; font-weight: 800; color: #1e293b; margin-bottom: 14px;
+    }
+    .vis-q-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 28px; height: 28px; border-radius: 8px;
+      background: #0284c7; color: white; font-size: 12px; font-weight: 900;
+      flex-shrink: 0; padding: 0 6px;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+  <div id="app-nav"></div>
+
+  <main class="container mx-auto px-4 pt-28 pb-20 max-w-6xl">
+    <div class="text-center mb-12">
+      <span class="inline-flex items-center gap-2 rounded-full bg-ocean-50 px-4 py-2 text-sm font-bold text-ocean-700 border border-ocean-100 mb-5">
+        <i class="fas fa-location-dot"></i> 태안군 소원면 일원(천리포·만리포)
+      </span>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-4">방문객 만족도 및 의견 조사</h1>
+      <p class="text-lg text-slate-600 leading-relaxed">
+        소원면 어촌신활력증진사업 기본계획 수립을 위한 방문 경험과 필요 시설 수요를 듣습니다.<br>
+        응답 내용은 통계 목적의 기초자료로만 활용됩니다.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-100 h-fit">
+        <div class="mb-6 pb-4 border-b border-gray-100">
+          <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-edit text-ocean-500"></i> 설문 작성하기</h2>
+          <p class="text-sm text-gray-500 mt-1">소요시간 약 7분</p>
+        </div>
+
+        <form id="visitorForm">
+          <!-- ====== I. 방문자 기본 정보 ====== -->
+          <div class="survey-section">
+            <span class="section-badge bg-ocean-50 text-ocean-700 border border-ocean-100">
+              <i class="fas fa-user-circle"></i> I. 방문자 기본 정보
+            </span>
+
+            <!-- Q1. 성별 -->
+            <div class="mb-8">
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q1</span>
+                성별
+              </p>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="gender-card">
+                  <input type="radio" name="entry.Q1" value="남자" id="q1_m" required>
+                  <label for="q1_m" class="gender-male">
+                    <div class="icon-wrap"><i class="fas fa-mars"></i></div>
+                    <span>남자</span>
+                  </label>
+                </div>
+                <div class="gender-card">
+                  <input type="radio" name="entry.Q1" value="여자" id="q1_f">
+                  <label for="q1_f" class="gender-female">
+                    <div class="icon-wrap"><i class="fas fa-venus"></i></div>
+                    <span>여자</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Q2. 연령 -->
+            <div class="mb-8">
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q2</span>
+                연령
+              </p>
+              <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                <div class="age-option"><input type="radio" name="entry.Q2" value="10대 이하" id="q2_1" required><label for="q2_1">10대<br>이하</label></div>
+                <div class="age-option"><input type="radio" name="entry.Q2" value="20대" id="q2_2"><label for="q2_2">20대</label></div>
+                <div class="age-option"><input type="radio" name="entry.Q2" value="30대" id="q2_3"><label for="q2_3">30대</label></div>
+                <div class="age-option"><input type="radio" name="entry.Q2" value="40대" id="q2_4"><label for="q2_4">40대</label></div>
+                <div class="age-option"><input type="radio" name="entry.Q2" value="50대" id="q2_5"><label for="q2_5">50대</label></div>
+                <div class="age-option"><input type="radio" name="entry.Q2" value="60대 이상" id="q2_6"><label for="q2_6">60대<br>이상</label></div>
+              </div>
+            </div>
+
+            <!-- Q3. 거주지역 -->
+            <div class="mb-8">
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q3</span>
+                거주지역
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="region-option">
+                  <input type="radio" name="entry.Q3" value="소원면" id="q3_1" required>
+                  <label for="q3_1"><span class="pin"><i class="fas fa-map-pin"></i></span>소원면</label>
+                </div>
+                <div class="region-option">
+                  <input type="radio" name="entry.Q3" value="태안읍" id="q3_2">
+                  <label for="q3_2"><span class="pin"><i class="fas fa-map-pin"></i></span>태안읍</label>
+                </div>
+                <div class="region-option">
+                  <input type="radio" name="entry.Q3" value="충청남도" id="q3_3">
+                  <label for="q3_3"><span class="pin"><i class="fas fa-map-pin"></i></span>충청남도</label>
+                </div>
+                <div class="region-option">
+                  <input type="radio" name="entry.Q3" value="수도권" id="q3_4">
+                  <label for="q3_4"><span class="pin"><i class="fas fa-map-pin"></i></span>수도권</label>
+                </div>
+                <div class="region-option">
+                  <input type="radio" name="entry.Q3" value="지방" id="q3_5">
+                  <label for="q3_5"><span class="pin"><i class="fas fa-map-pin"></i></span>지방</label>
+                </div>
+                <div class="region-option">
+                  <input type="radio" name="entry.Q3" value="기타" id="q3_6">
+                  <label for="q3_6"><span class="pin"><i class="fas fa-ellipsis"></i></span>기타</label>
+                </div>
+              </div>
+              <input type="text" name="entry.Q3_OTHER" class="vis-text-input" placeholder="기타 거주지역을 입력해주세요">
+            </div>
+
+            <!-- Q4. 방문횟수 -->
+            <div class="mb-8">
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q4</span>
+                방문횟수
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="visit-option">
+                  <input type="radio" name="entry.Q4" value="처음" id="q4_1" required>
+                  <label for="q4_1"><span class="badge">🌊</span>처음 방문</label>
+                </div>
+                <div class="visit-option">
+                  <input type="radio" name="entry.Q4" value="2~3회" id="q4_2">
+                  <label for="q4_2"><span class="badge">✌️</span>2~3회</label>
+                </div>
+                <div class="visit-option">
+                  <input type="radio" name="entry.Q4" value="정기방문(연 4회 이상)" id="q4_3">
+                  <label for="q4_3"><span class="badge">🔄</span>정기방문(연 4회 이상)</label>
+                </div>
+                <div class="visit-option">
+                  <input type="radio" name="entry.Q4" value="기타" id="q4_4">
+                  <label for="q4_4"><span class="badge">💬</span>기타</label>
+                </div>
+              </div>
+              <input type="text" name="entry.Q4_OTHER" class="vis-text-input" placeholder="기타 방문횟수를 입력해주세요">
+            </div>
+
+            <!-- Q5. 동반자 유형 -->
+            <div class="mb-8">
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q5</span>
+                동반자 유형
+              </p>
+              <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                <div class="companion-option"><input type="radio" name="entry.Q5" value="가족" id="q5_1" required><label for="q5_1"><span class="icon">👨‍👩‍👧</span>가족</label></div>
+                <div class="companion-option"><input type="radio" name="entry.Q5" value="친구" id="q5_2"><label for="q5_2"><span class="icon">🤝</span>친구</label></div>
+                <div class="companion-option"><input type="radio" name="entry.Q5" value="연인" id="q5_3"><label for="q5_3"><span class="icon">💑</span>연인</label></div>
+                <div class="companion-option"><input type="radio" name="entry.Q5" value="직장동료" id="q5_4"><label for="q5_4"><span class="icon">💼</span>직장동료</label></div>
+                <div class="companion-option"><input type="radio" name="entry.Q5" value="개인" id="q5_5"><label for="q5_5"><span class="icon">🙋</span>개인</label></div>
+                <div class="companion-option"><input type="radio" name="entry.Q5" value="기타" id="q5_6"><label for="q5_6"><span class="icon">💬</span>기타</label></div>
+              </div>
+              <input type="text" name="entry.Q5_OTHER" class="vis-text-input" placeholder="기타 동반자 유형을 입력해주세요">
+            </div>
+
+            <!-- Q6. 방문동기 -->
+            <div class="mb-8">
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q6</span>
+                방문동기 <span class="text-xs font-normal text-slate-400 ml-1">(복수선택 가능)</span>
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="motive-option"><input type="checkbox" name="entry.Q6" value="자연경관 감상" id="q6_1"><label for="q6_1"><span class="micon">🏔️</span>자연경관 감상</label></div>
+                <div class="motive-option"><input type="checkbox" name="entry.Q6" value="갯벌·서핑 체험" id="q6_2"><label for="q6_2"><span class="micon">🏄</span>갯벌·서핑 체험</label></div>
+                <div class="motive-option"><input type="checkbox" name="entry.Q6" value="해수욕장 이용" id="q6_3"><label for="q6_3"><span class="micon">🏖️</span>해수욕장 이용</label></div>
+                <div class="motive-option"><input type="checkbox" name="entry.Q6" value="산책/트레킹" id="q6_4"><label for="q6_4"><span class="micon">🚶</span>산책/트레킹</label></div>
+                <div class="motive-option"><input type="checkbox" name="entry.Q6" value="캠핑/피크닉" id="q6_5"><label for="q6_5"><span class="micon">⛺</span>캠핑/피크닉</label></div>
+                <div class="motive-option"><input type="checkbox" name="entry.Q6" value="사진 촬영/SNS" id="q6_6"><label for="q6_6"><span class="micon">📸</span>사진 촬영/SNS</label></div>
+                <div class="motive-option"><input type="checkbox" name="entry.Q6" value="가족/연인 나들이" id="q6_7"><label for="q6_7"><span class="micon">🌸</span>가족/연인 나들이</label></div>
+                <div class="motive-option"><input type="checkbox" name="entry.Q6" value="지역축제·행사" id="q6_8"><label for="q6_8"><span class="micon">🎪</span>지역축제·행사</label></div>
+              </div>
+            </div>
+
+            <!-- Q7. 체류기간 -->
+            <div class="mb-2">
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q7</span>
+                체류기간
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="stay-option"><input type="radio" name="entry.Q7" value="1~2시간" id="q7_1" required><label for="q7_1"><span class="clock"><i class="fas fa-clock"></i></span>1~2시간</label></div>
+                <div class="stay-option"><input type="radio" name="entry.Q7" value="반나절" id="q7_2"><label for="q7_2"><span class="clock"><i class="fas fa-sun"></i></span>반나절</label></div>
+                <div class="stay-option"><input type="radio" name="entry.Q7" value="당일" id="q7_3"><label for="q7_3"><span class="clock"><i class="fas fa-calendar-day"></i></span>당일</label></div>
+                <div class="stay-option"><input type="radio" name="entry.Q7" value="1박 이상" id="q7_4"><label for="q7_4"><span class="clock"><i class="fas fa-moon"></i></span>1박 이상</label></div>
+                <div class="stay-option"><input type="radio" name="entry.Q7" value="기타" id="q7_5"><label for="q7_5"><span class="clock"><i class="fas fa-ellipsis"></i></span>기타</label></div>
+              </div>
+              <input type="text" name="entry.Q7_OTHER" class="vis-text-input" placeholder="기타 체류기간을 입력해주세요">
+            </div>
+          </div>
+
+          <!-- ====== II. 방문 환경 만족도 (Q8~Q15) ====== -->
+          <div class="survey-section">
+            <span class="section-badge bg-emerald-50 text-emerald-700 border border-emerald-100">
+              <i class="fas fa-star"></i> II. 방문 환경 만족도
+            </span>
+            <p class="text-sm text-slate-500 mb-5">각 항목별 만족도를 선택해 주세요.</p>
+            <!-- Q8~Q15는 visitor.js의 renderSatisfactionGrid()가 동적 렌더링 -->
+            <div id="satisfaction-grid"></div>
+          </div>
+
+          <!-- ====== III. 방문 효과 및 의향 ====== -->
+          <div class="survey-section">
+            <span class="section-badge bg-violet-50 text-violet-700 border border-violet-100">
+              <i class="fas fa-heart"></i> III. 방문 효과 및 의향
+            </span>
+
+            <!-- Q16. 방문 만족 -->
+            <div class="mb-8">
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q16</span>
+                이번 방문을 통해 어떠한 만족을 얻으셨나요?
+                <span class="text-xs font-normal text-slate-400 ml-1">(복수선택 가능)</span>
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="effect-option"><input type="checkbox" name="entry.Q16" value="스트레스 해소 / 힐링" id="q16_1"><label for="q16_1"><span class="eicon">🌿</span>스트레스 해소 / 힐링</label></div>
+                <div class="effect-option"><input type="checkbox" name="entry.Q16" value="건강 관리(운동, 트래킹)" id="q16_2"><label for="q16_2"><span class="eicon">🏃</span>건강 관리(운동, 트래킹)</label></div>
+                <div class="effect-option"><input type="checkbox" name="entry.Q16" value="가족/지인과의 즐거운 시간" id="q16_3"><label for="q16_3"><span class="eicon">😊</span>가족/지인과의 즐거운 시간</label></div>
+                <div class="effect-option"><input type="checkbox" name="entry.Q16" value="아름다운 풍경 감상" id="q16_4"><label for="q16_4"><span class="eicon">🌅</span>아름다운 풍경 감상</label></div>
+                <div class="effect-option"><input type="checkbox" name="entry.Q16" value="특별한 경험 또는 체험" id="q16_5"><label for="q16_5"><span class="eicon">✨</span>특별한 경험 또는 체험</label></div>
+                <div class="effect-option"><input type="checkbox" name="entry.Q16" value="그외" id="q16_6"><label for="q16_6"><span class="eicon">💬</span>그외</label></div>
+              </div>
+              <input type="text" name="entry.Q16_OTHER" class="vis-text-input" placeholder="그외 만족 내용을 입력해주세요">
+            </div>
+
+            <!-- Q17. 재방문 의향 -->
+            <div class="mb-8">
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q17</span>
+                소원면(만리포·천리포 일원)을 다시 방문하실 의향이 있으신가요?
+              </p>
+              <div class="grid grid-cols-5 gap-2" data-likert="Q17"></div>
+            </div>
+
+            <!-- Q18. 추천 의향 -->
+            <div>
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q18</span>
+                주변 지인에게 소원면(만리포·천리포 일원) 방문을 추천하시겠습니까?
+              </p>
+              <div class="grid grid-cols-5 gap-2" data-likert="Q18"></div>
+            </div>
+          </div>
+
+          <!-- ====== IV. 필요시설 수요 ====== -->
+          <div class="survey-section">
+            <span class="section-badge bg-amber-50 text-amber-700 border border-amber-100">
+              <i class="fas fa-building"></i> IV. 필요시설 수요
+            </span>
+
+            <!-- Q19. 필요시설 -->
+            <div class="mb-8">
+              <p class="vis-q-title">
+                <span class="vis-q-num">Q19</span>
+                소원면 지역활성화를 위해 어떤 부분이 추가적으로 필요하다고 생각하십니까?
+                <span class="text-xs font-normal text-slate-400 ml-1">(복수선택 가능)</span>
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="facility-option"><input type="checkbox" name="entry.Q19" value="숙박시설" id="q19_1"><label for="q19_1"><span class="ficon">🏨</span>숙박시설(게스트하우스, 워케이션센터 등)</label></div>
+                <div class="facility-option"><input type="checkbox" name="entry.Q19" value="다양한 체험 프로그램" id="q19_2"><label for="q19_2"><span class="ficon">🎯</span>다양한 체험 프로그램</label></div>
+                <div class="facility-option"><input type="checkbox" name="entry.Q19" value="지역행사" id="q19_3"><label for="q19_3"><span class="ficon">🎉</span>지역행사</label></div>
+                <div class="facility-option"><input type="checkbox" name="entry.Q19" value="경관 개선" id="q19_4"><label for="q19_4"><span class="ficon">🌳</span>경관 개선(조경, 쓰레기 처리 등)</label></div>
+                <div class="facility-option"><input type="checkbox" name="entry.Q19" value="지역특산 음식" id="q19_5"><label for="q19_5"><span class="ficon">🍽️</span>지역특산 음식</label></div>
+                <div class="facility-option"><input type="checkbox" name="entry.Q19" value="그외" id="q19_6"><label for="q19_6"><span class="ficon">💬</span>그외</label></div>
+              </div>
+              <input type="text" name="entry.Q19_OTHER" class="vis-text-input" placeholder="그외 필요시설을 입력해주세요">
+            </div>
+
+            <!-- Q20. 자유 의견 -->
+            <div>
+              <label class="vis-q-title" for="visitor-comment">
+                <span class="vis-q-num">Q20</span>
+                설문 외 개선 사항 및 건의 의견을 자유롭게 작성해 주세요.
+              </label>
+              <textarea id="visitor-comment" name="entry.Q20" rows="5"
+                class="premium-textarea"
+                placeholder="방문하시면서 불편하셨던 점, 좋았던 점, 또는 바라시는 점을 자유롭게 적어주세요."></textarea>
+            </div>
+          </div>
+
+          <!-- 기념품 교환권 -->
+          <div class="bg-cyan-50 border border-cyan-100 rounded-2xl p-5 mb-6">
+            <label class="vis-q-title" for="phone_last4">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-cyan-500 text-white text-xs flex-shrink-0"><i class="fas fa-gift"></i></span>
+              기념품 교환권 발급용 휴대폰 뒷자리 4자리
+            </label>
+            <input id="phone_last4" name="entry.PHONE_LAST4" type="tel" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required
+              class="w-full border-2 border-cyan-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-100 focus:border-cyan-500 bg-white tracking-[0.35em] font-black text-xl transition"
+              placeholder="0000">
+            <p class="text-xs text-cyan-800/70 mt-2">교환권 중복 확인을 위해 뒷자리 4자리만 교환권 이미지와 데이터에 기록됩니다.</p>
+          </div>
+
+          <!-- 동의 -->
+          <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-6">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input id="consent_chk" type="checkbox" required class="mt-1 w-5 h-5 text-ocean-600 rounded border-gray-300 focus:ring-ocean-500">
+              <span class="text-sm text-slate-600 leading-relaxed">
+                설문 응답 내용이 소원면 어촌신활력증진사업 기본계획 수립을 위한 통계자료로 활용되는 것에 동의합니다.
+              </span>
+            </label>
+          </div>
+
+          <button type="submit" class="w-full bg-ocean-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-ocean-800 transition transform active:scale-95 text-lg">
+            설문 제출하기
+          </button>
+        </form>
+      </div>
+
+      <aside class="space-y-6">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-24">
+          <h2 class="text-xl font-bold flex items-center gap-2 mb-5"><i class="fas fa-chart-pie text-ocean-500"></i> 응답 현황</h2>
+          <div class="grid grid-cols-2 gap-4 mb-5">
+            <div class="bg-ocean-50 rounded-xl p-4">
+              <p class="text-xs text-ocean-700 font-bold mb-1">참여자</p>
+              <p class="text-3xl font-black text-ocean-800"><span id="stat-total">0</span></p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-4">
+              <p class="text-xs text-slate-500 font-bold mb-1">만족도 평균</p>
+              <p class="text-3xl font-black text-slate-800"><span id="stat-satisfaction">-</span></p>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="font-bold text-slate-700">재방문 의향</span>
+                <span id="stat-revisit" class="text-ocean-600 font-black">-</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2"><div id="bar-revisit" class="bg-ocean-500 h-2 rounded-full" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="font-bold text-slate-700">추천 의향</span>
+                <span id="stat-recommend" class="text-ocean-600 font-black">-</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2"><div id="bar-recommend" class="bg-emerald-500 h-2 rounded-full" style="width:0%"></div></div>
+            </div>
+          </div>
+          <div class="mt-6 pt-5 border-t border-slate-100">
+            <p class="text-sm font-bold text-slate-700 mb-3">필요시설 상위 응답</p>
+            <div id="stat-needs" class="text-sm text-slate-500">데이터 없음</div>
+          </div>
+          <p id="last-update" class="text-xs text-slate-400 mt-5">업데이트 대기 중</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <div id="app-footer"></div>
+  <script src="assets/js/visitor.js"></script>
+</body>
+</html>

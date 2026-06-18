@@ -1,0 +1,68 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+body {
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* Form Elements */
+.survey-section {
+  @apply bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8;
+}
+
+.section-header {
+  @apply text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100;
+}
+
+.q-title {
+  @apply block text-base font-bold text-gray-800 mb-3;
+}
+
+.option-label {
+  @apply flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-sky-50 transition border border-transparent hover:border-sky-200;
+}
+
+.option-label input[type="radio"],
+.option-label input[type="checkbox"] {
+  @apply w-5 h-5 text-sky-600 focus:ring-sky-500 border-gray-300;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Admin Tabs */
+.tab-btn {
+  @apply px-4 py-2 font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition cursor-pointer whitespace-nowrap;
+}
+.tab-btn.active {
+  @apply text-ocean-600 border-ocean-600;
+}
+
+/* Diagrams */
+.sankey-node {
+  @apply bg-slate-100 border border-slate-200 rounded p-2 text-center text-xs font-bold shadow-sm relative z-10;
+}
+.sankey-arrow {
+  @apply flex-1 h-0.5 bg-slate-300 relative;
+}
+.sankey-arrow::after {
+  content: '';
+  @apply absolute right-0 -top-1 w-2 h-2 border-r-2 border-t-2 border-slate-300 rotate-45;
+}
+
+.funnel-step {
+  @apply relative p-4 mb-1 text-center text-white font-bold shadow-md transition-all hover:scale-[1.02];
+  clip-path: polygon(0% 0%, 100% 0%, 95% 100%, 5% 100%);
+}
+.funnel-step:last-child {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+/* Utilities */
+.text-xxs { font-size: 0.65rem; }
