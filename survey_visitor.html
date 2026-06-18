@@ -316,15 +316,247 @@
       background: #0284c7; color: white; font-size: 12px; font-weight: 900;
       flex-shrink: 0; padding: 0 6px;
     }
+
+    .visitor-mobile-progress {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      body.visitor-survey-page {
+        background: #f8fafc;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .visitor-main {
+        padding: 86px 14px 112px;
+      }
+
+      .visitor-hero {
+        text-align: left;
+        margin-bottom: 22px;
+      }
+
+      .visitor-hero .location-pill {
+        font-size: 12px;
+        padding: 8px 12px;
+        margin-bottom: 14px;
+      }
+
+      .visitor-hero h1 {
+        font-size: 30px;
+        line-height: 1.18;
+        margin-bottom: 12px;
+        letter-spacing: 0;
+      }
+
+      .visitor-hero p {
+        font-size: 15px;
+        line-height: 1.65;
+      }
+
+      .visitor-layout {
+        gap: 18px;
+      }
+
+      .visitor-form-panel {
+        padding: 0 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+      }
+
+      .visitor-form-header {
+        padding: 18px;
+        margin-bottom: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .visitor-mobile-progress {
+        display: block;
+        position: sticky;
+        top: 66px;
+        z-index: 35;
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        border: 1px solid rgba(186, 230, 253, 0.9);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 8px 24px rgba(2, 132, 199, 0.12);
+        backdrop-filter: blur(10px);
+      }
+
+      .visitor-progress-track {
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e2e8f0;
+      }
+
+      .visitor-progress-bar {
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #0284c7, #10b981);
+        transition: width 0.25s ease;
+      }
+
+      .survey-section {
+        padding: 18px 14px !important;
+        margin-bottom: 16px !important;
+        border-radius: 18px !important;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+      }
+
+      .section-badge {
+        max-width: 100%;
+        white-space: normal;
+        line-height: 1.35;
+        margin-bottom: 14px;
+      }
+
+      .vis-q-title {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 15px;
+        line-height: 1.45;
+        margin-bottom: 12px;
+      }
+
+      .vis-q-num {
+        min-width: 34px;
+        height: 30px;
+      }
+
+      .gender-card label {
+        min-height: 86px;
+        padding: 14px 8px;
+      }
+
+      .gender-card label .icon-wrap {
+        width: 42px;
+        height: 42px;
+        font-size: 19px;
+      }
+
+      .age-option label,
+      .region-option label,
+      .visit-option label,
+      .stay-option label,
+      .motive-option label,
+      .effect-option label,
+      .facility-option label {
+        min-height: 48px;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+
+      .companion-option label {
+        min-height: 78px;
+        padding: 12px 6px;
+        font-size: 12px;
+      }
+
+      .companion-option label .icon {
+        font-size: 22px;
+      }
+
+      .satisfaction-card {
+        padding: 14px 12px;
+        margin-bottom: 12px;
+        border-radius: 16px;
+      }
+
+      .satisfaction-card .card-title {
+        font-size: 15px;
+        line-height: 1.35;
+      }
+
+      .satisfaction-card .card-hint {
+        margin-bottom: 12px;
+      }
+
+      .satisfaction-scale,
+      .intent-scale {
+        display: grid !important;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 6px;
+        overflow: visible;
+        padding: 0;
+      }
+
+      .sat-option,
+      .intent-option {
+        min-width: 0;
+      }
+
+      .sat-option label,
+      .intent-option label {
+        min-height: 72px;
+        padding: 8px 3px;
+        font-size: 9.8px;
+        line-height: 1.2;
+      }
+
+      .sat-option label .emoji {
+        font-size: 20px;
+      }
+
+      .vis-text-input,
+      .premium-textarea {
+        font-size: 16px;
+      }
+
+      .visitor-final-block {
+        padding: 16px !important;
+        border-radius: 18px !important;
+      }
+
+      #phone_last4 {
+        min-height: 54px;
+        font-size: 22px;
+      }
+
+      .visitor-submit-btn {
+        position: static;
+        min-height: 58px;
+        border-radius: 18px;
+        box-shadow: 0 14px 34px rgba(2, 132, 199, 0.35);
+      }
+
+      .visitor-aside {
+        display: none;
+      }
+
+      @media (max-width: 360px) {
+        .satisfaction-scale,
+        .intent-scale {
+          gap: 4px;
+        }
+
+        .sat-option label,
+        .intent-option label {
+          min-height: 68px;
+          font-size: 9px;
+        }
+
+        .sat-option label .emoji {
+          font-size: 18px;
+        }
+      }
+    }
   </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800">
+<body class="visitor-survey-page bg-slate-50 text-slate-800">
   <div id="app-nav"></div>
 
-  <main class="container mx-auto px-4 pt-28 pb-20 max-w-6xl">
-    <div class="text-center mb-12">
-      <span class="inline-flex items-center gap-2 rounded-full bg-ocean-50 px-4 py-2 text-sm font-bold text-ocean-700 border border-ocean-100 mb-5">
+  <main class="visitor-main container mx-auto px-4 pt-28 pb-20 max-w-6xl">
+    <div class="visitor-hero text-center mb-12">
+      <span class="location-pill inline-flex items-center gap-2 rounded-full bg-ocean-50 px-4 py-2 text-sm font-bold text-ocean-700 border border-ocean-100 mb-5">
         <i class="fas fa-location-dot"></i> 태안군 소원면 일원(천리포·만리포)
       </span>
       <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-4">방문객 만족도 및 의견 조사</h1>
@@ -334,14 +566,24 @@
       </p>
     </div>
 
-    <div class="grid lg:grid-cols-3 gap-8">
-      <div class="lg:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-100 h-fit">
-        <div class="mb-6 pb-4 border-b border-gray-100">
+    <div class="visitor-layout grid lg:grid-cols-3 gap-8">
+      <div class="visitor-form-panel lg:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-100 h-fit">
+        <div class="visitor-form-header mb-6 pb-4 border-b border-gray-100">
           <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-edit text-ocean-500"></i> 설문 작성하기</h2>
           <p class="text-sm text-gray-500 mt-1">소요시간 약 7분</p>
         </div>
 
-        <form id="visitorForm">
+        <div id="visitor-mobile-progress" class="visitor-mobile-progress" aria-live="polite">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <span id="visitor-progress-label" class="text-xs font-black text-ocean-700">필수 응답 진행률</span>
+            <span id="visitor-progress-count" class="text-xs font-black text-slate-500">0/21</span>
+          </div>
+          <div class="visitor-progress-track">
+            <div id="visitor-progress-bar" class="visitor-progress-bar"></div>
+          </div>
+        </div>
+
+        <form id="visitorForm" novalidate>
           <!-- ====== I. 방문자 기본 정보 ====== -->
           <div class="survey-section">
             <span class="section-badge bg-ocean-50 text-ocean-700 border border-ocean-100">
@@ -592,7 +834,7 @@
           </div>
 
           <!-- 기념품 교환권 -->
-          <div class="bg-cyan-50 border border-cyan-100 rounded-2xl p-5 mb-6">
+          <div class="visitor-final-block bg-cyan-50 border border-cyan-100 rounded-2xl p-5 mb-6">
             <label class="vis-q-title" for="phone_last4">
               <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-cyan-500 text-white text-xs flex-shrink-0"><i class="fas fa-gift"></i></span>
               기념품 교환권 발급용 휴대폰 뒷자리 4자리
@@ -604,7 +846,7 @@
           </div>
 
           <!-- 동의 -->
-          <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-6">
+          <div class="visitor-final-block bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-6">
             <label class="flex items-start gap-3 cursor-pointer">
               <input id="consent_chk" type="checkbox" required class="mt-1 w-5 h-5 text-ocean-600 rounded border-gray-300 focus:ring-ocean-500">
               <span class="text-sm text-slate-600 leading-relaxed">
@@ -613,13 +855,13 @@
             </label>
           </div>
 
-          <button type="submit" class="w-full bg-ocean-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-ocean-800 transition transform active:scale-95 text-lg">
+          <button type="submit" class="visitor-submit-btn w-full bg-ocean-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-ocean-800 transition transform active:scale-95 text-lg">
             설문 제출하기
           </button>
         </form>
       </div>
 
-      <aside class="space-y-6">
+      <aside class="visitor-aside space-y-6">
         <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-24">
           <h2 class="text-xl font-bold flex items-center gap-2 mb-5"><i class="fas fa-chart-pie text-ocean-500"></i> 응답 현황</h2>
           <div class="grid grid-cols-2 gap-4 mb-5">

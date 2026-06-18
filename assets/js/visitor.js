@@ -18,11 +18,32 @@ const SATISFACTION_SCALE = [
 ];
 const INTENT_SCALE = ["매우 있다", "있다", "보통이다", "별로 없다", "전혀 없다"];
 const COUPON_TEMPLATE_URL = "assets/coupon-sample.svg";
+const VISITOR_REQUIRED_STEPS = [
+  { kind: "choice", name: "entry.Q1", label: "Q1. 성별" },
+  { kind: "choice", name: "entry.Q2", label: "Q2. 연령" },
+  { kind: "choice", name: "entry.Q3", label: "Q3. 거주지역" },
+  { kind: "choice", name: "entry.Q4", label: "Q4. 방문횟수" },
+  { kind: "choice", name: "entry.Q5", label: "Q5. 동반자 유형" },
+  { kind: "choice", name: "entry.Q6", label: "Q6. 방문동기" },
+  { kind: "choice", name: "entry.Q7", label: "Q7. 체류기간" },
+  ...VISITOR_SATISFACTION_ITEMS.map((item) => ({
+    kind: "choice",
+    name: `entry.Q${item.q}`,
+    label: `Q${item.q}. ${item.label}`,
+  })),
+  { kind: "choice", name: "entry.Q16", label: "Q16. 방문 만족" },
+  { kind: "choice", name: "entry.Q17", label: "Q17. 재방문 의향" },
+  { kind: "choice", name: "entry.Q18", label: "Q18. 추천 의향" },
+  { kind: "choice", name: "entry.Q19", label: "Q19. 필요시설 수요" },
+  { kind: "phone", selector: "#phone_last4", label: "기념품 교환권 발급용 휴대폰 뒷자리 4자리" },
+  { kind: "checked", selector: "#consent_chk", label: "통계자료 활용 동의" },
+];
 
 document.addEventListener("DOMContentLoaded", async () => {
   UI.init("visitor");
   renderSatisfactionGrid();
   renderIntentGroups();
+  initVisitorMobileProgress();
   fetchStats();
   setInterval(fetchStats, 60000);
 
@@ -57,7 +78,7 @@ function renderSatisfactionGrid() {
       <div class="satisfaction-card">
         <p class="card-title">Q${item.q}. ${item.label}</p>
         <p class="card-hint">${item.hint}</p>
-        <div class="grid grid-cols-5 gap-2">${options}</div>
+        <div class="satisfaction-scale grid grid-cols-5 gap-2">${options}</div>
       </div>
     `;
   }).join("");
@@ -66,6 +87,7 @@ function renderSatisfactionGrid() {
 function renderIntentGroups() {
   document.querySelectorAll("[data-likert]").forEach((container) => {
     const q = container.dataset.likert;
+    container.classList.add("intent-scale");
     container.innerHTML = INTENT_SCALE.map((value, idx) => `
       <div class="intent-option int-${idx + 1}">
         <input type="radio" name="entry.${q}" value="${value}" id="${q}_int${idx + 1}" ${idx === 0 ? "required" : ""}>
@@ -76,6 +98,25 @@ function renderIntentGroups() {
       </div>
     `).join("");
   });
+}
+
+function initVisitorMobileProgress() {
+  const form = document.getElementById("visitorForm");
+  const progressCount = document.getElementById("visitor-progress-count");
+  const progressBar = document.getElementById("visitor-progress-bar");
+  if (!form || !progressCount || !progressBar) return;
+
+  const updateProgress = () => {
+    const completed = VISITOR_REQUIRED_STEPS.filter(isStepComplete).length;
+    const total = VISITOR_REQUIRED_STEPS.length;
+    const pct = total ? Math.round((completed / total) * 100) : 0;
+    progressCount.textContent = `${completed}/${total}`;
+    progressBar.style.width = `${pct}%`;
+  };
+
+  form.addEventListener("input", updateProgress);
+  form.addEventListener("change", updateProgress);
+  updateProgress();
 }
 
 async function submitForm() {
@@ -146,36 +187,54 @@ function getVal(name) {
 }
 
 function validateForm() {
-  const phoneLast4 = document.getElementById("phone_last4").value.trim();
-  if (!/^\d{4}$/.test(phoneLast4)) {
-    alert("휴대폰 뒷자리 4자리를 숫자로 입력해 주세요.");
-    document.getElementById("phone_last4").focus();
-    return false;
-  }
-
-  const checkboxGroups = [
-    { q: 6, label: "Q6. 방문동기" },
-    { q: 16, label: "Q16. 방문 만족" },
-    { q: 19, label: "Q19. 필요시설 수요" },
-  ];
-
-  for (const group of checkboxGroups) {
-    const options = document.querySelectorAll(`[name="entry.Q${group.q}"]`);
-    if (!Array.from(options).some((option) => option.checked)) {
-      alert(`${group.label}에서 1개 이상 선택해 주세요.`);
-      if (options[0]) options[0].scrollIntoView({ behavior: "smooth", block: "center" });
+  for (const step of VISITOR_REQUIRED_STEPS) {
+    if (!isStepComplete(step)) {
+      if (step.kind === "choice") {
+        alert(`${step.label}에서 1개 이상 선택해 주세요.`);
+      } else if (step.kind === "phone") {
+        alert("휴대폰 뒷자리 4자리를 숫자로 입력해 주세요.");
+      } else {
+        alert("통계자료 활용 동의에 체크해 주세요.");
+      }
+      scrollToStep(step);
       return false;
     }
   }
 
-  const consent = document.getElementById("consent_chk");
-  if (consent && !consent.checked) {
-    alert("통계자료 활용 동의에 체크해 주세요.");
-    consent.scrollIntoView({ behavior: "smooth", block: "center" });
-    return false;
+  return true;
+}
+
+function isStepComplete(step) {
+  if (step.kind === "choice") {
+    const options = document.querySelectorAll(`[name="${step.name}"]`);
+    return Array.from(options).some((option) => option.checked);
   }
 
-  return true;
+  const el = document.querySelector(step.selector);
+  if (!el) return false;
+  if (step.kind === "phone") return /^\d{4}$/.test(el.value.trim());
+  if (step.kind === "checked") return !!el.checked;
+  return false;
+}
+
+function scrollToStep(step) {
+  const el = step.selector
+    ? document.querySelector(step.selector)
+    : document.querySelector(`[name="${step.name}"]`);
+  if (!el) return;
+
+  const target =
+    el.closest(".satisfaction-card") ||
+    el.closest(".visitor-final-block") ||
+    el.closest(".mb-8") ||
+    el.closest(".mb-2") ||
+    el.closest(".survey-section") ||
+    el;
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  if (step.kind !== "choice" && typeof el.focus === "function") {
+    setTimeout(() => el.focus({ preventScroll: true }), 350);
+  }
 }
 
 function makeCouponCode(phoneLast4) {
