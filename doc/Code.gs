@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Code.gs (Unified)
  * - 4 surveys in 1 Spreadsheet (responses01/02/03/04)
  * - formType routing: resident | lodging | tourist | visitor
@@ -769,8 +769,44 @@ function clearCaches_() {
     "linker_base_summary_ALL_v1",
     "linker_base_summary_모항리_v1",
     "linker_base_summary_의항리_v1",
+    // [FIX] getAggData_()는 "agg_" + actionName 키로 ScriptCache에 저장하므로
+    // "agg_" prefix 키도 함께 제거해야 실제 캐시 무효화가 됨
+    "agg_admin_summary_v3",
+    "agg_admin_summary_ALL_all_v3",
+    "agg_admin_summary_ALL_this_month_v3",
+    "agg_survey_stats",
+    "agg_survey_charts",
+    "agg_wordcloud",
   ]);
+
+  // [FIX] DATA_AGG 시트에서 admin_summary 관련 행의 타임스탬프를 0으로 만료 처리
+  // → getAggData_()의 스프레드시트 영속 캐시(24h TTL)도 즉시 무효화
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const aggSheet = ss.getSheetByName("DATA_AGG");
+    if (aggSheet) {
+      const data = aggSheet.getDataRange().getValues();
+      const expireKeys = new Set([
+        "admin_summary_v3",
+        "admin_summary_ALL_all_v3",
+        "admin_summary_ALL_this_month_v3",
+        "survey_stats",
+        "survey_charts",
+        "wordcloud",
+      ]);
+      for (let i = 1; i < data.length; i++) {
+        if (expireKeys.has(String(data[i][0]))) {
+          // 타임스탬프를 epoch 0으로 설정 → isExpired = true 강제
+          aggSheet.getRange(i + 1, 2).setValue(new Date(0));
+        }
+      }
+    }
+  } catch (e) {
+    // Non-critical: log and continue
+    console.warn("[clearCaches_] DATA_AGG expire failed:", e);
+  }
 }
+
 // -----------------------------
 // Scenario log (existing)
 // -----------------------------
