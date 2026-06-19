@@ -557,10 +557,11 @@ const APP = {
                'reports': { loader: 'loadReportsIndex', startMsg: '보고 데이터 병렬 연동 중...' },
                'data': { loader: 'loadDataStatus', startMsg: '데이터 시트 상태 점검 중...' },
                'scenario': { loader: 'loadScenarioMap', startMsg: '시나리오 맵 로딩 중...' },
-               'prog-exec': { loader: 'loadProgExecSummary', startMsg: '프로그램 실행 데이터 집계 중...' },
-               'linker-base': { loader: 'loadLinkerBaseSummary', startMsg: '주민참여 기반 지수 계산 중...' },
-               'visitor-admin': { loader: 'loadVisitorAdmin', startMsg: '방문객 설문 데이터 로딩 중...' },
-               'survey-settings': { loader: 'loadSurveySettings', startMsg: '설문 접수 설정 로딩 중...' }
+                'prog-exec': { loader: 'loadProgExecSummary', startMsg: '프로그램 실행 데이터 집계 중...' },
+                'linker-base': { loader: 'loadLinkerBaseSummary', startMsg: '주민참여 기반 지수 계산 중...' },
+                'visitor-admin': { loader: 'loadVisitorAdmin', startMsg: '방문객 설문 데이터 로딩 중...' },
+                'resident-v2-admin': { loader: 'loadResidentV2Admin', startMsg: '주민 v2 설문 데이터 로딩 중...' },
+                'survey-settings': { loader: 'loadSurveySettings', startMsg: '설문 접수 설정 로딩 중...' }
            };
            
            const cfg = map[tabName];
@@ -634,6 +635,9 @@ const APP = {
              else if(tabName === 'visitor-admin') {
                  this.renderVisitorAdminTab(data, container);
              }
+             else if(tabName === 'resident-v2-admin') {
+                 this.renderResidentV2AdminTab(data, container);
+             }
              else if(tabName === 'survey-settings') {
                  this.renderSurveySettingsTab(data, container);
              }
@@ -654,12 +658,13 @@ const APP = {
 
          renderSurveySettingsTab(data, container) {
              const surveys = data?.surveys || {};
-             const order = ['resident', 'tourist', 'lodging', 'visitor'];
+             const order = ['visitor', 'resident_v2', 'resident', 'tourist', 'lodging'];
              const fallbackLabels = {
+                 visitor: '소원면 방문객 대상',
+                 resident_v2: '주민설문 v2',
                  resident: '지역주민대상',
                  tourist: '관광객방문자대상',
-                 lodging: '숙박업 관계자대상',
-                 visitor: '소원면 방문객 대상'
+                 lodging: '숙박업 관계자대상'
              };
 
              container.innerHTML = `
@@ -667,18 +672,19 @@ const APP = {
                      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                          <div>
                              <p class="text-xs font-black text-ocean-600 uppercase tracking-wide mb-2">Survey Access Control</p>
-                             <h2 class="text-2xl font-black text-slate-900">설문 접수 on/off 설정</h2>
-                             <p class="text-sm text-slate-500 mt-2">접수 종료된 설문은 응답 페이지에서 작성이 비활성화되고, 서버 제출도 거부됩니다.</p>
+                             <h2 class="text-2xl font-black text-slate-900">설문 잠금 및 숨김 설정</h2>
+                             <p class="text-sm text-slate-500 mt-2">잠금은 응답 페이지 작성과 서버 제출을 막고, 숨김은 홈 카드와 상단 메뉴에서 설문을 감춥니다.</p>
                          </div>
                          <button id="btn-save-survey-settings" onclick="APP.admin.saveSurveySettings()" class="px-5 py-3 bg-slate-900 text-white rounded-xl font-black hover:bg-slate-800 transition">
                              <i class="fas fa-save mr-2"></i>설정 저장
                          </button>
                      </div>
 
-                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
                          ${order.map((key) => {
                              const item = surveys[key] || {};
                              const enabled = item.enabled === true;
+                             const hidden = item.hidden === true;
                              return `
                                  <div class="bg-white rounded-2xl border ${enabled ? 'border-ocean-200' : 'border-slate-200'} shadow-sm p-5">
                                      <div class="flex items-start justify-between gap-3 mb-5">
@@ -686,11 +692,18 @@ const APP = {
                                              <h3 class="font-black text-slate-900">${this.escapeHtml(item.label || fallbackLabels[key])}</h3>
                                              <p class="text-xs text-slate-500 mt-1 leading-relaxed">${this.escapeHtml(item.description || '')}</p>
                                          </div>
-                                         <span id="survey-state-${key}" class="text-[11px] font-black px-2.5 py-1 rounded-full ${enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${enabled ? '접수중' : '종료'}</span>
+                                         <div class="flex flex-col items-end gap-1">
+                                             <span id="survey-state-${key}" class="text-[11px] font-black px-2.5 py-1 rounded-full ${enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${enabled ? '접수중' : '잠금'}</span>
+                                             <span class="text-[11px] font-black px-2.5 py-1 rounded-full ${hidden ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700'}">${hidden ? '숨김' : '노출'}</span>
+                                         </div>
                                      </div>
-                                     <label class="flex items-center justify-between cursor-pointer rounded-xl bg-slate-50 border border-slate-100 p-3">
+                                     <label class="flex items-center justify-between cursor-pointer rounded-xl bg-slate-50 border border-slate-100 p-3 mb-2">
                                          <span class="text-sm font-bold text-slate-700">응답 접수</span>
                                          <input type="checkbox" data-survey-toggle="${key}" class="w-6 h-6 text-ocean-600 rounded border-slate-300 focus:ring-ocean-500" ${enabled ? 'checked' : ''}>
+                                     </label>
+                                     <label class="flex items-center justify-between cursor-pointer rounded-xl bg-slate-50 border border-slate-100 p-3">
+                                         <span class="text-sm font-bold text-slate-700">홈/네비 숨김</span>
+                                         <input type="checkbox" data-survey-hidden="${key}" class="w-6 h-6 text-amber-600 rounded border-slate-300 focus:ring-amber-500" ${hidden ? 'checked' : ''}>
                                      </label>
                                  </div>
                              `;
@@ -705,7 +718,16 @@ const APP = {
              const original = btn ? btn.innerHTML : '';
              const settings = {};
              document.querySelectorAll('[data-survey-toggle]').forEach((input) => {
-                 settings[input.dataset.surveyToggle] = { enabled: input.checked };
+                 settings[input.dataset.surveyToggle] = {
+                     ...(settings[input.dataset.surveyToggle] || {}),
+                     enabled: input.checked
+                 };
+             });
+             document.querySelectorAll('[data-survey-hidden]').forEach((input) => {
+                 settings[input.dataset.surveyHidden] = {
+                     ...(settings[input.dataset.surveyHidden] || {}),
+                     hidden: input.checked
+                 };
              });
 
              if (btn) {
@@ -880,6 +902,149 @@ const APP = {
                      data: {
                          labels: needs.map((item) => item.label),
                          datasets: [{ label: '선택 수', data: needs.map((item) => item.count), backgroundColor: '#10b981', borderRadius: 6 }]
+                     },
+                     options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                 });
+             }
+         },
+
+         renderResidentV2AdminTab(data, container) {
+             const stats = data?.stats || {};
+             const rows = data?.responses?.rows || [];
+             const settings = data?.settings?.surveys?.resident_v2 || {};
+             const lifeNeeds = stats.lifeNeeds?.top3 || [];
+             const comments = rows.filter((row) => row.comment).slice(0, 20);
+             const tableRows = rows.slice(0, 200);
+
+             container.innerHTML = `
+                 <div class="space-y-6">
+                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                         <div>
+                             <p class="text-xs font-black text-ocean-600 uppercase tracking-wide mb-2">Resident Survey V2</p>
+                             <h2 class="text-2xl font-black text-slate-900">주민 v2 설문 관리</h2>
+                             <p class="text-sm text-slate-500 mt-2">서비스 수요, 자원활용, 사업 인식도, 주민 참여 의향과 교환권 발급 정보를 확인합니다.</p>
+                         </div>
+                         <div class="flex flex-wrap items-center gap-2">
+                             <span class="text-xs font-black px-3 py-1.5 rounded-full ${settings.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
+                                 ${settings.enabled ? '주민 v2 접수중' : '주민 v2 잠금'}
+                             </span>
+                             <span class="text-xs font-black px-3 py-1.5 rounded-full ${settings.hidden ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700'}">
+                                 ${settings.hidden ? '홈/네비 숨김' : '홈/네비 노출'}
+                             </span>
+                             <button onclick="APP.admin.showTab('survey-settings')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-bold transition">
+                                 <i class="fas fa-toggle-on mr-1"></i>설정
+                             </button>
+                         </div>
+                     </div>
+
+                     <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                         ${this._visitorMetricCard('총 응답', `${Number(stats.total || 0).toLocaleString()}명`, 'fa-users', 'text-ocean-600')}
+                         ${this._visitorMetricCard('생활만족 평균', stats.satisfactionAvg ? `${stats.satisfactionAvg} / 5` : '-', 'fa-star', 'text-amber-500')}
+                         ${this._visitorMetricCard('참여 의향', `${Number(stats.participation?.posRate || 0).toFixed(1)}%`, 'fa-handshake', 'text-emerald-600')}
+                         ${this._visitorMetricCard('프로그램 이용 의향', `${Number(stats.programIntent?.posRate || 0).toFixed(1)}%`, 'fa-calendar-check', 'text-cyan-600')}
+                     </div>
+
+                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <h3 class="font-black text-slate-900 mb-4">연령대 분포</h3>
+                             <div class="h-72"><canvas id="resident-v2-age-chart"></canvas></div>
+                         </div>
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <h3 class="font-black text-slate-900 mb-4">생활여건 개선 수요 TOP</h3>
+                             <div class="h-72"><canvas id="resident-v2-needs-chart"></canvas></div>
+                         </div>
+                     </div>
+
+                     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                         <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 overflow-hidden">
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">응답 표</h3>
+                                 <span class="text-xs text-slate-400">최근 ${tableRows.length}건</span>
+                             </div>
+                             <div class="overflow-auto max-h-[520px] border border-slate-100 rounded-xl">
+                                 <table class="min-w-[1200px] w-full text-xs">
+                                     <thead class="bg-slate-50 sticky top-0 z-10">
+                                         <tr class="text-slate-500">
+                                             <th class="text-left p-3">제출시각</th>
+                                             <th class="text-left p-3">뒷자리</th>
+                                             <th class="text-left p-3">교환권 코드</th>
+                                             <th class="text-left p-3">연령</th>
+                                             <th class="text-left p-3">마을</th>
+                                             <th class="text-left p-3">거주기간</th>
+                                             <th class="text-left p-3">만족도</th>
+                                             <th class="text-left p-3">개선 수요</th>
+                                             <th class="text-left p-3">사업 인식</th>
+                                             <th class="text-left p-3">참여 의향</th>
+                                             <th class="text-left p-3">프로그램 의향</th>
+                                         </tr>
+                                     </thead>
+                                     <tbody>
+                                         ${tableRows.map((row) => `
+                                             <tr class="border-t border-slate-100 hover:bg-slate-50">
+                                                 <td class="p-3 text-slate-500">${this.escapeHtml(this._formatDateCell(row.timestamp))}</td>
+                                                 <td class="p-3 font-black text-slate-800">${this.escapeHtml(row.phoneLast4 || '-')}</td>
+                                                 <td class="p-3 font-mono text-[11px] text-ocean-700">${this.escapeHtml(row.couponCode || '-')}</td>
+                                                 <td class="p-3">${this.escapeHtml(row.age || '-')}</td>
+                                                 <td class="p-3">${this.escapeHtml(row.village || '-')}</td>
+                                                 <td class="p-3">${this.escapeHtml(row.residencePeriod || '-')}</td>
+                                                 <td class="p-3">${this.escapeHtml(row.satisfactionAvg || '-')}</td>
+                                                 <td class="p-3 max-w-[220px] truncate" title="${this.escapeHtml(row.lifeNeeds || '')}">${this.escapeHtml(row.lifeNeeds || '-')}</td>
+                                                 <td class="p-3">${this.escapeHtml(row.projectAwareness || '-')}</td>
+                                                 <td class="p-3">${this.escapeHtml(row.participation || '-')}</td>
+                                                 <td class="p-3">${this.escapeHtml(row.programIntent || '-')}</td>
+                                             </tr>
+                                         `).join('') || `<tr><td colspan="11" class="p-8 text-center text-slate-400">응답 데이터가 없습니다.</td></tr>`}
+                                     </tbody>
+                                 </table>
+                             </div>
+                         </div>
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <h3 class="font-black text-slate-900 mb-4">주관식 의견</h3>
+                             <div class="space-y-3 max-h-[520px] overflow-auto">
+                                 ${comments.map((row) => `
+                                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                         <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                                             <span>${this.escapeHtml(row.phoneLast4 || '-')}</span>
+                                             <span>${this.escapeHtml(this._formatDateCell(row.timestamp))}</span>
+                                         </div>
+                                         <p class="text-sm text-slate-700 leading-relaxed">${this.escapeHtml(row.comment)}</p>
+                                     </div>
+                                 `).join('') || `<p class="text-sm text-slate-400">주관식 의견이 없습니다.</p>`}
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             `;
+
+             this._renderResidentV2Charts(stats, lifeNeeds);
+         },
+
+         _renderResidentV2Charts(stats, lifeNeeds) {
+             if (typeof Chart === 'undefined') return;
+             this._residentV2Charts = this._residentV2Charts || {};
+             Object.values(this._residentV2Charts).forEach((chart) => chart && chart.destroy && chart.destroy());
+             this._residentV2Charts = {};
+
+             const ageEl = document.getElementById('resident-v2-age-chart');
+             if (ageEl) {
+                 const age = stats.age || {};
+                 this._residentV2Charts.age = new Chart(ageEl, {
+                     type: 'bar',
+                     data: {
+                         labels: Object.keys(age),
+                         datasets: [{ label: '응답 수', data: Object.values(age), backgroundColor: '#0284c7', borderRadius: 6 }]
+                     },
+                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                 });
+             }
+
+             const needsEl = document.getElementById('resident-v2-needs-chart');
+             if (needsEl) {
+                 this._residentV2Charts.needs = new Chart(needsEl, {
+                     type: 'bar',
+                     data: {
+                         labels: lifeNeeds.map((item) => item.label),
+                         datasets: [{ label: '선택 수', data: lifeNeeds.map((item) => item.count), backgroundColor: '#10b981', borderRadius: 6 }]
                      },
                      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
                  });

@@ -1,7 +1,7 @@
 /**
  * Code.gs (Unified)
- * - 4 surveys in 1 Spreadsheet (responses01/02/03/04)
- * - formType routing: resident | lodging | tourist | visitor
+ * - 5 surveys in 1 Spreadsheet (responses01/02/03/04/05)
+ * - formType routing: resident | lodging | tourist | visitor | resident_v2
  * - Stores fixed survey headers + consent + formType
  * - Provides stats endpoints for admin dashboard
  *
@@ -14,6 +14,7 @@ const SHEETS = {
   lodging: "responses02",
   tourist: "responses03",
   visitor: "responses04",
+  resident_v2: "responses05",
   workshop: "WORKSHOP_CODING",
   planDir: "PLAN_DIRECTION",
   matrixIn: "MATRIX_INPUT",
@@ -166,32 +167,102 @@ const VISITOR_HEADER = [
   "COUPON_CODE",
   "consent",
 ];
+const RESIDENT_V2_HEADER = [
+  "timestamp",
+  "formType",
+  "Q1",
+  "Q2",
+  "Q3",
+  "Q3_OTHER",
+  "Q4",
+  "Q4_OTHER",
+  "Q5",
+  "Q6",
+  "Q6_OTHER",
+  "Q7",
+  "Q8",
+  "Q8_OTHER",
+  "Q9",
+  "Q9_OTHER",
+  "Q10",
+  "Q11",
+  "Q12",
+  "Q12_OTHER",
+  "Q13",
+  "Q13_OTHER",
+  "Q14",
+  "Q14_OTHER",
+  "Q15",
+  "Q16",
+  "Q16_OTHER",
+  "Q17",
+  "Q18",
+  "Q19",
+  "Q20",
+  "Q21",
+  "Q22",
+  "Q23",
+  "Q24",
+  "Q25",
+  "Q26",
+  "Q26_OTHER",
+  "Q27",
+  "Q28",
+  "Q29",
+  "Q29_OTHER",
+  "Q30",
+  "Q30_OTHER",
+  "Q31",
+  "Q31_OTHER",
+  "Q32",
+  "Q32_OTHER",
+  "Q33",
+  "Q34",
+  "Q35",
+  "Q36",
+  "Q37",
+  "Q38",
+  "PHONE_LAST4",
+  "COUPON_CODE",
+  "consent",
+];
 const HEADERS = {
   resident: RESIDENT_HEADER,
   tourist: TOURIST_HEADER,
   lodging: LODGER_HEADER,
   visitor: VISITOR_HEADER,
+  resident_v2: RESIDENT_V2_HEADER,
 };
 const DEFAULT_SURVEY_SETTINGS = {
   resident: {
     enabled: false,
+    hidden: false,
     label: "지역주민대상",
     description: "지역 주민 생활 여건 및 수요 조사",
   },
   tourist: {
     enabled: false,
+    hidden: false,
     label: "관광객방문자대상",
     description: "관광객 방문·체류 조사",
   },
   lodging: {
     enabled: false,
+    hidden: false,
     label: "숙박업 관계자대상",
     description: "숙박 운영 실태 및 비수기 공실 구조 조사",
   },
   visitor: {
     enabled: true,
+    hidden: false,
     label: "소원면 방문객 대상",
     description: "방문 환경 만족도 및 필요시설 수요 조사",
+  },
+  resident_v2: {
+    enabled: true,
+    hidden: false,
+    label: "주민설문 v2",
+    description: "서비스 수요 및 자원활용 조사",
   },
 };
 // ------------------------------------------
@@ -448,6 +519,14 @@ function doGet(e) {
       if (e.parameter.role !== "admin")
         return json_({ ok: false, error: "Master Access Required" });
       return json_(getVisitorResponses_(e.parameter.limit));
+    case "stats_resident_v2":
+      return json_(
+        getStatsResidentV2_(e.parameter.region || "ALL", e.parameter.period || "all"),
+      );
+    case "resident_v2_responses":
+      if (e.parameter.role !== "admin")
+        return json_({ ok: false, error: "Master Access Required" });
+      return json_(getResidentV2Responses_(e.parameter.limit));
     case "stats_combined":
     case "stats_overview":
     case "stats_v3":
@@ -505,7 +584,7 @@ function doPost(e) {
       return json_({
         ok: false,
         error:
-          "Missing formType. Must be one of: resident | lodging | tourist | visitor",
+          "Missing formType. Must be one of: resident | lodging | tourist | visitor | resident_v2",
       });
     }
     // Save survey response
@@ -524,7 +603,7 @@ function doPost(e) {
             : formType) + " 설문은 현재 접수 중이 아닙니다.",
       });
     }
-    if (formType === "visitor") {
+    if (formType === "visitor" || formType === "resident_v2") {
       const phoneLast4 = String(
         payload.PHONE_LAST4 || payload.phoneLast4 || payload.phone_last4 || "",
       ).trim();
@@ -535,7 +614,7 @@ function doPost(e) {
           message: "휴대폰 뒷자리 4자리가 필요합니다.",
         });
       }
-      if (visitorPhoneLast4Exists_(phoneLast4)) {
+      if (phoneLast4Exists_(formType, phoneLast4)) {
         return json_({
           ok: false,
           error: "DUPLICATE_PHONE_LAST4",
@@ -659,6 +738,7 @@ function getSurveySettings_() {
       updatedAt: (saved[key] && saved[key].updatedAt) || "",
     };
     surveys[key].enabled = surveys[key].enabled === true;
+    surveys[key].hidden = surveys[key].hidden === true;
   });
 
   return {
@@ -685,6 +765,7 @@ function updateSurveySettings_(payload) {
     current[key] = {
       ...current[key],
       enabled: incoming[key].enabled === true || incoming[key].enabled === "true",
+      hidden: incoming[key].hidden === true || incoming[key].hidden === "true",
       updatedAt: new Date().toISOString(),
     };
   });
@@ -707,6 +788,7 @@ function normalizeFormType_(t) {
     .trim()
     .toLowerCase();
   if (!s) return "";
+  if (s.includes("resident_v2") || s.includes("resident-v2") || s.includes("resident v2") || s.includes("주민설문v2") || s.includes("주민설문 v2")) return "resident_v2";
   if (s.includes("resident") || s.includes("주민")) return "resident";
   if (s.includes("lodging") || s.includes("숙박")) return "lodging";
   if (s.includes("visitor") || s.includes("방문객")) return "visitor";
@@ -766,6 +848,8 @@ function clearCaches_() {
     "stats_tour_ALL_all_v6",
     "stats_visit_ALL_this_month_v1",
     "stats_visit_ALL_all_v1",
+    "stats_resident_v2_ALL_this_month_v1",
+    "stats_resident_v2_ALL_all_v1",
     "prog_exec_summary_ALL_v1",
     "prog_exec_summary_모항리_v1",
     "prog_exec_summary_의항리_v1",
@@ -900,13 +984,14 @@ function filterRows_(header, rows, region, period, sheetType = null) {
   )
     return rows;
 
-  const iRi = idx_(header, "Q1");
+  const regionField = sheetType === "resident_v2" ? "Q3" : "Q1";
+  const iRi = idx_(header, regionField);
   const iTime = idx_(header, "timestamp");
 
   let validRows = rows;
 
   if (
-    (sheetType === "resident" || sheetType === "lodging") &&
+    (sheetType === "resident" || sheetType === "lodging" || sheetType === "resident_v2") &&
     normRegion !== "ALL" &&
     iRi >= 0
   ) {
@@ -1444,11 +1529,17 @@ function getStatsVisitor_(region = "ALL", period = "this_month") {
   });
 }
 
-function visitorPhoneLast4Exists_(phoneLast4) {
-  const { rows, header } = readRows_(SHEETS.visitor);
+function phoneLast4Exists_(formType, phoneLast4) {
+  const sheetName = SHEETS[formType];
+  if (!sheetName) return false;
+  const { rows, header } = readRows_(sheetName);
   const iPhoneLast4 = idx_(header, "PHONE_LAST4");
   if (iPhoneLast4 < 0) return false;
   return rows.some((row) => String(row[iPhoneLast4] || "").trim() === phoneLast4);
+}
+
+function visitorPhoneLast4Exists_(phoneLast4) {
+  return phoneLast4Exists_("visitor", phoneLast4);
 }
 
 function getVisitorResponses_(limitParam) {
@@ -1504,6 +1595,161 @@ function calcVisitorRowSatisfaction_(row, header) {
   }
   return n ? Number((sum / n).toFixed(1)) : 0;
 }
+
+function getStatsResidentV2_(region = "ALL", period = "this_month") {
+  const cKey = `stats_resident_v2_${region}_${period}_v1`;
+  return withCache_(cKey, () => {
+    let { rows, header } = readRows_(SHEETS.resident_v2);
+    rows = filterRows_(header, rows, region, period, "resident_v2");
+
+    const satisfactionIdxs = [
+      "Q18",
+      "Q19",
+      "Q20",
+      "Q21",
+      "Q22",
+      "Q23",
+      "Q24",
+      "Q25",
+    ]
+      .map((q) => idx_(header, q))
+      .filter((i) => i >= 0);
+
+    const avgLikert = () => {
+      let sum = 0;
+      let n = 0;
+      satisfactionIdxs.forEach((idx) => {
+        rows.forEach((r) => {
+          const s = residentV2LikertScore_(r[idx]);
+          if (s) {
+            sum += s;
+            n++;
+          }
+        });
+      });
+      return n ? Number((sum / n).toFixed(1)) : 0;
+    };
+
+    const dist = (key) => {
+      const i = idx_(header, key);
+      return i >= 0 ? countSingle_(rows, i) : {};
+    };
+    const multiTop = (key) => {
+      const i = idx_(header, key);
+      return i >= 0 ? getTop3_(countMulti_(rows, i)) : [];
+    };
+    const comments = [];
+    const iComment = idx_(header, "Q38");
+    if (iComment >= 0) {
+      rows.forEach((r) => {
+        const txt = String(r[iComment] || "").trim();
+        if (txt) comments.push(txt);
+      });
+    }
+
+    const participation = dist("Q33");
+    const programIntent = dist("Q36");
+
+    return {
+      total: rows.length,
+      lastUpdated: new Date().toISOString(),
+      gender: dist("Q1"),
+      age: dist("Q2"),
+      village: dist("Q3"),
+      household: dist("Q4"),
+      residencePeriod: dist("Q5"),
+      job: dist("Q6"),
+      income: dist("Q7"),
+      transport: dist("Q9"),
+      welfare: { top3: multiTop("Q16") },
+      youthOpinion: dist("Q17"),
+      satisfactionAvg: avgLikert(),
+      lifeNeeds: { top3: multiTop("Q26") },
+      tourismNeeds: { top3: multiTop("Q27") },
+      projectAwareness: dist("Q28"),
+      stationNeeds: { top3: multiTop("Q29") },
+      cheonripoNeeds: { top3: multiTop("Q30") },
+      positiveExpectations: { top3: multiTop("Q31") },
+      negativeConcerns: { top3: multiTop("Q32") },
+      participation: {
+        dist: participation,
+        posRate: posRate_(participation, ["모든 활동에 참여", "일부 활동에 참여"]),
+      },
+      possibleActivities: { top3: multiTop("Q34") },
+      availableTimes: { top3: multiTop("Q35") },
+      programIntent: {
+        dist: programIntent,
+        posRate: posRate_(programIntent, ["매우 있음", "있음"]),
+      },
+      fee: dist("Q37"),
+      comments,
+    };
+  });
+}
+
+function getResidentV2Responses_(limitParam) {
+  const limit = Math.max(1, Math.min(1000, Number(limitParam || 300)));
+  let { rows, header } = readRows_(SHEETS.resident_v2);
+  rows = rows.slice(-limit).reverse();
+
+  const pick = (row, key) => {
+    const i = idx_(header, key);
+    return i >= 0 ? row[i] : "";
+  };
+
+  const data = rows.map((row) => ({
+    timestamp: pick(row, "timestamp"),
+    gender: pick(row, "Q1"),
+    age: pick(row, "Q2"),
+    village: pick(row, "Q3"),
+    household: pick(row, "Q4"),
+    residencePeriod: pick(row, "Q5"),
+    job: pick(row, "Q6"),
+    satisfactionAvg: calcResidentV2RowSatisfaction_(row, header),
+    lifeNeeds: pick(row, "Q26"),
+    tourismNeeds: pick(row, "Q27"),
+    projectAwareness: pick(row, "Q28"),
+    participation: pick(row, "Q33"),
+    programIntent: pick(row, "Q36"),
+    fee: pick(row, "Q37"),
+    comment: pick(row, "Q38"),
+    phoneLast4: pick(row, "PHONE_LAST4"),
+    couponCode: pick(row, "COUPON_CODE"),
+  }));
+
+  return { ok: true, total: data.length, rows: data };
+}
+
+function calcResidentV2RowSatisfaction_(row, header) {
+  let sum = 0;
+  let n = 0;
+  for (let q = 18; q <= 25; q++) {
+    const i = idx_(header, "Q" + q);
+    if (i < 0) continue;
+    const s = residentV2LikertScore_(row[i]);
+    if (s) {
+      sum += s;
+      n++;
+    }
+  }
+  return n ? Number((sum / n).toFixed(1)) : 0;
+}
+
+function residentV2LikertScore_(value) {
+  const score = {
+    "매우 만족": 5,
+    만족: 4,
+    보통: 3,
+    불만족: 2,
+    "매우 불만족": 1,
+    "매우 있음": 5,
+    있음: 4,
+    없음: 2,
+    "전혀없음": 1,
+    "전혀 없음": 1,
+  };
+  return score[String(value || "").trim()] || 0;
+}
 // -----------------------------
 // Stats: combined (basic)
 // -----------------------------
@@ -1513,17 +1759,20 @@ function getStatsCombined_() {
     const lodging = getStatsLodging_();
     const tourist = getStatsTourist_();
     const visitor = getStatsVisitor_();
+    const residentV2 = getStatsResidentV2_();
     return {
       lastUpdated: new Date().toISOString(),
       resident,
       lodging,
       tourist,
       visitor,
+      resident_v2: residentV2,
       totals: {
         resident: resident.total || 0,
         lodging: lodging.total || 0,
         tourist: tourist.total || 0,
         visitor: visitor.total || 0,
+        resident_v2: residentV2.total || 0,
       },
     };
   });
@@ -1536,9 +1785,12 @@ function runAdminSummary_(region = "ALL", period = "this_month") {
   const lodging = getStatsLodging_(region, period);
   const tourist = getStatsTourist_(region, period);
   const visitor = getStatsVisitor_(region, period);
+  const residentV2 = getStatsResidentV2_(region, period);
   const computed = computeType2Kpi_(resident, lodging, tourist);
   computed.counts.visitor_total = Number(visitor?.total || 0);
-  computed.survey.responseCount += Number(visitor?.total || 0);
+  computed.counts.resident_v2_total = Number(residentV2?.total || 0);
+  computed.survey.responseCount +=
+    Number(visitor?.total || 0) + Number(residentV2?.total || 0);
 
   if (region === "ALL" && (period === "this_month" || period === "all")) {
     writeSurveyAggregate_(computed);

@@ -12,29 +12,36 @@ async function initCounters() {
     try {
         // Fetch summary data from GAS Backend. Visitor was added later, so fetch
         // its stats separately as a fallback while older admin_summary caches expire.
-        const [summaryResult, visitorResult] = await Promise.allSettled([
+        const [summaryResult, visitorResult, residentV2Result] = await Promise.allSettled([
             App.api.callAction('admin_summary', { region: 'all', period: 'all' }),
-            App.api.callAction('stats_visitor', { region: 'ALL', period: 'all' })
+            App.api.callAction('stats_visitor', { region: 'ALL', period: 'all' }),
+            App.api.callAction('stats_resident_v2', { region: 'ALL', period: 'all' })
         ]);
 
         const res = summaryResult.status === 'fulfilled' ? summaryResult.value : null;
         const visitorStats = visitorResult.status === 'fulfilled' ? visitorResult.value : null;
+        const residentV2Stats = residentV2Result.status === 'fulfilled' ? residentV2Result.value : null;
         const counts = res?.counts || {};
 
         const resident = toCounterNumber(counts.resident_total);
         const tourist = toCounterNumber(counts.tourist_total);
         const lodging = toCounterNumber(counts.lodging_total);
+        const residentV2 = Math.max(
+            toCounterNumber(counts.resident_v2_total),
+            toCounterNumber(residentV2Stats?.total)
+        );
         const visitor = Math.max(
             toCounterNumber(counts.visitor_total),
             toCounterNumber(visitorStats?.total)
         );
         const total = Math.max(
             toCounterNumber(res?.survey?.responseCount),
-            resident + tourist + lodging + visitor
+            resident + tourist + lodging + visitor + residentV2
         );
 
         animateCounter('hero-total', total);
         animateCounter('hero-resident', resident);
+        animateCounter('hero-resident-v2', residentV2);
         animateCounter('hero-tourist', tourist);
         animateCounter('hero-lodging', lodging);
         animateCounter('hero-visitor', visitor);
@@ -56,6 +63,11 @@ async function applySurveyCardStatus() {
     document.querySelectorAll('[data-survey-type]').forEach((card) => {
         const type = card.dataset.surveyType;
         const item = settings.surveys[type];
+        if (item && item.hidden === true) {
+            card.classList.add('hidden');
+            card.setAttribute('aria-hidden', 'true');
+            return;
+        }
         if (!item || item.enabled !== false) return;
 
         card.classList.add('opacity-60');

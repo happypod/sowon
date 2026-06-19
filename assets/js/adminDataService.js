@@ -459,6 +459,15 @@ const AdminDataService = {
         return { stats, responses, settings };
     },
 
+    async loadResidentV2Admin() {
+        const [stats, responses, settings] = await Promise.all([
+            this._fetchGas('stats_resident_v2', { period: 'all' }, 0).catch(() => null),
+            this._fetchGas('resident_v2_responses', { limit: 500, role: 'admin' }, 0).catch(() => null),
+            this.loadSurveySettings().catch(() => null)
+        ]);
+        return { stats, responses, settings };
+    },
+
     // --- Tab 7: Data Integrity & Health (Phase 7) ---
     async loadDataIntegrity() {
         // 무결성 검사는 실시간 파악이 중요하므로 TTL을 0으로 주어 캐시를 방지

@@ -113,13 +113,13 @@
   <script defer src="assets/js/engine.js"></script>
   <script defer src="assets/js/charts.js"></script>
   <script defer src="assets/js/example_data.js?v=5"></script>
-  <script defer src="assets/js/ui.js?v=20260619-closed-surveys"></script>
+  <script defer src="assets/js/ui.js?v=20260619-resident-v2"></script>
   <script defer src="assets/js/tabs/tab_dashboard.js"></script>
   <script defer src="assets/js/tabs/tab_survey.js?v=11"></script>
   <script defer src="assets/js/tabs/tab_prog_exec.js?v=3"></script>
   <script defer src="assets/js/tabs/tab_linker_base.js"></script>
   <script defer src="assets/js/scenario_engine.js"></script>
-  <script defer src="assets/js/app.js?v=20260619-closed-surveys"></script>
+  <script defer src="assets/js/app.js?v=20260619-resident-v2"></script>
 
   <!-- Chart.js & ECharts -->
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -154,6 +154,9 @@
         </button>
         <button onclick="APP.admin.showTab('visitor-admin')" id="tab-visitor-admin" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
             <i class="fas fa-location-dot mr-2"></i>방문객 설문
+        </button>
+        <button onclick="APP.admin.showTab('resident-v2-admin')" id="tab-resident-v2-admin" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
+            <i class="fas fa-clipboard-list mr-2"></i>주민 v2 설문
         </button>
         <button onclick="APP.admin.showTab('local-analysis')" id="tab-local-analysis" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
             <i class="fas fa-map-marked-alt mr-2"></i>3.리 단위 분석
@@ -625,6 +628,14 @@
         <div class="p-10 text-center text-slate-400">
             <h2 class="text-2xl font-bold mb-2">방문객 설문 관리</h2>
             <p>방문객 설문 통계, 차트, 응답 표를 불러오는 중입니다.</p>
+        </div>
+    </div>
+
+    <!-- Resident V2 Survey Admin -->
+    <div id="view-resident-v2-admin" class="view-section hidden min-h-[500px]">
+        <div class="p-10 text-center text-slate-400">
+            <h2 class="text-2xl font-bold mb-2">주민 v2 설문 관리</h2>
+            <p>주민 v2 설문 통계, 차트, 응답 표를 불러오는 중입니다.</p>
         </div>
     </div>
 

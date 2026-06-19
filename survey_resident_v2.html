@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>주민설문 v2 | 소원권역 어촌신활력증진사업</title>
+  <meta name="description" content="태안군 소원면(천리포·만리포) 서비스 수요 및 자원활용 조사">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/ui.js?v=20260619-resident-v2"></script>
+  <script src="assets/js/app.js?v=20260619-resident-v2"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Pretendard", "sans-serif"] },
+          colors: {
+            ocean: { 50: "#f0f9ff", 100: "#e0f2fe", 500: "#0ea5e9", 600: "#0284c7", 700: "#0369a1", 800: "#075985", 900: "#0c4a6e" }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body { background: #f8fafc; color: #0f172a; }
+    .resident-v2-hero {
+      background: linear-gradient(135deg, #075985 0%, #0f766e 100%);
+      color: white;
+      padding: 6rem 0 5rem;
+    }
+    .mobile-progress {
+      position: sticky;
+      top: 4rem;
+      z-index: 40;
+      background: rgba(248, 250, 252, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .survey-shell { margin-top: -3rem; }
+    .survey-section {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-heading {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .section-heading > span {
+      flex: 0 0 auto;
+      display: inline-flex;
+      width: 2.5rem;
+      height: 2.5rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-weight: 900;
+      font-size: 0.85rem;
+    }
+    .section-heading h2 { font-size: 1.15rem; font-weight: 900; color: #0f172a; }
+    .section-heading p { margin-top: 0.25rem; color: #64748b; font-size: 0.9rem; line-height: 1.55; }
+    .question-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1rem;
+      background: #fbfdff;
+    }
+    .question-title {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.875rem;
+    }
+    .question-title h3 { font-weight: 900; color: #1e293b; line-height: 1.35; }
+    .question-title p { margin-top: 0.15rem; font-size: 0.8rem; color: #64748b; }
+    .q-badge {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.65rem;
+      height: 1.65rem;
+      padding: 0 0.5rem;
+      border-radius: 999px;
+      background: #0f172a;
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 900;
+    }
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+    .option-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .choice-pill {
+      position: relative;
+      min-height: 3rem;
+      display: flex;
+      align-items: center;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      background: white;
+      padding: 0.85rem 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+    }
+    .choice-pill input { position: absolute; opacity: 0; pointer-events: none; }
+    .choice-pill span {
+      width: 100%;
+      color: #334155;
+      font-weight: 800;
+      line-height: 1.35;
+      font-size: 0.92rem;
+      word-break: keep-all;
+    }
+    .choice-pill:has(input:checked) {
+      border-color: #0284c7;
+      background: #f0f9ff;
+      box-shadow: 0 0 0 3px #bae6fd;
+      transform: translateY(-1px);
+    }
+    .choice-pill:has(input:checked) span { color: #075985; }
+    .other-input, .phone-input, .text-area {
+      width: 100%;
+      margin-top: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      background: white;
+      padding: 0.9rem 1rem;
+      outline: none;
+      font-weight: 700;
+    }
+    .other-input:focus, .phone-input:focus, .text-area:focus {
+      border-color: #0284c7;
+      box-shadow: 0 0 0 3px #bae6fd;
+    }
+    .satisfaction-list { display: grid; gap: 0.85rem; }
+    .satisfaction-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      background: white;
+      padding: 0.85rem;
+    }
+    .sat-title { font-weight: 900; color: #1e293b; margin-bottom: 0.7rem; }
+    .sat-scale {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.45rem;
+    }
+    .sat-scale label {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.9rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      cursor: pointer;
+      text-align: center;
+    }
+    .sat-scale input { position: absolute; opacity: 0; pointer-events: none; }
+    .sat-scale span { font-size: 0.72rem; font-weight: 900; color: #475569; word-break: keep-all; }
+    .sat-scale label:has(input:checked) { border-color: #0f766e; background: #f0fdfa; box-shadow: 0 0 0 3px #99f6e4; }
+    .sat-scale label:has(input:checked) span { color: #0f766e; }
+    .consent-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      border: 1px solid #bae6fd;
+      background: #f0f9ff;
+      border-radius: 16px;
+      padding: 1rem;
+      cursor: pointer;
+      margin: 1rem 0;
+    }
+    .consent-card input { width: 1.35rem; height: 1.35rem; margin-top: 0.1rem; accent-color: #0284c7; }
+    .consent-card strong { display: block; color: #075985; font-weight: 900; }
+    .consent-card small { display: block; margin-top: 0.25rem; color: #475569; line-height: 1.5; }
+    .submit-button {
+      width: 100%;
+      min-height: 3.5rem;
+      border-radius: 18px;
+      background: #0f172a;
+      color: white;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      box-shadow: 0 18px 35px rgba(15, 23, 42, 0.2);
+    }
+    .submit-button:disabled { opacity: 0.65; cursor: not-allowed; }
+    @media (min-width: 768px) {
+      .survey-section { padding: 1.75rem; border-radius: 24px; }
+      .section-heading h2 { font-size: 1.4rem; }
+      .question-card { padding: 1.25rem; }
+      .option-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .satisfaction-card {
+        display: grid;
+        grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.2fr);
+        gap: 1rem;
+        align-items: center;
+      }
+      .sat-title { margin-bottom: 0; }
+    }
+    @media (max-width: 420px) {
+      .option-grid, .option-grid.two { grid-template-columns: 1fr; }
+      .sat-scale { grid-template-columns: repeat(5, minmax(3.2rem, 1fr)); overflow-x: auto; padding-bottom: 0.15rem; }
+      .sat-scale label { min-width: 3.2rem; }
+    }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+  <div id="app-nav"></div>
+
+  <main class="flex-grow">
+    <section class="resident-v2-hero">
+      <div class="container mx-auto max-w-5xl px-4">
+        <p class="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm font-black text-cyan-100 ring-1 ring-white/20">
+          태안군 소원면 일원
+        </p>
+        <h1 class="mt-6 max-w-3xl text-4xl font-black leading-tight md:text-6xl">서비스 수요 및 자원활용 조사</h1>
+        <p class="mt-5 max-w-2xl text-lg leading-relaxed text-cyan-50 md:text-xl">
+          소원권역 어촌신활력사업 기본계획 수립을 위해 주민 여러분의 생활 여건, 서비스 수요, 참여 의향을 듣습니다.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3 text-sm font-black">
+          <span class="rounded-full bg-white/10 px-4 py-2 ring-1 ring-white/20">조사기간 2026년 6월~7월</span>
+          <span class="rounded-full bg-white/10 px-4 py-2 ring-1 ring-white/20">참여자 <span id="resident-v2-total-count">0</span>명</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="mobile-progress">
+      <div class="container mx-auto max-w-5xl px-4 py-3">
+        <div class="flex items-center justify-between text-xs font-black text-slate-600">
+          <span>진행률</span>
+          <span id="resident-v2-progress-count">0/0</span>
+        </div>
+        <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+          <div id="resident-v2-progress-bar" class="h-full w-0 rounded-full bg-ocean-600 transition-all duration-300"></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="survey-shell">
+      <div class="container mx-auto max-w-5xl px-4 pb-16">
+        <form id="residentV2Form" novalidate>
+          <div id="resident-v2-form-root"></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="app-footer" class="mt-auto"></div>
+
+  <script src="assets/js/resident_v2.js?v=20260619-resident-v2"></script>
+</body>
+</html>
