@@ -16,10 +16,10 @@ const UI = {
 
     const menuItems = [
       { key: "home", label: "홈", url: "home.html", icon: "fa-home" },
-      { key: "resident", label: "주민", url: "survey_resident.html", icon: "fa-user" },
-      { key: "tourist", label: "관광객", url: "survey_tourist.html", icon: "fa-plane" },
+      { key: "resident", label: "주민", url: "survey_resident.html", icon: "fa-user", closed: true },
+      { key: "tourist", label: "관광객", url: "survey_tourist.html", icon: "fa-plane", closed: true },
       { key: "visitor", label: "방문객", url: "survey_visitor.html", icon: "fa-location-dot" },
-      { key: "lodging", label: "숙박관계자", url: "survey_lodging.html", icon: "fa-hotel" },
+      { key: "lodging", label: "숙박관계자", url: "survey_lodging.html", icon: "fa-hotel", closed: true },
       { key: "admin", label: "관리자", url: "#", icon: "fa-cog", onclick: "APP.auth.handleAdminNav(event)" },
     ];
 
@@ -48,7 +48,7 @@ const UI = {
           </a>
 
           <div class="hidden md:flex space-x-6 items-center">
-            ${menuItems.map((item) => `<a href="${item.url}" ${item.onclick ? `onclick="${item.onclick}"` : ''} class="${getClass(item.key)}">${item.label}</a>`).join("")}
+            ${menuItems.map((item) => `<a href="${item.closed ? '#' : item.url}" ${item.closed ? 'onclick="return UI.handleClosedSurveyNav(event)"' : item.onclick ? `onclick="${item.onclick}"` : ''} class="${getClass(item.key)}">${item.label}</a>`).join("")}
             ${activeKey === 'admin' ? 
               `<button onclick="APP.auth.logout()" class="ml-4 px-3 py-1 text-sm text-red-500 hover:bg-red-50 rounded-lg transition border border-red-200">
                  <i class="fas fa-sign-out-alt mr-1"></i> 로그아웃
@@ -69,7 +69,7 @@ const UI = {
             ${menuItems
               .map(
                 (item) => `
-              <a href="${item.url}" ${item.onclick ? `onclick="${item.onclick}"` : ''} class="mobile-nav-link ${getMobileClass(item.key)}">
+              <a href="${item.closed ? '#' : item.url}" ${item.closed ? 'onclick="return UI.handleClosedSurveyNav(event)"' : item.onclick ? `onclick="${item.onclick}"` : ''} class="mobile-nav-link ${getMobileClass(item.key)}">
                 <span class="flex items-center gap-3">
                    <span class="w-10 h-10 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-lg ${item.key === activeKey ? 'bg-ocean-100 text-ocean-600' : ''}">
                      <i class="fas ${item.icon || 'fa-chevron-right'}"></i>
@@ -97,6 +97,15 @@ const UI = {
     `;
 
     navContainer.innerHTML = navHTML;
+  },
+
+  handleClosedSurveyNav: function (event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    alert("조사가 완료되었습니다");
+    return false;
   },
 
   renderFooter: function () {

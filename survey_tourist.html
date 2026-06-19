@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>¼Ò¿ø±Ç¿ª(¸¸¸®Æ÷¡¤Ãµ¸®Æ÷) °ü±¤°´ ¹æ¹®¡¤Ã¼·ù Á¶»ç</title>
+  <title>ì†Œì›ê¶Œì—­(ë§Œë¦¬í¬Â·ì²œë¦¬í¬) ê´€ê´‘ê° ë°©ë¬¸Â·ì²´ë¥˜ ì¡°ì‚¬</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -13,8 +13,8 @@
   <link rel="stylesheet" href="assets/styles.css">
   <script src="assets/js/config.js"></script>
   <script src="assets/js/core.js"></script>
-  <script src="assets/js/ui.js?v=20260619-home-nav"></script>
-  <script src="assets/js/app.js?v=20260619-home-nav"></script>
+  <script src="assets/js/ui.js?v=20260619-closed-surveys"></script>
+  <script src="assets/js/app.js?v=20260619-closed-surveys"></script>
 
   <script>
         tailwind.config = {
@@ -39,10 +39,10 @@
   <main class="container mx-auto px-4 pt-28 pb-20 max-w-5xl">
 
     <div class="text-center mb-12">
-      <h1 class="text-3xl font-black text-slate-900 mb-4">¼Ò¿ø±Ç¿ª °ü±¤°´ ¹æ¹®¡¤Ã¼·ù Á¶»ç</h1>
+      <h1 class="text-3xl font-black text-slate-900 mb-4">ì†Œì›ê¶Œì—­ ê´€ê´‘ê° ë°©ë¬¸Â·ì²´ë¥˜ ì¡°ì‚¬</h1>
       <p class="text-lg text-slate-600">
-        ¸¸¸®Æ÷¡¤Ãµ¸®Æ÷¸¦ ¹æ¹®ÇØÁÖ½Å ¿©·¯ºÐÀÇ ¼ÒÁßÇÑ ÀÇ°ßÀ» µè½À´Ï´Ù.<br>
-        ºñ¼ö±â¿¡µµ ´õ ¸Ó¹°°í ½ÍÀº ¿©ÇàÁö¸¦ ¸¸µé±â À§ÇÑ ±âÃÊ ÀÚ·á·Î È°¿ëµË´Ï´Ù.
+        ë§Œë¦¬í¬Â·ì²œë¦¬í¬ë¥¼ ë°©ë¬¸í•´ì£¼ì‹  ì—¬ëŸ¬ë¶„ì˜ ì†Œì¤‘í•œ ì˜ê²¬ì„ ë“£ìŠµë‹ˆë‹¤.<br>
+        ë¹„ìˆ˜ê¸°ì—ë„ ë” ë¨¸ë¬¼ê³  ì‹¶ì€ ì—¬í–‰ì§€ë¥¼ ë§Œë“¤ê¸° ìœ„í•œ ê¸°ì´ˆ ìžë£Œë¡œ í™œìš©ë©ë‹ˆë‹¤.
       </p>
     </div>
 
@@ -50,295 +50,295 @@
       <!-- Survey Form -->
       <div class="lg:col-span-2 bg-white p-8 rounded-2xl shadow-lg border border-gray-100 h-fit">
         <div class="mb-6 pb-4 border-b border-gray-100">
-          <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-edit text-ocean-500"></i> ¼³¹® ÀÛ¼ºÇÏ±â</h2>
-          <p class="text-sm text-gray-500 mt-1">¼Ò¿ä½Ã°£ ¾à 10ºÐ</p>
+          <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-edit text-ocean-500"></i> ì„¤ë¬¸ ìž‘ì„±í•˜ê¸°</h2>
+          <p class="text-sm text-gray-500 mt-1">ì†Œìš”ì‹œê°„ ì•½ 10ë¶„</p>
         </div>
 
         <form id="touristForm">
 
           <!-- A. Visit Pattern -->
           <div class="survey-section">
-            <h3 class="section-header">A. ¹æ¹® ÇüÅÂ</h3>
+            <h3 class="section-header">A. ë°©ë¬¸ í˜•íƒœ</h3>
 
             <div class="mb-6">
-              <span class="q-title">Q1. ¾îµð¿¡¼­ ¿À¼Ì³ª¿ä? (°ÅÁÖÁö)</span>
+              <span class="q-title">Q1. ì–´ë””ì—ì„œ ì˜¤ì…¨ë‚˜ìš”? (ê±°ì£¼ì§€)</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="¼­¿ï/°æ±â/ÀÎÃµ" required> ¼­¿ï/°æ±â/ÀÎÃµ</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="ÃæÃ»±Ç"> ÃæÃ»±Ç (´ëÀü/¼¼Á¾/Ãæ³²/ÃæºÏ)</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="Àü¶ó±Ç"> Àü¶ó±Ç</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="°æ»ó±Ç"> °æ»ó±Ç</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="°­¿ø/Á¦ÁÖ/±âÅ¸"> °­¿ø/Á¦ÁÖ/±âÅ¸</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="ì„œìš¸/ê²½ê¸°/ì¸ì²œ" required> ì„œìš¸/ê²½ê¸°/ì¸ì²œ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="ì¶©ì²­ê¶Œ"> ì¶©ì²­ê¶Œ (ëŒ€ì „/ì„¸ì¢…/ì¶©ë‚¨/ì¶©ë¶)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="ì „ë¼ê¶Œ"> ì „ë¼ê¶Œ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="ê²½ìƒê¶Œ"> ê²½ìƒê¶Œ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q1" value="ê°•ì›/ì œì£¼/ê¸°íƒ€"> ê°•ì›/ì œì£¼/ê¸°íƒ€</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q2. ´©±¸¿Í ÇÔ²² ¿À¼Ì³ª¿ä?</span>
+              <span class="q-title">Q2. ëˆ„êµ¬ì™€ í•¨ê»˜ ì˜¤ì…¨ë‚˜ìš”?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="°¡Á· (¾ÆÀÌ µ¿¹Ý)" required> °¡Á· (¾ÆÀÌ µ¿¹Ý)</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="°¡Á· (ºÎºÎ/ºÎ¸ð´Ô)"> °¡Á· (ºÎºÎ/ºÎ¸ð´Ô)</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="Ä£±¸/¿¬ÀÎ"> Ä£±¸/¿¬ÀÎ</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="µ¿È£È¸/´ÜÃ¼"> µ¿È£È¸/´ÜÃ¼</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="È¥ÀÚ"> È¥ÀÚ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="ê°€ì¡± (ì•„ì´ ë™ë°˜)" required> ê°€ì¡± (ì•„ì´ ë™ë°˜)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="ê°€ì¡± (ë¶€ë¶€/ë¶€ëª¨ë‹˜)"> ê°€ì¡± (ë¶€ë¶€/ë¶€ëª¨ë‹˜)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="ì¹œêµ¬/ì—°ì¸"> ì¹œêµ¬/ì—°ì¸</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="ë™í˜¸íšŒ/ë‹¨ì²´"> ë™í˜¸íšŒ/ë‹¨ì²´</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q2" value="í˜¼ìž"> í˜¼ìž</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q3. ÀÌ¹ø ¹æ¹®Àº ¸î ¹Ú ¸çÄ¥ÀÎ°¡¿ä?</span>
+              <span class="q-title">Q3. ì´ë²ˆ ë°©ë¬¸ì€ ëª‡ ë°• ë©°ì¹ ì¸ê°€ìš”?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="´çÀÏÄ¡±â" required> ´çÀÏÄ¡±â</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="1¹Ú 2ÀÏ"> 1¹Ú 2ÀÏ</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="2¹Ú 3ÀÏ"> 2¹Ú 3ÀÏ</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="3¹Ú ÀÌ»ó"> 3¹Ú ÀÌ»ó</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="ë‹¹ì¼ì¹˜ê¸°" required> ë‹¹ì¼ì¹˜ê¸°</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="1ë°• 2ì¼"> 1ë°• 2ì¼</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="2ë°• 3ì¼"> 2ë°• 3ì¼</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q3" value="3ë°• ì´ìƒ"> 3ë°• ì´ìƒ</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q4. ÁÖ·Î ÀÌ¿ëÇÑ(ÇÒ) ±³Åë¼ö´ÜÀº?</span>
+              <span class="q-title">Q4. ì£¼ë¡œ ì´ìš©í•œ(í• ) êµí†µìˆ˜ë‹¨ì€?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="ÀÚ°¡¿ë" required> ÀÚ°¡¿ë</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="´ëÁß±³Åë(¹ö½º)"> ´ëÁß±³Åë(¹ö½º)</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="·»ÅÍÄ«/ÅÃ½Ã"> ·»ÅÍÄ«/ÅÃ½Ã</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="±âÅ¸"> ±âÅ¸</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="ìžê°€ìš©" required> ìžê°€ìš©</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="ëŒ€ì¤‘êµí†µ(ë²„ìŠ¤)"> ëŒ€ì¤‘êµí†µ(ë²„ìŠ¤)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="ë Œí„°ì¹´/íƒì‹œ"> ë Œí„°ì¹´/íƒì‹œ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q4" value="ê¸°íƒ€"> ê¸°íƒ€</label>
               </div>
             </div>
           </div>
 
           <!-- B. Consumption -->
           <div class="survey-section">
-            <h3 class="section-header">B. ¿©Çà È°µ¿ ¹× ¼Òºñ</h3>
+            <h3 class="section-header">B. ì—¬í–‰ í™œë™ ë° ì†Œë¹„</h3>
 
             <div class="mb-6">
-              <span class="q-title">Q5. ÀÌ¹ø ¿©Çà¿¡¼­ °¡Àå ÁßÁ¡À» µÐ È°µ¿Àº? (º¹¼ö¼±ÅÃ)</span>
+              <span class="q-title">Q5. ì´ë²ˆ ì—¬í–‰ì—ì„œ ê°€ìž¥ ì¤‘ì ì„ ë‘” í™œë™ì€? (ë³µìˆ˜ì„ íƒ)</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="ÇØ¼ö¿å/¹°³îÀÌ"> ÇØ¼ö¿å/¹°³îÀÌ</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="¸ÀÁý/Ä«Æä Å½¹æ"> ¸ÀÁý/Ä«Æä Å½¹æ</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="»êÃ¥/Æ®·¹Å·"> »êÃ¥/Æ®·¹Å· (¼ö¸ñ¿ø µî)</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="³¬½Ã/ÇØ·çÁú"> ³¬½Ã/ÇØ·çÁú</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="ÈÞ½Ä/È£Ä²½º"> ÈÞ½Ä/È£Ä²½º</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="Ã¼Çè/ÇÁ·Î±×·¥ Âü¿©"> Ã¼Çè/ÇÁ·Î±×·¥ Âü¿©</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="±âÅ¸"> ±âÅ¸</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="í•´ìˆ˜ìš•/ë¬¼ë†€ì´"> í•´ìˆ˜ìš•/ë¬¼ë†€ì´</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="ë§›ì§‘/ì¹´íŽ˜ íƒë°©"> ë§›ì§‘/ì¹´íŽ˜ íƒë°©</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="ì‚°ì±…/íŠ¸ë ˆí‚¹"> ì‚°ì±…/íŠ¸ë ˆí‚¹ (ìˆ˜ëª©ì› ë“±)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="ë‚šì‹œ/í•´ë£¨ì§ˆ"> ë‚šì‹œ/í•´ë£¨ì§ˆ</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="íœ´ì‹/í˜¸ìº‰ìŠ¤"> íœ´ì‹/í˜¸ìº‰ìŠ¤</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="ì²´í—˜/í”„ë¡œê·¸ëž¨ ì°¸ì—¬"> ì²´í—˜/í”„ë¡œê·¸ëž¨ ì°¸ì—¬</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q5" value="ê¸°íƒ€"> ê¸°íƒ€</label>
               </div>
-              <p class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle mr-1"></i>º¹¼ö ¼±ÅÃ °¡´É</p>
+              <p class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle mr-1"></i>ë³µìˆ˜ ì„ íƒ ê°€ëŠ¥</p>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q6. 1ÀÎ´ç ¿¹»ó ÁöÃâ ºñ¿ëÀº? (¼÷¹Ú/½Äºñ Æ÷ÇÔ)</span>
+              <span class="q-title">Q6. 1ì¸ë‹¹ ì˜ˆìƒ ì§€ì¶œ ë¹„ìš©ì€? (ìˆ™ë°•/ì‹ë¹„ í¬í•¨)</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="5¸¸¿ø ¹Ì¸¸" required> 5¸¸¿ø ¹Ì¸¸</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="5~10¸¸¿ø"> 5~10¸¸¿ø</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="10~20¸¸¿ø"> 10~20¸¸¿ø</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="20~30¸¸¿ø"> 20~30¸¸¿ø</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="30¸¸¿ø ÀÌ»ó"> 30¸¸¿ø ÀÌ»ó</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="5ë§Œì› ë¯¸ë§Œ" required> 5ë§Œì› ë¯¸ë§Œ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="5~10ë§Œì›"> 5~10ë§Œì›</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="10~20ë§Œì›"> 10~20ë§Œì›</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="20~30ë§Œì›"> 20~30ë§Œì›</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q6" value="30ë§Œì› ì´ìƒ"> 30ë§Œì› ì´ìƒ</label>
               </div>
             </div>
           </div>
 
           <!-- C. Satisfaction & Future -->
           <div class="survey-section">
-            <h3 class="section-header">C. ¸¸Á·µµ ¹× ÇâÈÄ ÀÇÇâ</h3>
+            <h3 class="section-header">C. ë§Œì¡±ë„ ë° í–¥í›„ ì˜í–¥</h3>
 
             <div class="mb-6">
-              <span class="q-title">Q7. Àü¹ÝÀûÀÎ ¿©Çà ¸¸Á·µµ´Â?</span>
+              <span class="q-title">Q7. ì „ë°˜ì ì¸ ì—¬í–‰ ë§Œì¡±ë„ëŠ”?</span>
               <div class="flex justify-between max-w-md px-2">
                 <label class="flex flex-col items-center cursor-pointer gap-1">
-                  <input type="radio" name="entry.Q7" value="¸Å¿ì ºÒ¸¸Á·" required>
-                  <span class="text-xs text-gray-500">¸Å¿ì ºÒ¸¸Á·</span>
+                  <input type="radio" name="entry.Q7" value="ë§¤ìš° ë¶ˆë§Œì¡±" required>
+                  <span class="text-xs text-gray-500">ë§¤ìš° ë¶ˆë§Œì¡±</span>
                 </label>
                 <label class="flex flex-col items-center cursor-pointer gap-1">
-                  <input type="radio" name="entry.Q7" value="ºÒ¸¸Á·">
-                  <span class="text-xs text-gray-500">ºÒ¸¸Á·</span>
+                  <input type="radio" name="entry.Q7" value="ë¶ˆë§Œì¡±">
+                  <span class="text-xs text-gray-500">ë¶ˆë§Œì¡±</span>
                 </label>
                 <label class="flex flex-col items-center cursor-pointer gap-1">
-                  <input type="radio" name="entry.Q7" value="º¸Åë">
-                  <span class="text-xs text-gray-500">º¸Åë</span>
+                  <input type="radio" name="entry.Q7" value="ë³´í†µ">
+                  <span class="text-xs text-gray-500">ë³´í†µ</span>
                 </label>
                 <label class="flex flex-col items-center cursor-pointer gap-1">
-                  <input type="radio" name="entry.Q7" value="¸¸Á·">
-                  <span class="text-xs text-gray-500">¸¸Á·</span>
+                  <input type="radio" name="entry.Q7" value="ë§Œì¡±">
+                  <span class="text-xs text-gray-500">ë§Œì¡±</span>
                 </label>
                 <label class="flex flex-col items-center cursor-pointer gap-1">
-                  <input type="radio" name="entry.Q7" value="¸Å¿ì ¸¸Á·">
-                  <span class="text-xs text-gray-500">¸Å¿ì ¸¸Á·</span>
+                  <input type="radio" name="entry.Q7" value="ë§¤ìš° ë§Œì¡±">
+                  <span class="text-xs text-gray-500">ë§¤ìš° ë§Œì¡±</span>
                 </label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q8. °Ü¿ïÀÌ³ª ÆòÀÏ(ºñ¼ö±â)¿¡µµ ´Ù½Ã ¿À½Ç ÀÇÇâÀÌ ÀÖ³ª¿ä?</span>
+              <span class="q-title">Q8. ê²¨ìš¸ì´ë‚˜ í‰ì¼(ë¹„ìˆ˜ê¸°)ì—ë„ ë‹¤ì‹œ ì˜¤ì‹¤ ì˜í–¥ì´ ìžˆë‚˜ìš”?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="²À ´Ù½Ã ¿À°í ½Í´Ù" required> ²À ´Ù½Ã ¿À°í ½Í´Ù</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="±âÈ¸°¡ µÇ¸é ¿Ã °ÍÀÌ´Ù"> ±âÈ¸°¡ µÇ¸é ¿Ã °ÍÀÌ´Ù</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="±Û½ê¿ä"> ±Û½ê¿ä</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="¿ÀÁö ¾ÊÀ» °ÍÀÌ´Ù"> ¿ÀÁö ¾ÊÀ» °ÍÀÌ´Ù</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="ê¼­ ë‹¤ì‹œ ì˜¤ê³  ì‹¶ë‹¤" required> ê¼­ ë‹¤ì‹œ ì˜¤ê³  ì‹¶ë‹¤</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="ê¸°íšŒê°€ ë˜ë©´ ì˜¬ ê²ƒì´ë‹¤"> ê¸°íšŒê°€ ë˜ë©´ ì˜¬ ê²ƒì´ë‹¤</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="ê¸€ìŽ„ìš”"> ê¸€ìŽ„ìš”</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q8" value="ì˜¤ì§€ ì•Šì„ ê²ƒì´ë‹¤"> ì˜¤ì§€ ì•Šì„ ê²ƒì´ë‹¤</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q9. '¿öÄÉÀÌ¼Ç(ÀÏ+ÈÞ½Ä)' ÇÁ·Î±×·¥ÀÌ ÀÖ´Ù¸é Âü¿© ÀÇÇâÀÌ ÀÖ³ª¿ä?</span>
+              <span class="q-title">Q9. 'ì›Œì¼€ì´ì…˜(ì¼+íœ´ì‹)' í”„ë¡œê·¸ëž¨ì´ ìžˆë‹¤ë©´ ì°¸ì—¬ ì˜í–¥ì´ ìžˆë‚˜ìš”?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="¸Å¿ì ÀÖÀ½" required> ¸Å¿ì ÀÖÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="ÀÖÀ½"> ÀÖÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="º¸Åë"> º¸Åë</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="¾øÀ½"> ¾øÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="ÀüÇô ¾øÀ½"> ÀüÇô ¾øÀ½</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="ë§¤ìš° ìžˆìŒ" required> ë§¤ìš° ìžˆìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="ìžˆìŒ"> ìžˆìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="ë³´í†µ"> ë³´í†µ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="ì—†ìŒ"> ì—†ìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q9" value="ì „í˜€ ì—†ìŒ"> ì „í˜€ ì—†ìŒ</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q10. 'ÇÑ ´Þ »ì±â(1°³¿ù ÀÌ»ó)' ÇÁ·Î±×·¥ÀÌ ÀÖ´Ù¸é Âü¿© ÀÇÇâÀÌ ÀÖ³ª¿ä?</span>
+              <span class="q-title">Q10. 'í•œ ë‹¬ ì‚´ê¸°(1ê°œì›” ì´ìƒ)' í”„ë¡œê·¸ëž¨ì´ ìžˆë‹¤ë©´ ì°¸ì—¬ ì˜í–¥ì´ ìžˆë‚˜ìš”?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="¸Å¿ì ÀÖÀ½" required> ¸Å¿ì ÀÖÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="ÀÖÀ½"> ÀÖÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="º¸Åë"> º¸Åë</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="¾øÀ½"> ¾øÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="ÀüÇô ¾øÀ½"> ÀüÇô ¾øÀ½</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="ë§¤ìš° ìžˆìŒ" required> ë§¤ìš° ìžˆìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="ìžˆìŒ"> ìžˆìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="ë³´í†µ"> ë³´í†µ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="ì—†ìŒ"> ì—†ìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q10" value="ì „í˜€ ì—†ìŒ"> ì „í˜€ ì—†ìŒ</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q11. ½ÇÁ¦·Î Àå±â Ã¼·ù¸¦ ÇÑ´Ù¸é, ¼±È£ Ã¼·ù ±â°£Àº?</span>
+              <span class="q-title">Q11. ì‹¤ì œë¡œ ìž¥ê¸° ì²´ë¥˜ë¥¼ í•œë‹¤ë©´, ì„ í˜¸ ì²´ë¥˜ ê¸°ê°„ì€?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="1ÁÖ~2ÁÖ" required> 1ÁÖ~2ÁÖ</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="3ÁÖ~1°³¿ù"> 3ÁÖ~1°³¿ù</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="1~2°³¿ù"> 1~2°³¿ù</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="2~3°³¿ù"> 2~3°³¿ù</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="3°³¿ù ÀÌ»ó"> 3°³¿ù ÀÌ»ó</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="1ì£¼~2ì£¼" required> 1ì£¼~2ì£¼</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="3ì£¼~1ê°œì›”"> 3ì£¼~1ê°œì›”</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="1~2ê°œì›”"> 1~2ê°œì›”</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="2~3ê°œì›”"> 2~3ê°œì›”</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q11" value="3ê°œì›” ì´ìƒ"> 3ê°œì›” ì´ìƒ</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q12. Àå±â Ã¼·ù ½Ã, °¡Àå Áß¿äÇÏ°Ô »ý°¢ÇÏ´Â Á¶°ÇÀº? (ÃÖ´ë 2°³)</span>
+              <span class="q-title">Q12. ìž¥ê¸° ì²´ë¥˜ ì‹œ, ê°€ìž¥ ì¤‘ìš”í•˜ê²Œ ìƒê°í•˜ëŠ” ì¡°ê±´ì€? (ìµœëŒ€ 2ê°œ)</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="°¡°Ý(Àå±âÇÒÀÎ)"> °¡°Ý(Àå±âÇÒÀÎ)</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="¼÷¼Ò Ç°Áú/Ã»°á"> ¼÷¼Ò Ç°Áú/Ã»°á</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="¾÷¹«°ø°£/¿ÍÀÌÆÄÀÌ"> ¾÷¹«°ø°£/¿ÍÀÌÆÄÀÌ</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="½Ä»ç/µµ½Ã¶ô/Àåº¸±â"> ½Ä»ç/µµ½Ã¶ô/Àåº¸±â</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="ÀÌµ¿(ÇÈ¾÷/´ëÁß±³Åë)"> ÀÌµ¿(ÇÈ¾÷/´ëÁß±³Åë)</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="Ã¼Çè/Ä¿¹Â´ÏÆ¼ ÇÁ·Î±×·¥"> Ã¼Çè/Ä¿¹Â´ÏÆ¼ ÇÁ·Î±×·¥</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="ÀÇ·á/µ¹º½ Á¢±Ù¼º"> ÀÇ·á/µ¹º½ Á¢±Ù¼º</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="±âÅ¸"> ±âÅ¸</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="ê°€ê²©(ìž¥ê¸°í• ì¸)"> ê°€ê²©(ìž¥ê¸°í• ì¸)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="ìˆ™ì†Œ í’ˆì§ˆ/ì²­ê²°"> ìˆ™ì†Œ í’ˆì§ˆ/ì²­ê²°</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="ì—…ë¬´ê³µê°„/ì™€ì´íŒŒì´"> ì—…ë¬´ê³µê°„/ì™€ì´íŒŒì´</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="ì‹ì‚¬/ë„ì‹œë½/ìž¥ë³´ê¸°"> ì‹ì‚¬/ë„ì‹œë½/ìž¥ë³´ê¸°</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="ì´ë™(í”½ì—…/ëŒ€ì¤‘êµí†µ)"> ì´ë™(í”½ì—…/ëŒ€ì¤‘êµí†µ)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="ì²´í—˜/ì»¤ë®¤ë‹ˆí‹° í”„ë¡œê·¸ëž¨"> ì²´í—˜/ì»¤ë®¤ë‹ˆí‹° í”„ë¡œê·¸ëž¨</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="ì˜ë£Œ/ëŒë´„ ì ‘ê·¼ì„±"> ì˜ë£Œ/ëŒë´„ ì ‘ê·¼ì„±</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q12" value="ê¸°íƒ€"> ê¸°íƒ€</label>
               </div>
-              <p class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle mr-1"></i>ÃÖ´ë 2°³ ¼±ÅÃ ±ÇÀå(ÀÀ´ä ºÎ´ã ÃÖ¼ÒÈ­)</p>
+              <p class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle mr-1"></i>ìµœëŒ€ 2ê°œ ì„ íƒ ê¶Œìž¥(ì‘ë‹µ ë¶€ë‹´ ìµœì†Œí™”)</p>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q13. 1°³¿ù ÀÌ»ó Àå±â Ã¼·ù°¡ ¾î·Æ´Ù¸é, °¡Àå Å« Á¦¾à ¿äÀÎÀº ¹«¾ùÀÔ´Ï±î?</span>
+              <span class="q-title">Q13. 1ê°œì›” ì´ìƒ ìž¥ê¸° ì²´ë¥˜ê°€ ì–´ë µë‹¤ë©´, ê°€ìž¥ í° ì œì•½ ìš”ì¸ì€ ë¬´ì—‡ìž…ë‹ˆê¹Œ?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="Á÷Àå/¾÷¹« ¹®Á¦" required> Á÷Àå/¾÷¹« ¹®Á¦</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="ºñ¿ë ¹®Á¦"> ºñ¿ë ¹®Á¦</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="ÁÖ°Å/¼÷¼Ò È¯°æ ºÎÁ·"> ÁÖ°Å/¼÷¼Ò È¯°æ ºÎÁ·</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="ÀÚ³à/°¡Á· ¹®Á¦"> ÀÚ³à/°¡Á· ¹®Á¦</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="¿ø°Ý±Ù¹«/½Ã°£ Á¦¾à"> ¿ø°Ý±Ù¹«/½Ã°£ Á¦¾à</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="Àå±â Ã¼·ù ÀÇÇâ ¾øÀ½"> Àå±â Ã¼·ù ÀÇÇâ ¾øÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="±âÅ¸"> ±âÅ¸</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="ì§ìž¥/ì—…ë¬´ ë¬¸ì œ" required> ì§ìž¥/ì—…ë¬´ ë¬¸ì œ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="ë¹„ìš© ë¬¸ì œ"> ë¹„ìš© ë¬¸ì œ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="ì£¼ê±°/ìˆ™ì†Œ í™˜ê²½ ë¶€ì¡±"> ì£¼ê±°/ìˆ™ì†Œ í™˜ê²½ ë¶€ì¡±</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="ìžë…€/ê°€ì¡± ë¬¸ì œ"> ìžë…€/ê°€ì¡± ë¬¸ì œ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="ì›ê²©ê·¼ë¬´/ì‹œê°„ ì œì•½"> ì›ê²©ê·¼ë¬´/ì‹œê°„ ì œì•½</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="ìž¥ê¸° ì²´ë¥˜ ì˜í–¥ ì—†ìŒ"> ìž¥ê¸° ì²´ë¥˜ ì˜í–¥ ì—†ìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q13" value="ê¸°íƒ€"> ê¸°íƒ€</label>
               </div>
             </div>
           </div>
 
           <!-- D. Service Needs -->
           <div class="survey-section">
-            <h3 class="section-header">D. ÇÊ¿ä ¼­ºñ½º ¹× ¿î¿µ ¹æ½Ä</h3>
+            <h3 class="section-header">D. í•„ìš” ì„œë¹„ìŠ¤ ë° ìš´ì˜ ë°©ì‹</h3>
 
             <div class="mb-6">
-              <span class="q-title">Q14. Àå±â Ã¼·ù(¿öÄÉÀÌ¼Ç/ÇÑ´Þ»ìÀÌ) ½Ã, ÇÊ¿äÇÏ´Ù°í ´À³¢´Â ¼­ºñ½º´Â? (º¹¼ö¼±ÅÃ)</span>
+              <span class="q-title">Q14. ìž¥ê¸° ì²´ë¥˜(ì›Œì¼€ì´ì…˜/í•œë‹¬ì‚´ì´) ì‹œ, í•„ìš”í•˜ë‹¤ê³  ëŠë¼ëŠ” ì„œë¹„ìŠ¤ëŠ”? (ë³µìˆ˜ì„ íƒ)</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="°øÀ¯¿ÀÇÇ½º/¾÷¹«°ø°£"> °øÀ¯¿ÀÇÇ½º/¾÷¹«°ø°£</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="Àåº¸±â/»ýÈ°¹°·ù(¹è¼Û)"> Àåº¸±â/»ýÈ°¹°·ù(¹è¼Û)</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="½Ä»ç/µµ½Ã¶ô(Á¤±â)"> ½Ä»ç/µµ½Ã¶ô(Á¤±â)</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="ÀÌµ¿(ÇÈ¾÷/¼ÅÆ²)"> ÀÌµ¿(ÇÈ¾÷/¼ÅÆ²)</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="ÀÇ·á/¾à±¹ ¿¬°è"> ÀÇ·á/¾à±¹ ¿¬°è</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="Áö¿ªÃ¼Çè/Ä¿¹Â´ÏÆ¼"> Áö¿ªÃ¼Çè/Ä¿¹Â´ÏÆ¼</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="±âÅ¸"> ±âÅ¸</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="ê³µìœ ì˜¤í”¼ìŠ¤/ì—…ë¬´ê³µê°„"> ê³µìœ ì˜¤í”¼ìŠ¤/ì—…ë¬´ê³µê°„</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="ìž¥ë³´ê¸°/ìƒí™œë¬¼ë¥˜(ë°°ì†¡)"> ìž¥ë³´ê¸°/ìƒí™œë¬¼ë¥˜(ë°°ì†¡)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="ì‹ì‚¬/ë„ì‹œë½(ì •ê¸°)"> ì‹ì‚¬/ë„ì‹œë½(ì •ê¸°)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="ì´ë™(í”½ì—…/ì…”í‹€)"> ì´ë™(í”½ì—…/ì…”í‹€)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="ì˜ë£Œ/ì•½êµ­ ì—°ê³„"> ì˜ë£Œ/ì•½êµ­ ì—°ê³„</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="ì§€ì—­ì²´í—˜/ì»¤ë®¤ë‹ˆí‹°"> ì§€ì—­ì²´í—˜/ì»¤ë®¤ë‹ˆí‹°</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q14" value="ê¸°íƒ€"> ê¸°íƒ€</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q15. À§ ¼­ºñ½º°¡ ÆÐÅ°Áö·Î Á¦°øµÈ´Ù¸é, ¿ù Ãß°¡ ºñ¿ë ÁöºÒ ÀÇÇâÀº?</span>
+              <span class="q-title">Q15. ìœ„ ì„œë¹„ìŠ¤ê°€ íŒ¨í‚¤ì§€ë¡œ ì œê³µëœë‹¤ë©´, ì›” ì¶”ê°€ ë¹„ìš© ì§€ë¶ˆ ì˜í–¥ì€?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="Ãß°¡ ºñ¿ë ÁöºÒ ÀÇÇâ ¾øÀ½" required> Ãß°¡ ºñ¿ë ÁöºÒ ÀÇÇâ ¾øÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="1¸¸¿ø ¹Ì¸¸"> 1¸¸¿ø ¹Ì¸¸</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="1~3¸¸¿ø"> 1~3¸¸¿ø</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="3~5¸¸¿ø"> 3~5¸¸¿ø</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="5¸¸¿ø ÀÌ»ó"> 5¸¸¿ø ÀÌ»ó</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="ì¶”ê°€ ë¹„ìš© ì§€ë¶ˆ ì˜í–¥ ì—†ìŒ" required> ì¶”ê°€ ë¹„ìš© ì§€ë¶ˆ ì˜í–¥ ì—†ìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="1ë§Œì› ë¯¸ë§Œ"> 1ë§Œì› ë¯¸ë§Œ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="1~3ë§Œì›"> 1~3ë§Œì›</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="3~5ë§Œì›"> 3~5ë§Œì›</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q15" value="5ë§Œì› ì´ìƒ"> 5ë§Œì› ì´ìƒ</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q16. Àå±â Ã¼·ù ½Ã, ¼±È£ÇÏ´Â ¼÷¼Ò À¯ÇüÀº?</span>
+              <span class="q-title">Q16. ìž¥ê¸° ì²´ë¥˜ ì‹œ, ì„ í˜¸í•˜ëŠ” ìˆ™ì†Œ ìœ í˜•ì€?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="Ææ¼Ç/µ¶Ã¤Çü" required> Ææ¼Ç/µ¶Ã¤Çü</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="È£ÅÚ/¸®Á¶Æ®Çü"> È£ÅÚ/¸®Á¶Æ®Çü</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="°Ô½ºÆ®ÇÏ¿ì½ºÇü"> °Ô½ºÆ®ÇÏ¿ì½ºÇü</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="·¹Áö´ø½º/Àå±âÀÓ´ëÇü"> ·¹Áö´ø½º/Àå±âÀÓ´ëÇü</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="Ä·ÇÎ/Â÷¹ÚÇü"> Ä·ÇÎ/Â÷¹ÚÇü</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="íŽœì…˜/ë…ì±„í˜•" required> íŽœì…˜/ë…ì±„í˜•</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="í˜¸í…”/ë¦¬ì¡°íŠ¸í˜•"> í˜¸í…”/ë¦¬ì¡°íŠ¸í˜•</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="ê²ŒìŠ¤íŠ¸í•˜ìš°ìŠ¤í˜•"> ê²ŒìŠ¤íŠ¸í•˜ìš°ìŠ¤í˜•</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="ë ˆì§€ë˜ìŠ¤/ìž¥ê¸°ìž„ëŒ€í˜•"> ë ˆì§€ë˜ìŠ¤/ìž¥ê¸°ìž„ëŒ€í˜•</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q16" value="ìº í•‘/ì°¨ë°•í˜•"> ìº í•‘/ì°¨ë°•í˜•</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q17. Àå±â Ã¼·ù¸¦ ÇÑ´Ù¸é, ¼±È£ ½Ã±â´Â?</span>
+              <span class="q-title">Q17. ìž¥ê¸° ì²´ë¥˜ë¥¼ í•œë‹¤ë©´, ì„ í˜¸ ì‹œê¸°ëŠ”?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="º½(3~5¿ù)" required> º½(3~5¿ù)</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="¿©¸§(6~8¿ù)"> ¿©¸§(6~8¿ù)</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="°¡À»(9~11¿ù)"> °¡À»(9~11¿ù)</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="°Ü¿ï(12~2¿ù)"> °Ü¿ï(12~2¿ù)</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="ÆòÀÏ Áß½É"> ÆòÀÏ Áß½É</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="ë´„(3~5ì›”)" required> ë´„(3~5ì›”)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="ì—¬ë¦„(6~8ì›”)"> ì—¬ë¦„(6~8ì›”)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="ê°€ì„(9~11ì›”)"> ê°€ì„(9~11ì›”)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="ê²¨ìš¸(12~2ì›”)"> ê²¨ìš¸(12~2ì›”)</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q17" value="í‰ì¼ ì¤‘ì‹¬"> í‰ì¼ ì¤‘ì‹¬</label>
               </div>
             </div>
           </div>
 
           <!-- E. Feedback -->
           <div class="survey-section">
-            <h3 class="section-header">E. °³¼±Á¡ ¹× È«º¸ Ã¤³Î</h3>
+            <h3 class="section-header">E. ê°œì„ ì  ë° í™ë³´ ì±„ë„</h3>
 
             <div class="mb-6">
-              <span class="q-title">Q18. ¹æ¹® Á¤º¸¸¦ ÁÖ·Î ¾îµð¿¡¼­ ¾òÀ¸¼Ì³ª¿ä? (º¹¼ö¼±ÅÃ)</span>
+              <span class="q-title">Q18. ë°©ë¬¸ ì •ë³´ë¥¼ ì£¼ë¡œ ì–´ë””ì—ì„œ ì–»ìœ¼ì…¨ë‚˜ìš”? (ë³µìˆ˜ì„ íƒ)</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="Æ÷ÅÐ/Áöµµ(³×ÀÌ¹ö¡¤Ä«Ä«¿À)"> Æ÷ÅÐ/Áöµµ(³×ÀÌ¹ö¡¤Ä«Ä«¿À)</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="SNS(ÀÎ½ºÅ¸¡¤ÆäºÏ µî)"> SNS(ÀÎ½ºÅ¸¡¤ÆäºÏ µî)</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="À¯Æ©ºê/¿µ»ó"> À¯Æ©ºê/¿µ»ó</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="ÁöÀÎ ÃßÃµ"> ÁöÀÎ ÃßÃµ</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="¼÷¹Ú/¾÷Ã¼ È¨ÆäÀÌÁö"> ¼÷¹Ú/¾÷Ã¼ È¨ÆäÀÌÁö</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="±âÅ¸"> ±âÅ¸</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="í¬í„¸/ì§€ë„(ë„¤ì´ë²„Â·ì¹´ì¹´ì˜¤)"> í¬í„¸/ì§€ë„(ë„¤ì´ë²„Â·ì¹´ì¹´ì˜¤)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="SNS(ì¸ìŠ¤íƒ€Â·íŽ˜ë¶ ë“±)"> SNS(ì¸ìŠ¤íƒ€Â·íŽ˜ë¶ ë“±)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="ìœ íŠœë¸Œ/ì˜ìƒ"> ìœ íŠœë¸Œ/ì˜ìƒ</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="ì§€ì¸ ì¶”ì²œ"> ì§€ì¸ ì¶”ì²œ</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="ìˆ™ë°•/ì—…ì²´ í™ˆíŽ˜ì´ì§€"> ìˆ™ë°•/ì—…ì²´ í™ˆíŽ˜ì´ì§€</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q18" value="ê¸°íƒ€"> ê¸°íƒ€</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q19. ºÒÆíÇß°Å³ª °³¼±ÀÌ ÇÊ¿äÇß´ø Á¡Àº? (º¹¼ö¼±ÅÃ)</span>
+              <span class="q-title">Q19. ë¶ˆíŽ¸í–ˆê±°ë‚˜ ê°œì„ ì´ í•„ìš”í–ˆë˜ ì ì€? (ë³µìˆ˜ì„ íƒ)</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="ÁÖÂ÷"> ÁÖÂ÷</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="È­Àå½Ç/ÆíÀÇ½Ã¼³"> È­Àå½Ç/ÆíÀÇ½Ã¼³</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="°¡°Ý/¿ä±Ý(¹Ù°¡Áö µî)"> °¡°Ý/¿ä±Ý(¹Ù°¡Áö µî)</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="´ëÁß±³Åë/ÀÌµ¿"> ´ëÁß±³Åë/ÀÌµ¿</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="¾²·¹±â/È¯°æ"> ¾²·¹±â/È¯°æ</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="¾ß°£ ÄÜÅÙÃ÷ ºÎÁ·"> ¾ß°£ ÄÜÅÙÃ÷ ºÎÁ·</label>
-                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="±âÅ¸"> ±âÅ¸</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="ì£¼ì°¨"> ì£¼ì°¨</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="í™”ìž¥ì‹¤/íŽ¸ì˜ì‹œì„¤"> í™”ìž¥ì‹¤/íŽ¸ì˜ì‹œì„¤</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="ê°€ê²©/ìš”ê¸ˆ(ë°”ê°€ì§€ ë“±)"> ê°€ê²©/ìš”ê¸ˆ(ë°”ê°€ì§€ ë“±)</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="ëŒ€ì¤‘êµí†µ/ì´ë™"> ëŒ€ì¤‘êµí†µ/ì´ë™</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="ì“°ë ˆê¸°/í™˜ê²½"> ì“°ë ˆê¸°/í™˜ê²½</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="ì•¼ê°„ ì½˜í…ì¸  ë¶€ì¡±"> ì•¼ê°„ ì½˜í…ì¸  ë¶€ì¡±</label>
+                <label class="option-label break-words"><input type="checkbox" name="entry.Q19" value="ê¸°íƒ€"> ê¸°íƒ€</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q20. ÁöÀÎ¿¡°Ô ¼Ò¿ø±Ç¿ª(¸¸¸®Æ÷¡¤Ãµ¸®Æ÷)À» ÃßÃµÇÒ ÀÇÇâÀÌ ÀÖ³ª¿ä?</span>
+              <span class="q-title">Q20. ì§€ì¸ì—ê²Œ ì†Œì›ê¶Œì—­(ë§Œë¦¬í¬Â·ì²œë¦¬í¬)ì„ ì¶”ì²œí•  ì˜í–¥ì´ ìžˆë‚˜ìš”?</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2"> 
-                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="¸Å¿ì ÀÖÀ½" required> ¸Å¿ì ÀÖÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="ÀÖÀ½"> ÀÖÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="º¸Åë"> º¸Åë</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="¾øÀ½"> ¾øÀ½</label>
-                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="ÀüÇô ¾øÀ½"> ÀüÇô ¾øÀ½</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="ë§¤ìš° ìžˆìŒ" required> ë§¤ìš° ìžˆìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="ìžˆìŒ"> ìžˆìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="ë³´í†µ"> ë³´í†µ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="ì—†ìŒ"> ì—†ìŒ</label>
+                <label class="option-label break-words"><input type="radio" name="entry.Q20" value="ì „í˜€ ì—†ìŒ"> ì „í˜€ ì—†ìŒ</label>
               </div>
             </div>
 
             <div class="mb-6">
-              <span class="q-title">Q21. °³¼±µÇ¾úÀ¸¸é ÇÏ´Â Á¡ÀÌ ÀÖ´Ù¸é? (ÀÚÀ¯ ¼­¼ú)</span>
-              <textarea name="entry.Q21" class="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500 resize-none" placeholder="ÁÖÂ÷, È­Àå½Ç, °¡°Ý, º¼°Å¸®, ºñ¼ö±â ÇÁ·Î±×·¥ µî ÀÚÀ¯·Ó°Ô Àû¾îÁÖ¼¼¿ä."></textarea>
+              <span class="q-title">Q21. ê°œì„ ë˜ì—ˆìœ¼ë©´ í•˜ëŠ” ì ì´ ìžˆë‹¤ë©´? (ìžìœ  ì„œìˆ )</span>
+              <textarea name="entry.Q21" class="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500 resize-none" placeholder="ì£¼ì°¨, í™”ìž¥ì‹¤, ê°€ê²©, ë³¼ê±°ë¦¬, ë¹„ìˆ˜ê¸° í”„ë¡œê·¸ëž¨ ë“± ìžìœ ë¡­ê²Œ ì ì–´ì£¼ì„¸ìš”."></textarea>
             </div>
           </div>
 
           <!-- Contact (Optional) -->
           <div class="survey-section border-none">
-            <h3 class="section-header border-l-4 border-gray-400 pl-3">F. (¼±ÅÃ) ÀÌº¥Æ® ÀÀ¸ð</h3>
-            <p class="text-sm text-gray-500 mb-6">ÃßÈÄ ÃßÃ·À» ÅëÇØ ¼ÒÁ¤ÀÇ ±âÇÁÆ¼ÄÜÀ» º¸³»µå¸³´Ï´Ù. (¿øÄ¡ ¾ÊÀ¸½Ã¸é ºñ¿öµÎ¼Åµµ µË´Ï´Ù)</p>
+            <h3 class="section-header border-l-4 border-gray-400 pl-3">F. (ì„ íƒ) ì´ë²¤íŠ¸ ì‘ëª¨</h3>
+            <p class="text-sm text-gray-500 mb-6">ì¶”í›„ ì¶”ì²¨ì„ í†µí•´ ì†Œì •ì˜ ê¸°í”„í‹°ì½˜ì„ ë³´ë‚´ë“œë¦½ë‹ˆë‹¤. (ì›ì¹˜ ì•Šìœ¼ì‹œë©´ ë¹„ì›Œë‘ì…”ë„ ë©ë‹ˆë‹¤)</p>
 
             <div class="mb-6">
-              <span class="q-title">¿¬¶ôÃ³</span>
+              <span class="q-title">ì—°ë½ì²˜</span>
               <input type="text" name="entry.PHONE" id="p_phone" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500" placeholder="010-0000-0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             </div>
 
@@ -346,8 +346,8 @@
               <label class="flex items-start gap-2 cursor-pointer">
                 <input type="checkbox" name="consent" id="consent_chk" class="mt-1 w-5 h-5 accent-ocean-500">
                 <div class="text-sm text-gray-600">
-                  <strong>°³ÀÎÁ¤º¸ ¼öÁý ÀÌ¿ë µ¿ÀÇ</strong><br>
-                  ¼öÁý Ç×¸ñ: ¿¬¶ôÃ³ / ¸ñÀû: °æÇ° ¹ß¼Û / º¸À¯±â°£: °æÇ° ¹ß¼Û ÈÄ ÆÄ±â
+                  <strong>ê°œì¸ì •ë³´ ìˆ˜ì§‘ ì´ìš© ë™ì˜</strong><br>
+                  ìˆ˜ì§‘ í•­ëª©: ì—°ë½ì²˜ / ëª©ì : ê²½í’ˆ ë°œì†¡ / ë³´ìœ ê¸°ê°„: ê²½í’ˆ ë°œì†¡ í›„ íŒŒê¸°
                 </div>
               </label>
             </div>
@@ -355,7 +355,7 @@
 
           <div class="mt-8 pt-6 border-t border-gray-200">
             <button type="submit" class="w-full bg-ocean-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-ocean-800 transition transform active:scale-95 text-lg">
-              ¼³¹® Á¦ÃâÇÏ±â
+              ì„¤ë¬¸ ì œì¶œí•˜ê¸°
             </button>
           </div>
         </form>
@@ -364,52 +364,52 @@
       <!-- Stats (Right) -->
       <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 h-fit sticky top-24">
         <div class="mb-6 pb-4 border-b border-gray-100 flex justify-between items-end">
-          <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-chart-pie text-emerald-500"></i>ÀÀ´ä ÇöÈ²</h2>
-          <span class="text-xs text-gray-500" id="last-update">¾÷µ¥ÀÌÆ®: ´ë±âÁß</span>
+          <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-chart-pie text-emerald-500"></i>ì‘ë‹µ í˜„í™©</h2>
+          <span class="text-xs text-gray-500" id="last-update">ì—…ë°ì´íŠ¸: ëŒ€ê¸°ì¤‘</span>
         </div>
 
         <div class="space-y-6" id="stats-dashboard">
           <div class="bg-emerald-50 rounded-xl p-4 text-center border border-emerald-100">
-            <p class="text-sm text-emerald-600 font-bold mb-1">ÃÑ ÀÀ´äÀÚ</p>
-            <p class="text-3xl font-black text-emerald-800" id="stat-total">- ¸í</p>
+            <p class="text-sm text-emerald-600 font-bold mb-1">ì´ ì‘ë‹µìž</p>
+            <p class="text-3xl font-black text-emerald-800" id="stat-total">- ëª…</p>
           </div>
 
           <div>
-            <h4 class="text-sm font-bold text-gray-700 mb-2">¾îµð¿¡¼­ ¿À¼Ì³ª¿ä?</h4>
+            <h4 class="text-sm font-bold text-gray-700 mb-2">ì–´ë””ì—ì„œ ì˜¤ì…¨ë‚˜ìš”?</h4>
             <div id="stat-residence" class="space-y-2 text-sm">
               <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
             </div>
           </div>
 
           <div>
-            <h4 class="text-sm font-bold text-gray-700 mb-2">µ¿¹Ý À¯Çü</h4>
+            <h4 class="text-sm font-bold text-gray-700 mb-2">ë™ë°˜ ìœ í˜•</h4>
             <div id="stat-companion" class="space-y-2 text-sm">
               <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
             </div>
           </div>
 
           <div>
-            <h4 class="text-sm font-bold text-gray-700 mb-2">Ã¼·ù ±â°£</h4>
+            <h4 class="text-sm font-bold text-gray-700 mb-2">ì²´ë¥˜ ê¸°ê°„</h4>
             <div id="stat-stay" class="space-y-2 text-sm">
               <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
             </div>
           </div>
 
           <div>
-            <h4 class="text-sm font-bold text-gray-700 mb-2">ÁÖ¿ä È°µ¿ (TOP 3)</h4>
+            <h4 class="text-sm font-bold text-gray-700 mb-2">ì£¼ìš” í™œë™ (TOP 3)</h4>
             <div id="stat-activity" class="space-y-2 text-sm">
               <div class="animate-pulse bg-gray-100 h-10 rounded"></div>
             </div>
           </div>
 
           <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
-            <h4 class="text-sm font-bold text-gray-700 mb-2">ºñ¼ö±â Àç¹æ¹® ÀÇÇâ</h4>
+            <h4 class="text-sm font-bold text-gray-700 mb-2">ë¹„ìˆ˜ê¸° ìž¬ë°©ë¬¸ ì˜í–¥</h4>
             <div id="stat-revisit" class="space-y-2 text-sm"></div>
           </div>
 
         </div>
         <div class="mt-4 p-4 bg-gray-50 rounded-lg text-xs text-gray-500">
-          <i class="fas fa-info-circle mr-1"></i> ÀÀ´ä µ¥ÀÌÅÍ´Â ½Ç½Ã°£À¸·Î Áý°èµÇ¾î ¹Ý¿µµË´Ï´Ù.
+          <i class="fas fa-info-circle mr-1"></i> ì‘ë‹µ ë°ì´í„°ëŠ” ì‹¤ì‹œê°„ìœ¼ë¡œ ì§‘ê³„ë˜ì–´ ë°˜ì˜ë©ë‹ˆë‹¤.
         </div>
       </div>
     </div>
