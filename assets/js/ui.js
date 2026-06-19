@@ -16,13 +16,14 @@ const UI = {
 
     const menuItems = [
       { key: "home", label: "홈", url: "home.html", icon: "fa-home" },
-      { key: "resident", label: "주민", url: "survey_resident.html", icon: "fa-user", closed: true },
+      { key: "resident", label: "주민", url: "survey_resident.html", icon: "fa-user", closed: true, navHidden: true },
       { key: "resident_v2", label: "주민V2", url: "survey_resident_v2.html", icon: "fa-clipboard-list" },
-      { key: "tourist", label: "관광객", url: "survey_tourist.html", icon: "fa-plane", closed: true },
+      { key: "tourist", label: "관광객", url: "survey_tourist.html", icon: "fa-plane", closed: true, navHidden: true },
       { key: "visitor", label: "방문객", url: "survey_visitor.html", icon: "fa-location-dot" },
-      { key: "lodging", label: "숙박관계자", url: "survey_lodging.html", icon: "fa-hotel", closed: true },
+      { key: "lodging", label: "숙박관계자", url: "survey_lodging.html", icon: "fa-hotel", closed: true, navHidden: true },
       { key: "admin", label: "관리자", url: "#", icon: "fa-cog", onclick: "APP.auth.handleAdminNav(event)" },
     ];
+    const visibleMenuItems = menuItems.filter((item) => !item.navHidden);
 
     // Helper to generate class string
     const getClass = (key) => {
@@ -49,7 +50,7 @@ const UI = {
           </a>
 
           <div class="hidden md:flex space-x-6 items-center">
-            ${menuItems.map((item) => `<a href="${item.closed ? '#' : item.url}" data-survey-nav="${item.key}" ${item.closed ? 'onclick="return UI.handleClosedSurveyNav(event)"' : item.onclick ? `onclick="${item.onclick}"` : ''} class="${getClass(item.key)}">${item.label}</a>`).join("")}
+            ${visibleMenuItems.map((item) => `<a href="${item.closed ? '#' : item.url}" data-survey-nav="${item.key}" ${item.closed ? 'onclick="return UI.handleClosedSurveyNav(event)"' : item.onclick ? `onclick="${item.onclick}"` : ''} class="${getClass(item.key)}">${item.label}</a>`).join("")}
             ${activeKey === 'admin' ? 
               `<button onclick="APP.auth.logout()" class="ml-4 px-3 py-1 text-sm text-red-500 hover:bg-red-50 rounded-lg transition border border-red-200">
                  <i class="fas fa-sign-out-alt mr-1"></i> 로그아웃
@@ -67,7 +68,7 @@ const UI = {
         <!-- Fixed relative to viewport, z-index managed carefully -->
         <div id="mobileMenu" class="md:hidden hidden fixed inset-0 top-16 bg-slate-50 z-[60] overflow-y-auto pb-20 border-t border-gray-200 h-[calc(100vh-4rem)]">
           <div class="container mx-auto px-6 py-6 flex flex-col min-h-full">
-            ${menuItems
+            ${visibleMenuItems
               .map(
                 (item) => `
               <a href="${item.closed ? '#' : item.url}" data-survey-nav="${item.key}" ${item.closed ? 'onclick="return UI.handleClosedSurveyNav(event)"' : item.onclick ? `onclick="${item.onclick}"` : ''} class="mobile-nav-link ${getMobileClass(item.key)}">

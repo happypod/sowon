@@ -3,78 +3,212 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>소원권역 어촌신활력증진사업 - 방문자 설문조사</title>
-  <meta name="description" content="소원권역 어촌신활력증진사업 방문자 설문조사에 참여해 주세요.">
-  <link rel="canonical" href="https://survey.kmoalab.com/survey_visitor.html">
-  <meta http-equiv="refresh" content="0;url=https://survey.kmoalab.com/survey_visitor.html?v=20260619-closed-surveys">
-
+  <title>소원권역 어촌신활력증진사업 (유형2)</title>
+  <meta name="description" content="소원권역 어촌신활력증진사업 - 정주환경 실태조사">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://survey.kmoalab.com/">
-  <meta property="og:title" content="소원권역 어촌신활력증진사업 - 방문자 설문조사">
-  <meta property="og:description" content="태안군 소원면 일원(천리포·만리포) 방문자 설문조사에 참여해 주세요.">
+  <meta property="og:title" content="소원권역 어촌신활력증진사업 - 정주환경 실태조사">
+  <meta property="og:description" content="지역의 특성에 맞춘 맞춤형 지원과 발전을 위해 소중한 의견을 듣고 있습니다.">
   <meta property="og:image" content="https://survey.kmoalab.com/assets/og-visitor.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="소원권역 어촌신활력증진사업 - 방문자 설문조사">
-  <meta name="twitter:description" content="태안군 소원면 일원(천리포·만리포) 방문자 설문조사에 참여해 주세요.">
+  <meta name="twitter:title" content="소원권역 어촌신활력증진사업 - 정주환경 실태조사">
+  <meta name="twitter:description" content="지역의 특성에 맞춘 맞춤형 지원과 발전을 위해 소중한 의견을 듣고 있습니다.">
   <meta name="twitter:image" content="https://survey.kmoalab.com/assets/og-visitor.png">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    window.location.replace("https://survey.kmoalab.com/survey_visitor.html?v=20260619-closed-surveys");
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ocean: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          },
+          fontFamily: {
+            sans: ['Pretendard', 'sans-serif'],
+          }
+        }
+      }
+    }
   </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
   <style>
-    * {
-      box-sizing: border-box;
+    body { font-family: 'Pretendard', sans-serif; }
+    .hero-bg {
+      background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 100%);
+      position: relative;
+      overflow: hidden;
     }
-
-    body {
-      min-height: 100vh;
-      margin: 0;
-      display: grid;
-      place-items: center;
-      background: #f0f9ff;
-      color: #0f172a;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      text-align: center;
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('data:image/svg+xml,...') bottom center / cover no-repeat;
+      opacity: 0.1;
+      pointer-events: none;
     }
-
-    main {
-      width: min(92vw, 420px);
-      padding: 32px 24px;
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
-    h1 {
-      margin: 0 0 12px;
-      font-size: 24px;
-      line-height: 1.35;
-    }
-
-    p {
-      margin: 0 0 24px;
-      color: #475569;
-      line-height: 1.7;
-    }
-
-    a {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 48px;
-      padding: 0 18px;
-      border-radius: 8px;
-      background: #0284c7;
-      color: #fff;
-      font-weight: 700;
-      text-decoration: none;
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
   </style>
+
+  <!-- Common Assets -->
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/ui.js?v=20260619-hide-closed-nav"></script>
+  <script src="assets/js/app.js?v=20260619-resident-v2"></script>
 </head>
-<body>
-  <main>
-    <h1>방문자 설문조사로 이동 중입니다.</h1>
-    <p>자동으로 이동하지 않으면 아래 버튼을 눌러 주세요.</p>
-    <a href="https://survey.kmoalab.com/survey_visitor.html?v=20260619-closed-surveys">방문자 설문조사 참여하기</a>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+  <!-- Common Navigation -->
+  <div id="app-nav"></div>
+
+  <!-- Main Content -->
+  <main class="flex-grow">
+
+    <!-- Hero Section -->
+    <section class="hero-bg text-white pt-28 pb-32">
+      <div class="container mx-auto px-4 lg:pl-16">
+        <span class="inline-block py-1 px-3 rounded-full bg-ocean-500/30 text-ocean-100 text-sm font-bold mb-6 border border-ocean-400/30 backdrop-blur-sm">
+          태안군 소원권역 어촌신활력증진사업
+        </span>
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight tracking-tight">
+          정주환경 실태조사
+        </h1>
+        <p class="text-lg md:text-xl text-ocean-100 mb-10 max-w-2xl font-light leading-relaxed">
+          지역의 특성에 맞춘 맞춤형 지원과 발전을 위해
+          주민 여러분과 방문자분들의 소중한 의견을 듣고 있습니다.
+        </p>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl pt-8 border-t border-ocean-500/30">
+            <div>
+                <p class="text-ocean-200 text-sm mb-1 font-medium">총 참여자 수</p>
+                <p class="text-3xl font-black"><span id="hero-total" class="counter-up">0</span>명</p>
+            </div>
+            <div>
+                <p class="text-ocean-200 text-sm mb-1 font-medium">지역 주민</p>
+                <p class="text-3xl font-black"><span id="hero-resident" class="counter-up">0</span>명</p>
+            </div>
+            <div>
+                <p class="text-ocean-200 text-sm mb-1 font-medium">주민설문 v2</p>
+                <p class="text-3xl font-black"><span id="hero-resident-v2" class="counter-up">0</span>명</p>
+            </div>
+            <div>
+                <p class="text-ocean-200 text-sm mb-1 font-medium">관광객방문자</p>
+                <p class="text-3xl font-black"><span id="hero-tourist" class="counter-up">0</span>명</p>
+            </div>
+            <div>
+                <p class="text-ocean-200 text-sm mb-1 font-medium">숙박 사업자</p>
+                <p class="text-3xl font-black"><span id="hero-lodging" class="counter-up">0</span>명</p>
+            </div>
+            <div>
+                <p class="text-ocean-200 text-sm mb-1 font-medium">소원면 방문객</p>
+                <p class="text-3xl font-black"><span id="hero-visitor" class="counter-up">0</span>명</p>
+            </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Survey Links Section -->
+    <section class="py-20 -mt-16 relative z-10">
+      <div class="container mx-auto px-4 max-w-7xl">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+
+          <!-- Card 1: Visitor Satisfaction -->
+          <a href="survey_visitor.html" data-survey-type="visitor" class="bg-white rounded-2xl p-8 shadow-xl border border-slate-100 card-hover group block relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
+            <div class="w-14 h-14 bg-cyan-100 text-cyan-700 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
+              <i class="fas fa-location-dot"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-3 group-hover:text-cyan-700 transition-colors">소원면 방문객 대상</h2>
+            <p class="text-slate-500 mb-6 leading-relaxed">천리포·만리포 일원의 방문 환경 만족도, 재방문 의향, 필요시설 수요를 묻습니다.</p>
+            <div class="flex items-center text-cyan-700 font-bold group-hover:translate-x-2 transition-transform">
+              참여하기 <i class="fas fa-arrow-right ml-2 text-sm"></i>
+            </div>
+          </a>
+
+          <!-- Card 2: Resident V2 -->
+          <a href="survey_resident_v2.html" data-survey-type="resident_v2" class="bg-white rounded-2xl p-8 shadow-xl border border-slate-100 card-hover group block relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-sky-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
+            <div class="w-14 h-14 bg-sky-100 text-sky-700 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
+              <i class="fas fa-clipboard-list"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-3 group-hover:text-sky-700 transition-colors">주민설문 v2 대상</h2>
+            <p class="text-slate-500 mb-6 leading-relaxed">천리포·만리포 주민의 서비스 수요, 자원활용 의견, 사업 인식도와 참여 의향을 묻습니다.</p>
+            <div class="flex items-center text-sky-700 font-bold group-hover:translate-x-2 transition-transform">
+              참여하기 <i class="fas fa-arrow-right ml-2 text-sm"></i>
+            </div>
+          </a>
+
+          <!-- Card 3: Resident -->
+          <a href="survey_resident.html" data-survey-type="resident" class="bg-white rounded-2xl p-8 shadow-xl border border-slate-100 card-hover group block relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-ocean-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
+            <div class="w-14 h-14 bg-ocean-100 text-ocean-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
+              <i class="fas fa-home"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-3 group-hover:text-ocean-600 transition-colors">지역 주민 대상</h2>
+            <p class="text-slate-500 mb-6 leading-relaxed">모항리,의항리에 거주하시거나 생활하시는 주민분들의 생활 여건과 불편사항을 묻습니다.</p>
+            <div class="flex items-center text-ocean-600 font-bold group-hover:translate-x-2 transition-transform">
+              참여하기 <i class="fas fa-arrow-right ml-2 text-sm"></i>
+            </div>
+          </a>
+
+          <!-- Card 3: Tourist -->
+          <a href="survey_tourist.html" data-survey-type="tourist" class="bg-white rounded-2xl p-8 shadow-xl border border-slate-100 card-hover group block relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
+            <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
+              <i class="fas fa-plane-departure"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-3 group-hover:text-orange-600 transition-colors">관광객방문자 대상</h2>
+            <p class="text-slate-500 mb-6 leading-relaxed">천리포,만리포에 방문하신 목적과 이용하신 시설, 그리고 체류 경험에 대한 소중한 의견을 묻습니다.</p>
+            <div class="flex items-center text-orange-600 font-bold group-hover:translate-x-2 transition-transform">
+              참여하기 <i class="fas fa-arrow-right ml-2 text-sm"></i>
+            </div>
+          </a>
+
+          <!-- Card 4: Lodging Business -->
+          <a href="survey_lodging.html" data-survey-type="lodging" class="bg-white rounded-2xl p-8 shadow-xl border border-slate-100 card-hover group block relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
+            <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
+              <i class="fas fa-hotel"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-3 group-hover:text-emerald-600 transition-colors">숙박업 관계자 대상</h2>
+            <p class="text-slate-500 mb-6 leading-relaxed">숙박 시설 운영 현황과 비수기 가동률, 체류형 프로그램 도입에 대한 의견을 묻습니다.</p>
+            <div class="flex items-center text-emerald-600 font-bold group-hover:translate-x-2 transition-transform">
+              참여하기 <i class="fas fa-arrow-right ml-2 text-sm"></i>
+            </div>
+          </a>
+
+        </div>
+
+      </div>
+    </section>
+
   </main>
+
+  <!-- Common Footer -->
+  <div id="app-footer" class="mt-auto"></div>
+
+  <!-- Page specific script (Counter animation) -->
+  <script src="assets/js/home.js?v=20260619-resident-v2"></script>
 </body>
 </html>
