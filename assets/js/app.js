@@ -147,7 +147,7 @@ const APP = {
           this.role = null;
           this.pass = null;
           App.utils ? App.utils.showSuccess('로그아웃 되었습니다.') : alert('로그아웃 되었습니다.');
-          setTimeout(() => window.location.href = 'index.html', 500);
+          setTimeout(() => window.location.href = 'home.html', 500);
       },
       // AUTH-04: GNB Nav Handler
       handleAdminNav(e) {

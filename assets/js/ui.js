@@ -15,7 +15,7 @@ const UI = {
     if (!navContainer) return;
 
     const menuItems = [
-      { key: "home", label: "홈", url: "index.html", icon: "fa-home" },
+      { key: "home", label: "홈", url: "home.html", icon: "fa-home" },
       { key: "resident", label: "주민", url: "survey_resident.html", icon: "fa-user" },
       { key: "tourist", label: "관광객", url: "survey_tourist.html", icon: "fa-plane" },
       { key: "visitor", label: "방문객", url: "survey_visitor.html", icon: "fa-location-dot" },
@@ -42,7 +42,7 @@ const UI = {
       <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 border-b border-gray-200 shadow-sm">
         <div class="container mx-auto px-6 h-16 flex justify-between items-center">
           <!-- Logo -->
-          <a href="index.html" class="font-black text-xl text-ocean-800 tracking-tight flex items-center gap-2">
+          <a href="home.html" class="font-black text-xl text-ocean-800 tracking-tight flex items-center gap-2">
             <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-ocean-600 text-white"><i class="fas fa-water"></i></span>
             <span>소원권역 <span class="text-ocean-500 font-bold hidden sm:inline">어촌신활력증진사업</span></span>
           </a>
