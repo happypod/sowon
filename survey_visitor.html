@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    if (window.location.search.includes("v=20260619-home-nav")) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.hash);
+    }
+  </script>
   <title>태안군 소원면 방문객 설문조사</title>
   <meta name="description" content="소원권역 어촌신활력증진사업 - 방문자 설문조사">
   <meta property="og:type" content="website">
@@ -20,8 +25,8 @@
   <link rel="stylesheet" href="assets/styles.css">
   <script src="assets/js/config.js"></script>
   <script src="assets/js/core.js"></script>
-  <script src="assets/js/ui.js"></script>
-  <script src="assets/js/app.js"></script>
+  <script src="assets/js/ui.js?v=20260619-home-nav"></script>
+  <script src="assets/js/app.js?v=20260619-home-nav"></script>
 
   <script>
     tailwind.config = {
