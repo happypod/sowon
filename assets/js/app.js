@@ -176,12 +176,32 @@ const APP = {
     
     console.log(`[APP] Submitting ${formType}...`, formData);
 
+    const timeoutMs = Number(options.timeoutMs || 25000);
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    let timeoutId = null;
+
     try {
-      const response = await fetch(APP.SURVEY_URL, {
+      const fetchOptions = {
         method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(formData)
-      });
-      const result = await response.json();
+      };
+
+      if (controller && timeoutMs > 0) {
+        fetchOptions.signal = controller.signal;
+        timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      }
+
+      const response = await fetch(APP.SURVEY_URL, fetchOptions);
+      if (!response.ok) throw new Error(`HTTP_${response.status}`);
+
+      const responseText = await response.text();
+      let result = {};
+      try {
+        result = responseText ? JSON.parse(responseText) : {};
+      } catch (_) {
+        throw new Error('INVALID_SERVER_RESPONSE');
+      }
       
       if (result.result === 'success' || result.ok === true || result.status === 'success') {
         if (!options.silent) alert('소중한 의견 감사합니다!');
@@ -191,14 +211,19 @@ const APP = {
         throw new Error(result.error || 'Server error');
       }
     } catch (error) {
-      console.error('Submission error:', error);
-      if (error.message === 'SURVEY_CLOSED') {
+      const normalizedError = error?.name === 'AbortError' ? new Error('SUBMISSION_TIMEOUT') : error;
+      console.error('Submission error:', normalizedError);
+      if (normalizedError.message === 'SURVEY_CLOSED') {
         alert('현재 접수 중인 설문이 아닙니다.');
+      } else if (normalizedError.message === 'SUBMISSION_TIMEOUT' && !options.silent) {
+        alert('서버 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.');
       } else if (!options.silent) {
         alert('제출이 완료되었습니다. (서버 확인 필요)');
       }
       if (!options.skipReload) window.location.reload();
-      throw error;
+      throw normalizedError;
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
     }
   },
 

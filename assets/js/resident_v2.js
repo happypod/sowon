@@ -299,6 +299,7 @@ async function submitResidentV2Form() {
 
   const submitBtn = document.querySelector(".submit-button");
   const original = submitBtn ? submitBtn.innerHTML : "";
+  let completed = false;
   if (submitBtn) {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 제출 중...';
@@ -318,9 +319,10 @@ async function submitResidentV2Form() {
   formData.consent = document.getElementById("resident_v2_consent").checked;
 
   try {
-    await APP.submitSurvey("resident_v2", formData, { skipReload: true, silent: true });
-    disableResidentV2Form();
+    await APP.submitSurvey("resident_v2", formData, { skipReload: true, silent: true, timeoutMs: 25000 });
     await showResidentV2Coupon(phoneLast4, couponCode);
+    completed = true;
+    disableResidentV2Form();
     await fetchResidentV2Stats();
   } catch (error) {
     const message = error?.message || "";
@@ -330,12 +332,17 @@ async function submitResidentV2Form() {
       alert("휴대폰 뒷자리 4자리를 숫자로 입력해 주세요.");
     } else if (message === "SURVEY_CLOSED") {
       alert("현재 접수 중인 설문이 아닙니다.");
+    } else if (message === "SUBMISSION_TIMEOUT") {
+      alert("서버 응답이 지연되어 제출 상태를 확인하지 못했습니다. 잠시 후 다시 시도하거나 현장 담당자에게 문의해 주세요.");
     } else {
       alert("제출 중 오류가 발생했습니다. 현장 담당자에게 문의해 주세요.");
     }
+  } finally {
     if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = original;
+      if (!completed) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = original;
+      }
     }
   }
 }

@@ -12,7 +12,7 @@
   <script src="assets/js/config.js"></script>
   <script src="assets/js/core.js"></script>
   <script src="assets/js/ui.js?v=20260619-hide-closed-nav"></script>
-  <script src="assets/js/app.js?v=20260619-resident-v2"></script>
+  <script src="assets/js/app.js?v=20260619-submit-timeout"></script>
 
   <script>
     tailwind.config = {
@@ -35,14 +35,13 @@
       padding: 6rem 0 5rem;
     }
     .mobile-progress {
-      position: sticky;
-      top: 4rem;
-      z-index: 40;
+      position: relative;
+      z-index: 10;
       background: rgba(248, 250, 252, 0.94);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid #e2e8f0;
     }
-    .survey-shell { margin-top: -3rem; }
+    .survey-shell { margin-top: 1rem; }
     .survey-section {
       background: white;
       border: 1px solid #e2e8f0;
@@ -270,6 +269,6 @@
 
   <div id="app-footer" class="mt-auto"></div>
 
-  <script src="assets/js/resident_v2.js?v=20260619-resident-v2"></script>
+  <script src="assets/js/resident_v2.js?v=20260619-submit-timeout"></script>
 </body>
 </html>
