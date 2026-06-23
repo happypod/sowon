@@ -213,7 +213,7 @@ const APP = {
     } catch (error) {
       const normalizedError = error?.name === 'AbortError' ? new Error('SUBMISSION_TIMEOUT') : error;
       console.error('Submission error:', normalizedError);
-      if (normalizedError.message === 'SURVEY_CLOSED') {
+      if (normalizedError.message === 'SURVEY_CLOSED' && !options.silent) {
         alert('현재 접수 중인 설문이 아닙니다.');
       } else if (normalizedError.message === 'SUBMISSION_TIMEOUT' && !options.silent) {
         alert('서버 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.');
