@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>소원권역 실태조사 대시보드</title>
+  <title>소원권역 실태조사 관리자 대시보드</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -36,11 +36,104 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
+    .admin-tabbar {
+      position: sticky;
+      top: 4.75rem;
+      z-index: 40;
+      margin-bottom: 2rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: rgba(248, 250, 252, 0.94);
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+    }
+    .admin-tabbar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1rem 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .admin-tab-rail {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding: 0.75rem;
+      scroll-snap-type: x proximity;
+    }
     .tab-btn {
-      @apply px-4 py-2 text-sm font-medium text-slate-500 hover:text-ocean-600 transition whitespace-nowrap border-b-2 border-transparent;
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-width: 9.75rem;
+      min-height: 2.75rem;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: #475569;
+      background: #fff;
+      font-size: 0.875rem;
+      font-weight: 800;
+      line-height: 1.2;
+      white-space: nowrap;
+      scroll-snap-align: start;
+      transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+    }
+    .tab-btn:hover {
+      color: #0369a1;
+      border-color: #bae6fd;
+      background: #f0f9ff;
+    }
+    .tab-btn:focus-visible {
+      outline: 3px solid rgba(14, 165, 233, 0.3);
+      outline-offset: 2px;
     }
     .tab-btn.active {
-      @apply text-ocean-600 border-ocean-600 font-bold;
+      color: #075985;
+      border-color: #38bdf8;
+      background: #e0f2fe;
+      box-shadow: 0 8px 20px rgba(14, 165, 233, 0.16);
+    }
+    .tab-btn .tab-index {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #64748b;
+      font-size: 0.72rem;
+      font-weight: 900;
+    }
+    .tab-btn.active .tab-index {
+      background: #0284c7;
+      color: #fff;
+    }
+    @media (max-width: 640px) {
+      .admin-tabbar {
+        top: 4rem;
+        margin-left: -1rem;
+        margin-right: -1rem;
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+      }
+      .admin-tabbar-head {
+        align-items: flex-start;
+        padding: 0.85rem 1rem 0.65rem;
+      }
+      .admin-tab-rail {
+        padding: 0.65rem 1rem 0.85rem;
+      }
+      .tab-btn {
+        min-width: 8.6rem;
+        font-size: 0.8125rem;
+      }
     }
 
     /* ── REP-GEN-02: Premium Analysis Styles ────────── */
@@ -119,7 +212,7 @@
   <script defer src="assets/js/tabs/tab_prog_exec.js?v=3"></script>
   <script defer src="assets/js/tabs/tab_linker_base.js"></script>
   <script defer src="assets/js/scenario_engine.js"></script>
-  <script defer src="assets/js/app.js?v=20260623-resident-v2-open"></script>
+  <script defer src="assets/js/app.js?v=20260623-admin-tabs"></script>
 
   <!-- Chart.js & ECharts -->
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -137,53 +230,62 @@
   <main id="dashboard-content" class="max-w-7xl mx-auto pt-24 pb-20 px-4">
       
       <!-- Top Header -->
-      <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
            <h2 class="text-3xl font-black text-slate-800 tracking-tight">GNB Admin <span class="text-ocean-500">Pro</span></h2>
-           <p class="text-slate-500 text-sm mt-1">데이터 기반 지역 활성화 전략 대시보드</p>
+           <p class="text-slate-500 text-sm mt-1">소원권역 어촌신활력증진사업 운영 데이터 대시보드</p>
         </div>
       </div>
 
-      <!-- Navigation Tabs (New 7-Point IA) -->
-      <div class="grid grid-cols-2 md:flex md:space-x-1 gap-2 md:gap-0 bg-slate-100 p-1 rounded-xl mb-8">
-        <button onclick="APP.admin.showTab('dashboard')" id="tab-dashboard" class="tab-btn active w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-chart-line mr-2"></i>1.전략 대시보드
-        </button>
-        <button onclick="APP.admin.showTab('survey-hub')" id="tab-survey-hub" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-poll mr-2"></i>2.설문·통계
-        </button>
-        <button onclick="APP.admin.showTab('visitor-admin')" id="tab-visitor-admin" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-location-dot mr-2"></i>방문객 설문
-        </button>
-        <button onclick="APP.admin.showTab('resident-v2-admin')" id="tab-resident-v2-admin" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-clipboard-list mr-2"></i>주민 v2 설문
-        </button>
-        <button onclick="APP.admin.showTab('local-analysis')" id="tab-local-analysis" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-map-marked-alt mr-2"></i>3.리 단위 분석
-        </button>
-        <button onclick="APP.admin.showTab('prog-exec')" id="tab-prog-exec" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-project-diagram mr-2"></i>4.주민 수요·우선과제 분석
-        </button>
-        <button onclick="APP.admin.showTab('linker-base')" id="tab-linker-base" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-users-cog mr-2"></i>5.참여기반 공동체 분석
-        </button>
-        <button onclick="APP.admin.showTab('routine')" id="tab-routine" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-tasks mr-2"></i>6.운영 루틴
-        </button>
-        <button onclick="APP.admin.showTab('scenario')" id="tab-scenario" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-flask mr-2"></i>7.시나리오 랩
-        </button>
-        <button onclick="APP.admin.showTab('reports')" id="tab-reports" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-file-alt mr-2"></i>8.보고서
-        </button>
-        <button onclick="APP.admin.showTab('data')" id="tab-data" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all col-span-2 md:col-span-1 shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-database mr-2"></i>9.데이터
-        </button>
-        <button onclick="APP.admin.showTab('survey-settings')" id="tab-survey-settings" class="tab-btn w-full md:flex-1 py-3 md:py-2.5 px-3 rounded-lg text-sm font-bold text-slate-600 transition-all col-span-2 md:col-span-1 shadow-sm md:shadow-none bg-white md:bg-transparent">
-            <i class="fas fa-toggle-on mr-2"></i>설문 설정
-        </button>
-
-      </div>
+      <!-- Admin Navigation Tabs -->
+      <section class="admin-tabbar" aria-label="관리자 대시보드 탭">
+        <div class="admin-tabbar-head">
+          <div class="min-w-0">
+            <p class="text-xs font-black uppercase tracking-[0.18em] text-ocean-600">Admin Section</p>
+            <h3 id="admin-current-tab-title" class="mt-1 text-lg md:text-xl font-black text-slate-900">전략 대시보드</h3>
+            <p id="admin-current-tab-desc" class="mt-1 text-sm text-slate-500 truncate">핵심 지표와 위험 신호를 종합합니다.</p>
+          </div>
+          <span id="admin-current-tab-count" class="shrink-0 rounded bg-white px-3 py-1.5 text-xs font-black text-slate-500 border border-slate-200">1 / 12</span>
+        </div>
+        <div class="admin-tab-rail no-scrollbar" role="tablist" aria-label="관리자 페이지 섹션">
+          <button type="button" onclick="APP.admin.showTab('dashboard')" id="tab-dashboard" class="tab-btn active" role="tab" aria-selected="true" aria-controls="view-dashboard" data-tab-title="전략 대시보드" data-tab-desc="핵심 지표와 위험 신호를 종합합니다.">
+            <span class="tab-index">01</span><i class="fas fa-chart-line"></i><span>전략 대시보드</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('survey-hub')" id="tab-survey-hub" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-survey-hub" data-tab-title="설문·통계" data-tab-desc="기존 설문 응답과 통계 분석을 확인합니다.">
+            <span class="tab-index">02</span><i class="fas fa-poll"></i><span>설문·통계</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('visitor-admin')" id="tab-visitor-admin" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-visitor-admin" data-tab-title="방문객 설문" data-tab-desc="방문객 만족도 설문의 통계, 차트, 응답 표를 관리합니다.">
+            <span class="tab-index">03</span><i class="fas fa-location-dot"></i><span>방문객 설문</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('resident-v2-admin')" id="tab-resident-v2-admin" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-resident-v2-admin" data-tab-title="주민설문 v2" data-tab-desc="주민설문 v2 응답과 쿠폰 발급 데이터를 관리합니다.">
+            <span class="tab-index">04</span><i class="fas fa-clipboard-list"></i><span>주민설문 v2</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('local-analysis')" id="tab-local-analysis" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-local-analysis" data-tab-title="리 단위 분석" data-tab-desc="마을별 생활 수요와 지역 지표를 비교합니다.">
+            <span class="tab-index">05</span><i class="fas fa-map-marked-alt"></i><span>리 단위 분석</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('prog-exec')" id="tab-prog-exec" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-prog-exec" data-tab-title="주민 수요·우선과제" data-tab-desc="주민 수요 기반의 실행 과제 우선순위를 검토합니다.">
+            <span class="tab-index">06</span><i class="fas fa-project-diagram"></i><span>주민 수요·우선과제</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('linker-base')" id="tab-linker-base" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-linker-base" data-tab-title="참여기반 공동체" data-tab-desc="주민 참여 기반과 공동체 전환 가능성을 분석합니다.">
+            <span class="tab-index">07</span><i class="fas fa-users-cog"></i><span>참여기반 공동체</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('routine')" id="tab-routine" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-routine" data-tab-title="운영 루틴" data-tab-desc="운영 일정과 월별 실행 점검 항목을 관리합니다.">
+            <span class="tab-index">08</span><i class="fas fa-tasks"></i><span>운영 루틴</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('scenario')" id="tab-scenario" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-scenario" data-tab-title="시나리오 랩" data-tab-desc="사업 추진 시나리오와 대응 전략을 검토합니다.">
+            <span class="tab-index">09</span><i class="fas fa-flask"></i><span>시나리오 랩</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('reports')" id="tab-reports" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-reports" data-tab-title="보고서" data-tab-desc="분석 결과와 보고서 산출물을 확인합니다.">
+            <span class="tab-index">10</span><i class="fas fa-file-alt"></i><span>보고서</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('data')" id="tab-data" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-data" data-tab-title="데이터" data-tab-desc="원천 데이터 동기화와 무결성 상태를 점검합니다.">
+            <span class="tab-index">11</span><i class="fas fa-database"></i><span>데이터</span>
+          </button>
+          <button type="button" onclick="APP.admin.showTab('survey-settings')" id="tab-survey-settings" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-survey-settings" data-tab-title="설문 설정" data-tab-desc="설문별 접수 잠금과 노출 여부를 관리합니다.">
+            <span class="tab-index">12</span><i class="fas fa-toggle-on"></i><span>설문 설정</span>
+          </button>
+        </div>
+      </section>
 
     <!-- 1. Strategy Dashboard (Operating Status Board) -->
     <div id="view-dashboard" class="view-section">
@@ -665,6 +767,10 @@
   <script>
       // Tab switching
         function switchTab(tabId) {
+            if (window.APP && APP.admin && typeof APP.admin.showTab === 'function') {
+                APP.admin.showTab(tabId);
+                return;
+            }
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             

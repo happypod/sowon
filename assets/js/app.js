@@ -404,9 +404,25 @@ const APP = {
           tourist: null,
           combined: null
       },
+      tabOrder: [
+          'dashboard',
+          'survey-hub',
+          'visitor-admin',
+          'resident-v2-admin',
+          'local-analysis',
+          'prog-exec',
+          'linker-base',
+          'routine',
+          'scenario',
+          'reports',
+          'data',
+          'survey-settings'
+      ],
+      _hashBound: false,
 
       async init() {
           console.log("Initializing Admin Dashboard...");
+          this.initTabBar();
 
           if (window.App && window.App.tabDashboard) {
               window.App.tabDashboard.init();
@@ -422,11 +438,78 @@ const APP = {
               });
           }
 
+          // Show the requested tab immediately; background data sync can finish after first paint.
+          const initialTab = this.getInitialTab();
+          this.showTab(initialTab, { updateHash: false, scrollTab: false });
+
           // Boot-time Data Load (Silent)
           await this.syncData('all', true);
-          
-          // Default Tab
-          this.showTab('dashboard'); 
+      },
+
+      initTabBar() {
+          const buttons = Array.from(document.querySelectorAll('.admin-tabbar .tab-btn'));
+          if (!buttons.length) return;
+
+          buttons.forEach((btn, index) => {
+              btn.setAttribute('tabindex', btn.classList.contains('active') ? '0' : '-1');
+              btn.dataset.tabNumber = String(index + 1);
+              if (!btn.dataset.boundKeyNav) {
+                  btn.addEventListener('keydown', (event) => this.handleTabKeydown(event));
+                  btn.dataset.boundKeyNav = 'true';
+              }
+          });
+
+          if (!this._hashBound) {
+              window.addEventListener('hashchange', () => {
+                  const nextTab = this.getInitialTab();
+                  if (nextTab) this.showTab(nextTab, { updateHash: false });
+              });
+              this._hashBound = true;
+          }
+      },
+
+      getInitialTab() {
+          const hashTab = decodeURIComponent((window.location.hash || '').replace(/^#/, ''));
+          if (this.isKnownTab(hashTab)) return hashTab;
+          return 'dashboard';
+      },
+
+      isKnownTab(tabName) {
+          return Boolean(tabName && document.getElementById(`view-${tabName}`) && document.getElementById(`tab-${tabName}`));
+      },
+
+      handleTabKeydown(event) {
+          const keys = ['ArrowRight', 'ArrowLeft', 'Home', 'End'];
+          if (!keys.includes(event.key)) return;
+
+          const buttons = Array.from(document.querySelectorAll('.admin-tabbar .tab-btn'));
+          const currentIndex = buttons.indexOf(event.currentTarget);
+          if (currentIndex < 0) return;
+
+          event.preventDefault();
+
+          let nextIndex = currentIndex;
+          if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % buttons.length;
+          if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+          if (event.key === 'Home') nextIndex = 0;
+          if (event.key === 'End') nextIndex = buttons.length - 1;
+
+          const nextButton = buttons[nextIndex];
+          const nextTab = nextButton.id.replace(/^tab-/, '');
+          nextButton.focus();
+          this.showTab(nextTab);
+      },
+
+      updateTabSummary(tabEl, tabName) {
+          const titleEl = document.getElementById('admin-current-tab-title');
+          const descEl = document.getElementById('admin-current-tab-desc');
+          const countEl = document.getElementById('admin-current-tab-count');
+          const buttons = Array.from(document.querySelectorAll('.admin-tabbar .tab-btn'));
+          const currentIndex = Math.max(buttons.indexOf(tabEl), 0);
+
+          if (titleEl) titleEl.textContent = tabEl?.dataset?.tabTitle || tabName;
+          if (descEl) descEl.textContent = tabEl?.dataset?.tabDesc || '';
+          if (countEl && buttons.length) countEl.textContent = `${currentIndex + 1} / ${buttons.length}`;
       },
       
       /**
@@ -480,15 +563,47 @@ const APP = {
       },
       
       // Delegate to centralized tabs controller or inline routing
-      showTab(tabName) {
+      showTab(tabName, options = {}) {
+           if (!this.isKnownTab(tabName)) tabName = 'dashboard';
+
            // 1. Switch UI
-           document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-           document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+           document.querySelectorAll('.view-section').forEach(el => {
+               el.classList.add('hidden');
+               el.setAttribute('aria-hidden', 'true');
+           });
+           document.querySelectorAll('.tab-btn').forEach(btn => {
+               const isActive = btn.id === `tab-${tabName}`;
+               btn.classList.toggle('active', isActive);
+               if (btn.closest('.admin-tabbar')) {
+                   btn.setAttribute('aria-selected', String(isActive));
+                   btn.setAttribute('tabindex', isActive ? '0' : '-1');
+               }
+           });
            
            const viewEl = document.getElementById(`view-${tabName}`);
            const tabEl = document.getElementById(`tab-${tabName}`);
-           if(viewEl) viewEl.classList.remove('hidden');
-           if(tabEl) tabEl.classList.add('active');
+           if(viewEl) {
+               viewEl.classList.remove('hidden');
+               viewEl.removeAttribute('aria-hidden');
+           }
+           if(tabEl) {
+               tabEl.classList.add('active');
+               this.updateTabSummary(tabEl, tabName);
+               if (options.scrollTab !== false) {
+                   tabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+               }
+           }
+
+           if (window.App && window.App.store) {
+               window.App.store.set('activeTab', tabName);
+           }
+
+           if (options.updateHash !== false) {
+               const nextHash = `#${encodeURIComponent(tabName)}`;
+               if (window.location.hash !== nextHash && window.history && window.history.replaceState) {
+                   window.history.replaceState(null, '', nextHash);
+               }
+           }
 
            // 2. Load Data
             if (tabName === 'dashboard') {
@@ -589,6 +704,20 @@ const APP = {
                 'survey-settings': { loader: 'loadSurveySettings', startMsg: '설문 접수 설정 로딩 중...' }
            };
            
+           Object.assign(map, {
+               'survey-hub': { loader: 'loadSurveyStats', startMsg: '설문 통계 데이터를 불러오는 중입니다...' },
+               'local-analysis': { loader: 'loadVillageAnalysis', startMsg: '리 단위 분석 데이터를 불러오는 중입니다...' },
+               'routine': { loader: 'loadOpsRoutine', startMsg: '운영 루틴 상태를 확인하는 중입니다...' },
+               'reports': { loader: 'loadReportsIndex', startMsg: '보고서 데이터를 불러오는 중입니다...' },
+               'data': { loader: 'loadDataStatus', startMsg: '데이터 시트 상태를 점검하는 중입니다...' },
+               'scenario': { loader: 'loadScenarioMap', startMsg: '시나리오 맵을 불러오는 중입니다...' },
+               'prog-exec': { loader: 'loadProgExecSummary', startMsg: '프로그램 실행 데이터를 집계하는 중입니다...' },
+               'linker-base': { loader: 'loadLinkerBaseSummary', startMsg: '주민 참여 기반 지표를 계산하는 중입니다...' },
+               'visitor-admin': { loader: 'loadVisitorAdmin', startMsg: '방문객 설문 데이터를 불러오는 중입니다...' },
+               'resident-v2-admin': { loader: 'loadResidentV2Admin', startMsg: '주민설문 v2 데이터를 불러오는 중입니다...' },
+               'survey-settings': { loader: 'loadSurveySettings', startMsg: '설문 접수 설정을 불러오는 중입니다...' }
+           });
+
            const cfg = map[tabName];
            if(!cfg) return;
 
@@ -612,7 +741,7 @@ const APP = {
 
            try {
                const data = await AdminDataService[cfg.loader]();
-               if(!data) throw new Error("데이터를 불러올 수 없습니다 (Null Response).");
+               if(!data) throw new Error("데이터를 불러오지 못했습니다. (Null Response)");
                
                // Render based on Tab
                this.renderTabContent(tabName, data, contentArea);
@@ -620,6 +749,7 @@ const APP = {
            } catch(e) {
                console.error(e);
                contentArea.innerHTML = `<div class="text-center py-10 text-red-500"><i class="fas fa-exclamation-triangle mr-2"></i>데이터 로드 실패: ${e.message}</div>`;
+               return;
            }
        },
 
