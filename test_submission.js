@@ -1,4 +1,4 @@
-﻿const url = "https://script.google.com/macros/s/AKfycbwzOi0CukPXJQ2yLlNlworalzDGGSibTBVTP_cewDBNQmH0Ea5xHnyIaZiHKaxCX7s2/exec";
+﻿const url = "https://script.google.com/macros/s/AKfycbxeaWneUbjCBfAu3LbiEZqYAVZ5zsogH-fmxCztQPDU4OvZJ6IaoUIdhrfmmUX6EbaG/exec";
 
 async function submit(formType, runCount) {
     const payload = {
