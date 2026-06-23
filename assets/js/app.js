@@ -1003,9 +1003,20 @@ const APP = {
              const stats = data?.stats || {};
              const rows = data?.responses?.rows || [];
              const settings = data?.settings?.surveys?.visitor || {};
-             const needs = stats.needs?.top3 || [];
+             const needs = this._topItems(stats.needs?.top3, 8);
+             const motive = this._topItems(stats.motive?.top3, 6);
+             const effect = this._topItems(stats.effect?.top3, 6);
              const comments = rows.filter((row) => row.comment).slice(0, 20);
              const tableRows = rows.slice(0, 200);
+             const total = Number(stats.total || rows.length || 0);
+             const couponCount = rows.filter((row) => row.couponCode).length;
+             const topAge = this._topCountLabel(stats.age);
+             const topResidence = this._topCountLabel(stats.residence);
+             const topStay = this._topCountLabel(stats.stay);
+             const topNeed = needs[0] || { label: '-', count: 0 };
+             const revisitRate = Number(stats.revisit?.posRate || 0);
+             const recommendRate = Number(stats.recommend?.posRate || 0);
+             const lastUpdated = stats.lastUpdated || rows[0]?.timestamp;
 
              container.innerHTML = `
                  <div class="space-y-6">
@@ -1013,9 +1024,9 @@ const APP = {
                          <div>
                              <p class="text-xs font-black text-cyan-600 uppercase tracking-wide mb-2">Visitor Survey</p>
                              <h2 class="text-2xl font-black text-slate-900">소원면 방문객 설문 관리</h2>
-                             <p class="text-sm text-slate-500 mt-2">방문 환경 만족도, 재방문/추천 의향, 필요시설 수요와 교환권 발급 정보를 확인합니다.</p>
+                             <p class="text-sm text-slate-500 mt-2">방문 환경 만족도, 재방문/추천 의향, 필요시설 수요와 교환권 발급 정보를 차트와 표로 확인합니다.</p>
                          </div>
-                         <div class="flex items-center gap-2">
+                         <div class="flex flex-wrap items-center gap-2">
                              <span class="text-xs font-black px-3 py-1.5 rounded-full ${settings.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
                                  ${settings.enabled ? '방문객 설문 접수중' : '방문객 설문 종료'}
                              </span>
@@ -1025,22 +1036,70 @@ const APP = {
                          </div>
                      </div>
 
-                     <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
-                         ${this._visitorMetricCard('총 응답', `${Number(stats.total || 0).toLocaleString()}명`, 'fa-users', 'text-cyan-600')}
+                     <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                         ${this._visitorMetricCard('총 응답', `${total.toLocaleString()}명`, 'fa-users', 'text-cyan-600')}
+                         ${this._visitorMetricCard('교환권 발급', `${couponCount.toLocaleString()}건`, 'fa-ticket', 'text-violet-600')}
                          ${this._visitorMetricCard('만족도 평균', stats.satisfactionAvg ? `${stats.satisfactionAvg} / 5` : '-', 'fa-star', 'text-amber-500')}
-                         ${this._visitorMetricCard('재방문 긍정률', `${Number(stats.revisit?.posRate || 0).toFixed(1)}%`, 'fa-rotate-right', 'text-ocean-600')}
-                         ${this._visitorMetricCard('추천 긍정률', `${Number(stats.recommend?.posRate || 0).toFixed(1)}%`, 'fa-share-nodes', 'text-emerald-600')}
+                         ${this._visitorMetricCard('재방문 긍정률', `${revisitRate.toFixed(1)}%`, 'fa-rotate-right', 'text-ocean-600')}
+                         ${this._visitorMetricCard('추천 긍정률', `${recommendRate.toFixed(1)}%`, 'fa-share-nodes', 'text-emerald-600')}
+                         ${this._visitorMetricCard('최근 업데이트', this._formatShortDate(lastUpdated), 'fa-clock', 'text-slate-500')}
+                     </div>
+
+                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                         ${this._surveyInsightCard('최다 연령대', topAge.label, `${topAge.count.toLocaleString()}명 응답`, 'fa-user-group', 'cyan')}
+                         ${this._surveyInsightCard('주요 거주권', topResidence.label, `${topResidence.count.toLocaleString()}명 응답`, 'fa-location-dot', 'sky')}
+                         ${this._surveyInsightCard('대표 체류시간', topStay.label, `${topStay.count.toLocaleString()}명 응답`, 'fa-hourglass-half', 'amber')}
+                         ${this._surveyInsightCard('최우선 필요시설', topNeed.label, `${Number(topNeed.count || 0).toLocaleString()}회 선택`, 'fa-building-circle-check', 'emerald')}
+                     </div>
+
+                     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">연령대 분포</h3>
+                                 <span class="text-xs font-bold text-slate-400">기본 정보</span>
+                             </div>
+                             <div class="h-72"><canvas id="visitor-age-chart"></canvas></div>
+                         </div>
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">거주지역 분포</h3>
+                                 <span class="text-xs font-bold text-slate-400">방문권역</span>
+                             </div>
+                             <div class="h-72"><canvas id="visitor-residence-chart"></canvas></div>
+                         </div>
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">체류기간 분포</h3>
+                                 <span class="text-xs font-bold text-slate-400">체류 패턴</span>
+                             </div>
+                             <div class="h-72"><canvas id="visitor-stay-chart"></canvas></div>
+                         </div>
                      </div>
 
                      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
                          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                             <h3 class="font-black text-slate-900 mb-4">연령대 분포</h3>
-                             <div class="h-72"><canvas id="visitor-age-chart"></canvas></div>
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">필요시설 수요 TOP</h3>
+                                 <span class="text-xs font-bold text-slate-400">복수응답</span>
+                             </div>
+                             <div class="h-80"><canvas id="visitor-needs-chart"></canvas></div>
                          </div>
                          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                             <h3 class="font-black text-slate-900 mb-4">필요시설 수요 TOP</h3>
-                             <div class="h-72"><canvas id="visitor-needs-chart"></canvas></div>
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">재방문·추천 의향 분포</h3>
+                                 <span class="text-xs font-bold text-slate-400">긍정 응답 비교</span>
+                             </div>
+                             <div class="h-80"><canvas id="visitor-intent-chart"></canvas></div>
+                             <div class="grid grid-cols-2 gap-3 mt-4">
+                                 ${this._surveyRateBar('재방문 긍정', revisitRate, 'bg-ocean-500')}
+                                 ${this._surveyRateBar('추천 긍정', recommendRate, 'bg-emerald-500')}
+                             </div>
                          </div>
+                     </div>
+
+                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                         ${this._surveyTopListCard('방문동기 TOP', '방문객 유입 이유', motive, total)}
+                         ${this._surveyTopListCard('방문효과 TOP', '방문 후 얻은 만족', effect, total)}
                      </div>
 
                      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -1074,9 +1133,9 @@ const APP = {
                                                  <td class="p-3">${this.escapeHtml(row.age || '-')}</td>
                                                  <td class="p-3">${this.escapeHtml(row.residence || '-')}</td>
                                                  <td class="p-3">${this.escapeHtml(row.stay || '-')}</td>
-                                                 <td class="p-3">${this.escapeHtml(row.satisfactionAvg || '-')}</td>
-                                                 <td class="p-3">${this.escapeHtml(row.revisit || '-')}</td>
-                                                 <td class="p-3">${this.escapeHtml(row.recommend || '-')}</td>
+                                                 <td class="p-3">${this._scoreBadge(row.satisfactionAvg)}</td>
+                                                 <td class="p-3">${this._intentBadge(row.revisit)}</td>
+                                                 <td class="p-3">${this._intentBadge(row.recommend)}</td>
                                                  <td class="p-3 max-w-[220px] truncate" title="${this.escapeHtml(row.needs || '')}">${this.escapeHtml(row.needs || '-')}</td>
                                              </tr>
                                          `).join('') || `<tr><td colspan="10" class="p-8 text-center text-slate-400">응답 데이터가 없습니다.</td></tr>`}
@@ -1124,45 +1183,263 @@ const APP = {
              return d.toLocaleString('ko-KR');
          },
 
+         _formatShortDate(value) {
+             if (!value) return '-';
+             const d = new Date(value);
+             if (isNaN(d.getTime())) return String(value);
+             return d.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' });
+         },
+
+         _countEntries(map, limit = 99) {
+             return Object.entries(map || {})
+                 .map(([label, count]) => ({ label: String(label || '-'), count: Number(count || 0) }))
+                 .filter((item) => item.label && item.label !== '-' && item.count > 0)
+                 .sort((a, b) => b.count - a.count)
+                 .slice(0, limit);
+         },
+
+         _topItems(items, limit = 6) {
+             return (Array.isArray(items) ? items : [])
+                 .map((item) => ({
+                     label: String(item?.label || item?.name || '-'),
+                     count: Number(item?.count || item?.value || 0)
+                 }))
+                 .filter((item) => item.label && item.label !== '-' && item.count > 0)
+                 .sort((a, b) => b.count - a.count)
+                 .slice(0, limit);
+         },
+
+         _topCountLabel(map) {
+             const item = this._countEntries(map, 1)[0];
+             return item || { label: '-', count: 0 };
+         },
+
+         _surveyInsightCard(title, value, detail, icon, tone = 'sky') {
+             const tones = {
+                 cyan: 'bg-cyan-50 text-cyan-700 border-cyan-100',
+                 sky: 'bg-sky-50 text-sky-700 border-sky-100',
+                 ocean: 'bg-ocean-50 text-ocean-700 border-ocean-100',
+                 amber: 'bg-amber-50 text-amber-700 border-amber-100',
+                 emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100'
+             };
+             return `
+                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                     <div class="flex items-start justify-between gap-3">
+                         <div class="min-w-0">
+                             <p class="text-xs font-black text-slate-400 mb-2">${this.escapeHtml(title)}</p>
+                             <p class="text-lg font-black text-slate-900 truncate" title="${this.escapeHtml(value)}">${this.escapeHtml(value)}</p>
+                             <p class="text-xs text-slate-500 mt-1">${this.escapeHtml(detail)}</p>
+                         </div>
+                         <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl border ${tones[tone] || tones.sky}">
+                             <i class="fas ${icon}"></i>
+                         </span>
+                     </div>
+                 </div>
+             `;
+         },
+
+         _surveyTopListCard(title, subtitle, items, total = 0) {
+             const list = this._topItems(items, 6);
+             const denom = Number(total || list.reduce((sum, item) => sum + item.count, 0) || 1);
+             return `
+                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                     <div class="flex items-center justify-between mb-4 gap-3">
+                         <div>
+                             <h3 class="font-black text-slate-900">${this.escapeHtml(title)}</h3>
+                             <p class="text-xs text-slate-500 mt-1">${this.escapeHtml(subtitle)}</p>
+                         </div>
+                         <span class="text-[11px] font-black px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">TOP ${list.length || 0}</span>
+                     </div>
+                     <div class="space-y-3">
+                         ${list.map((item, index) => {
+                             const percent = Math.min(100, Math.round((item.count / denom) * 100));
+                             return `
+                                 <div>
+                                     <div class="flex items-center justify-between gap-3 text-sm">
+                                         <span class="font-bold text-slate-700 truncate" title="${this.escapeHtml(item.label)}">${index + 1}. ${this.escapeHtml(item.label)}</span>
+                                         <span class="font-black text-slate-900">${item.count.toLocaleString()}</span>
+                                     </div>
+                                     <div class="h-2 rounded-full bg-slate-100 overflow-hidden mt-1.5">
+                                         <div class="h-full rounded-full bg-ocean-500" style="width:${Math.max(4, percent)}%"></div>
+                                     </div>
+                                 </div>
+                             `;
+                         }).join('') || `<p class="text-sm text-slate-400 py-6 text-center">집계된 응답이 없습니다.</p>`}
+                     </div>
+                 </div>
+             `;
+         },
+
+         _surveyRateBar(label, rate, colorClass = 'bg-ocean-500') {
+             const value = Math.max(0, Math.min(100, Number(rate || 0)));
+             return `
+                 <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                     <div class="flex items-center justify-between text-xs mb-2">
+                         <span class="font-black text-slate-600">${this.escapeHtml(label)}</span>
+                         <span class="font-black text-slate-900">${value.toFixed(1)}%</span>
+                     </div>
+                     <div class="h-2.5 rounded-full bg-white overflow-hidden">
+                         <div class="h-full rounded-full ${colorClass}" style="width:${value}%"></div>
+                     </div>
+                 </div>
+             `;
+         },
+
+         _scoreBadge(value) {
+             const score = Number(value || 0);
+             if (!score) return '<span class="text-slate-400">-</span>';
+             const tone = score >= 4 ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                 : score >= 3 ? 'bg-amber-50 text-amber-700 border-amber-100'
+                 : 'bg-rose-50 text-rose-700 border-rose-100';
+             return `<span class="inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-black ${tone}">${score.toFixed(1)}</span>`;
+         },
+
+         _intentBadge(value) {
+             const text = String(value || '').trim();
+             if (!text) return '<span class="text-slate-400">-</span>';
+             const positive = ['매우 있다', '있다', '모든 활동에 참여', '일부 활동에 참여', '매우 있음', '있음'];
+             const negative = ['별로 없다', '전혀 없다', '참여의사 없음', '없음', '전혀없음'];
+             const tone = positive.includes(text) ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                 : negative.includes(text) ? 'bg-rose-50 text-rose-700 border-rose-100'
+                 : 'bg-slate-50 text-slate-600 border-slate-100';
+             return `<span class="inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-black whitespace-nowrap ${tone}">${this.escapeHtml(text)}</span>`;
+         },
+
+         _resetChartBucket(propName) {
+             this[propName] = this[propName] || {};
+             Object.values(this[propName]).forEach((chart) => chart && chart.destroy && chart.destroy());
+             this[propName] = {};
+             return this[propName];
+         },
+
+         _chartPalette(index) {
+             return ['#0284c7', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#14b8a6', '#64748b', '#f97316'][index % 8];
+         },
+
+         _renderCountBarChart(bucket, key, id, entries, options = {}) {
+             const el = document.getElementById(id);
+             if (!el || typeof Chart === 'undefined') return;
+             const list = entries.length ? entries : [{ label: '데이터 없음', count: 0 }];
+             bucket[key] = new Chart(el, {
+                 type: 'bar',
+                 data: {
+                     labels: list.map((item) => item.label),
+                     datasets: [{
+                         label: options.label || '응답 수',
+                         data: list.map((item) => item.count),
+                         backgroundColor: options.color || list.map((_, index) => this._chartPalette(index)),
+                         borderRadius: 8,
+                         maxBarThickness: options.maxBarThickness || 42
+                     }]
+                 },
+                 options: {
+                     indexAxis: options.indexAxis || 'x',
+                     responsive: true,
+                     maintainAspectRatio: false,
+                     plugins: {
+                         legend: { display: false },
+                         tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${Number(ctx.raw || 0).toLocaleString()}` } }
+                     },
+                     scales: {
+                         x: { beginAtZero: true, grid: { display: options.indexAxis === 'y' } },
+                         y: { beginAtZero: true, grid: { display: options.indexAxis !== 'y' } }
+                     }
+                 }
+             });
+         },
+
+         _renderDoughnutChart(bucket, key, id, entries) {
+             const el = document.getElementById(id);
+             if (!el || typeof Chart === 'undefined') return;
+             const hasData = entries.length > 0;
+             const list = hasData ? entries : [{ label: '데이터 없음', count: 1 }];
+             bucket[key] = new Chart(el, {
+                 type: 'doughnut',
+                 data: {
+                     labels: list.map((item) => item.label),
+                     datasets: [{
+                         data: list.map((item) => item.count),
+                         backgroundColor: hasData ? list.map((_, index) => this._chartPalette(index)) : ['#e2e8f0'],
+                         borderWidth: 0
+                     }]
+                 },
+                 options: {
+                     responsive: true,
+                     maintainAspectRatio: false,
+                     cutout: '58%',
+                     plugins: {
+                         legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true } },
+                         tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${Number(ctx.raw || 0).toLocaleString()}` } }
+                     }
+                 }
+             });
+         },
+
+         _renderGroupedDistributionChart(bucket, key, id, groups, labels, options = {}) {
+             const el = document.getElementById(id);
+             if (!el || typeof Chart === 'undefined') return;
+             const safeLabels = labels && labels.length ? labels : Array.from(new Set(groups.flatMap((group) => Object.keys(group.dist || {}))));
+             const finalLabels = safeLabels.length ? safeLabels : ['데이터 없음'];
+             bucket[key] = new Chart(el, {
+                 type: 'bar',
+                 data: {
+                     labels: finalLabels,
+                     datasets: groups.map((group, index) => ({
+                         label: group.label,
+                         data: finalLabels.map((label) => Number(group.dist?.[label] || 0)),
+                         backgroundColor: group.color || this._chartPalette(index),
+                         borderRadius: 7,
+                         maxBarThickness: 38
+                     }))
+                 },
+                 options: {
+                     indexAxis: options.indexAxis || 'x',
+                     responsive: true,
+                     maintainAspectRatio: false,
+                     plugins: {
+                         legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true } },
+                         tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${Number(ctx.raw || 0).toLocaleString()}` } }
+                     },
+                     scales: options.indexAxis === 'y'
+                         ? { x: { beginAtZero: true }, y: { grid: { display: false } } }
+                         : { x: { grid: { display: false } }, y: { beginAtZero: true } }
+                 }
+             });
+         },
+
          _renderVisitorCharts(stats, needs) {
              if (typeof Chart === 'undefined') return;
-             this._visitorCharts = this._visitorCharts || {};
-             Object.values(this._visitorCharts).forEach((chart) => chart && chart.destroy && chart.destroy());
-             this._visitorCharts = {};
-
-             const ageEl = document.getElementById('visitor-age-chart');
-             if (ageEl) {
-                 const age = stats.age || {};
-                 this._visitorCharts.age = new Chart(ageEl, {
-                     type: 'bar',
-                     data: {
-                         labels: Object.keys(age),
-                         datasets: [{ label: '응답 수', data: Object.values(age), backgroundColor: '#0ea5e9', borderRadius: 6 }]
-                     },
-                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                 });
-             }
-
-             const needsEl = document.getElementById('visitor-needs-chart');
-             if (needsEl) {
-                 this._visitorCharts.needs = new Chart(needsEl, {
-                     type: 'bar',
-                     data: {
-                         labels: needs.map((item) => item.label),
-                         datasets: [{ label: '선택 수', data: needs.map((item) => item.count), backgroundColor: '#10b981', borderRadius: 6 }]
-                     },
-                     options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                 });
-             }
+             const bucket = this._resetChartBucket('_visitorCharts');
+             this._renderCountBarChart(bucket, 'age', 'visitor-age-chart', this._countEntries(stats.age), { color: '#0ea5e9' });
+             this._renderDoughnutChart(bucket, 'residence', 'visitor-residence-chart', this._countEntries(stats.residence, 8));
+             this._renderCountBarChart(bucket, 'stay', 'visitor-stay-chart', this._countEntries(stats.stay), { indexAxis: 'y', color: '#f59e0b' });
+             this._renderCountBarChart(bucket, 'needs', 'visitor-needs-chart', needs, { indexAxis: 'y', label: '선택 수', color: '#10b981' });
+             this._renderGroupedDistributionChart(bucket, 'intent', 'visitor-intent-chart', [
+                 { label: '재방문', dist: stats.revisit?.dist || {}, color: '#0284c7' },
+                 { label: '추천', dist: stats.recommend?.dist || {}, color: '#10b981' }
+             ], ['매우 있다', '있다', '보통이다', '별로 없다', '전혀 없다']);
          },
 
          renderResidentV2AdminTab(data, container) {
              const stats = data?.stats || {};
              const rows = data?.responses?.rows || [];
              const settings = data?.settings?.surveys?.resident_v2 || {};
-             const lifeNeeds = stats.lifeNeeds?.top3 || [];
+             const lifeNeeds = this._topItems(stats.lifeNeeds?.top3, 8);
+             const tourismNeeds = this._topItems(stats.tourismNeeds?.top3, 6);
+             const stationNeeds = this._topItems(stats.stationNeeds?.top3, 6);
+             const positiveExpectations = this._topItems(stats.positiveExpectations?.top3, 6);
+             const negativeConcerns = this._topItems(stats.negativeConcerns?.top3, 6);
              const comments = rows.filter((row) => row.comment).slice(0, 20);
              const tableRows = rows.slice(0, 200);
+             const total = Number(stats.total || rows.length || 0);
+             const couponCount = rows.filter((row) => row.couponCode).length;
+             const topVillage = this._topCountLabel(stats.village);
+             const topPeriod = this._topCountLabel(stats.residencePeriod);
+             const topLifeNeed = lifeNeeds[0] || { label: '-', count: 0 };
+             const awarenessTop = this._topCountLabel(stats.projectAwareness);
+             const participationRate = Number(stats.participation?.posRate || 0);
+             const programIntentRate = Number(stats.programIntent?.posRate || 0);
+             const lastUpdated = stats.lastUpdated || rows[0]?.timestamp;
 
              container.innerHTML = `
                  <div class="space-y-6">
@@ -1170,7 +1447,7 @@ const APP = {
                          <div>
                              <p class="text-xs font-black text-ocean-600 uppercase tracking-wide mb-2">Resident Survey V2</p>
                              <h2 class="text-2xl font-black text-slate-900">주민 v2 설문 관리</h2>
-                             <p class="text-sm text-slate-500 mt-2">서비스 수요, 자원활용, 사업 인식도, 주민 참여 의향과 교환권 발급 정보를 확인합니다.</p>
+                             <p class="text-sm text-slate-500 mt-2">서비스 수요, 자원활용, 사업 인식도, 주민 참여 의향과 교환권 발급 정보를 차트와 표로 확인합니다.</p>
                          </div>
                          <div class="flex flex-wrap items-center gap-2">
                              <span class="text-xs font-black px-3 py-1.5 rounded-full ${settings.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
@@ -1185,22 +1462,93 @@ const APP = {
                          </div>
                      </div>
 
-                     <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
-                         ${this._visitorMetricCard('총 응답', `${Number(stats.total || 0).toLocaleString()}명`, 'fa-users', 'text-ocean-600')}
+                     <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                         ${this._visitorMetricCard('총 응답', `${total.toLocaleString()}명`, 'fa-users', 'text-ocean-600')}
+                         ${this._visitorMetricCard('교환권 발급', `${couponCount.toLocaleString()}건`, 'fa-ticket', 'text-violet-600')}
                          ${this._visitorMetricCard('생활만족 평균', stats.satisfactionAvg ? `${stats.satisfactionAvg} / 5` : '-', 'fa-star', 'text-amber-500')}
-                         ${this._visitorMetricCard('참여 의향', `${Number(stats.participation?.posRate || 0).toFixed(1)}%`, 'fa-handshake', 'text-emerald-600')}
-                         ${this._visitorMetricCard('프로그램 이용 의향', `${Number(stats.programIntent?.posRate || 0).toFixed(1)}%`, 'fa-calendar-check', 'text-cyan-600')}
+                         ${this._visitorMetricCard('참여 의향', `${participationRate.toFixed(1)}%`, 'fa-handshake', 'text-emerald-600')}
+                         ${this._visitorMetricCard('프로그램 이용 의향', `${programIntentRate.toFixed(1)}%`, 'fa-calendar-check', 'text-cyan-600')}
+                         ${this._visitorMetricCard('최근 업데이트', this._formatShortDate(lastUpdated), 'fa-clock', 'text-slate-500')}
+                     </div>
+
+                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                         ${this._surveyInsightCard('주요 응답마을', topVillage.label, `${topVillage.count.toLocaleString()}명 응답`, 'fa-map-location-dot', 'ocean')}
+                         ${this._surveyInsightCard('대표 거주기간', topPeriod.label, `${topPeriod.count.toLocaleString()}명 응답`, 'fa-house-user', 'amber')}
+                         ${this._surveyInsightCard('최우선 생활수요', topLifeNeed.label, `${Number(topLifeNeed.count || 0).toLocaleString()}회 선택`, 'fa-clipboard-list', 'emerald')}
+                         ${this._surveyInsightCard('사업 인식 최다', awarenessTop.label, `${awarenessTop.count.toLocaleString()}명 응답`, 'fa-bullhorn', 'sky')}
+                     </div>
+
+                     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">연령대 분포</h3>
+                                 <span class="text-xs font-bold text-slate-400">기본 정보</span>
+                             </div>
+                             <div class="h-72"><canvas id="resident-v2-age-chart"></canvas></div>
+                         </div>
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">마을 분포</h3>
+                                 <span class="text-xs font-bold text-slate-400">리 단위</span>
+                             </div>
+                             <div class="h-72"><canvas id="resident-v2-village-chart"></canvas></div>
+                         </div>
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">거주기간 분포</h3>
+                                 <span class="text-xs font-bold text-slate-400">정주 기반</span>
+                             </div>
+                             <div class="h-72"><canvas id="resident-v2-residence-period-chart"></canvas></div>
+                         </div>
                      </div>
 
                      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
                          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                             <h3 class="font-black text-slate-900 mb-4">연령대 분포</h3>
-                             <div class="h-72"><canvas id="resident-v2-age-chart"></canvas></div>
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">생활여건 개선 수요 TOP</h3>
+                                 <span class="text-xs font-bold text-slate-400">복수응답</span>
+                             </div>
+                             <div class="h-80"><canvas id="resident-v2-needs-chart"></canvas></div>
                          </div>
                          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                             <h3 class="font-black text-slate-900 mb-4">생활여건 개선 수요 TOP</h3>
-                             <div class="h-72"><canvas id="resident-v2-needs-chart"></canvas></div>
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">참여·프로그램 의향 분포</h3>
+                                 <span class="text-xs font-bold text-slate-400">실행 가능성</span>
+                             </div>
+                             <div class="h-80"><canvas id="resident-v2-intent-chart"></canvas></div>
+                             <div class="grid grid-cols-2 gap-3 mt-4">
+                                 ${this._surveyRateBar('사업 참여 긍정', participationRate, 'bg-emerald-500')}
+                                 ${this._surveyRateBar('프로그램 이용 긍정', programIntentRate, 'bg-cyan-500')}
+                             </div>
                          </div>
+                     </div>
+
+                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">사업 인식도</h3>
+                                 <span class="text-xs font-bold text-slate-400">인지 수준</span>
+                             </div>
+                             <div class="h-72"><canvas id="resident-v2-awareness-chart"></canvas></div>
+                         </div>
+                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <div class="flex items-center justify-between mb-4">
+                                 <h3 class="font-black text-slate-900">수요 포트폴리오</h3>
+                                 <span class="text-xs font-bold text-slate-400">상위 응답 비교</span>
+                             </div>
+                             <div class="h-72"><canvas id="resident-v2-demand-chart"></canvas></div>
+                         </div>
+                     </div>
+
+                     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                         ${this._surveyTopListCard('관광여건 개선 TOP', '관광·방문 환경 수요', tourismNeeds, total)}
+                         ${this._surveyTopListCard('어촌스테이션 필요시설 TOP', '만리포 거점 시설 수요', stationNeeds, total)}
+                         ${this._surveyTopListCard('기대 변화 TOP', '사업의 긍정 효과', positiveExpectations, total)}
+                     </div>
+
+                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                         ${this._surveyTopListCard('우려 변화 TOP', '사업 추진 시 관리 필요 이슈', negativeConcerns, total)}
+                         ${this._surveyTopListCard('천리포 스테이션 수요 TOP', '리모델링 시설 수요', this._topItems(stats.cheonripoNeeds?.top3, 6), total)}
                      </div>
 
                      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -1235,11 +1583,11 @@ const APP = {
                                                  <td class="p-3">${this.escapeHtml(row.age || '-')}</td>
                                                  <td class="p-3">${this.escapeHtml(row.village || '-')}</td>
                                                  <td class="p-3">${this.escapeHtml(row.residencePeriod || '-')}</td>
-                                                 <td class="p-3">${this.escapeHtml(row.satisfactionAvg || '-')}</td>
+                                                 <td class="p-3">${this._scoreBadge(row.satisfactionAvg)}</td>
                                                  <td class="p-3 max-w-[220px] truncate" title="${this.escapeHtml(row.lifeNeeds || '')}">${this.escapeHtml(row.lifeNeeds || '-')}</td>
                                                  <td class="p-3">${this.escapeHtml(row.projectAwareness || '-')}</td>
-                                                 <td class="p-3">${this.escapeHtml(row.participation || '-')}</td>
-                                                 <td class="p-3">${this.escapeHtml(row.programIntent || '-')}</td>
+                                                 <td class="p-3">${this._intentBadge(row.participation)}</td>
+                                                 <td class="p-3">${this._intentBadge(row.programIntent)}</td>
                                              </tr>
                                          `).join('') || `<tr><td colspan="11" class="p-8 text-center text-slate-400">응답 데이터가 없습니다.</td></tr>`}
                                      </tbody>
@@ -1269,34 +1617,26 @@ const APP = {
 
          _renderResidentV2Charts(stats, lifeNeeds) {
              if (typeof Chart === 'undefined') return;
-             this._residentV2Charts = this._residentV2Charts || {};
-             Object.values(this._residentV2Charts).forEach((chart) => chart && chart.destroy && chart.destroy());
-             this._residentV2Charts = {};
+             const bucket = this._resetChartBucket('_residentV2Charts');
+             const demandItems = [
+                 { label: '생활여건', count: lifeNeeds[0]?.count || 0 },
+                 { label: '관광여건', count: stats.tourismNeeds?.top3?.[0]?.count || 0 },
+                 { label: '만리포 스테이션', count: stats.stationNeeds?.top3?.[0]?.count || 0 },
+                 { label: '천리포 스테이션', count: stats.cheonripoNeeds?.top3?.[0]?.count || 0 },
+                 { label: '기대 변화', count: stats.positiveExpectations?.top3?.[0]?.count || 0 },
+                 { label: '우려 변화', count: stats.negativeConcerns?.top3?.[0]?.count || 0 }
+             ].filter((item) => item.count > 0);
 
-             const ageEl = document.getElementById('resident-v2-age-chart');
-             if (ageEl) {
-                 const age = stats.age || {};
-                 this._residentV2Charts.age = new Chart(ageEl, {
-                     type: 'bar',
-                     data: {
-                         labels: Object.keys(age),
-                         datasets: [{ label: '응답 수', data: Object.values(age), backgroundColor: '#0284c7', borderRadius: 6 }]
-                     },
-                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                 });
-             }
-
-             const needsEl = document.getElementById('resident-v2-needs-chart');
-             if (needsEl) {
-                 this._residentV2Charts.needs = new Chart(needsEl, {
-                     type: 'bar',
-                     data: {
-                         labels: lifeNeeds.map((item) => item.label),
-                         datasets: [{ label: '선택 수', data: lifeNeeds.map((item) => item.count), backgroundColor: '#10b981', borderRadius: 6 }]
-                     },
-                     options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                 });
-             }
+             this._renderCountBarChart(bucket, 'age', 'resident-v2-age-chart', this._countEntries(stats.age), { color: '#0284c7' });
+             this._renderDoughnutChart(bucket, 'village', 'resident-v2-village-chart', this._countEntries(stats.village, 8));
+             this._renderCountBarChart(bucket, 'period', 'resident-v2-residence-period-chart', this._countEntries(stats.residencePeriod), { indexAxis: 'y', color: '#f59e0b' });
+             this._renderCountBarChart(bucket, 'needs', 'resident-v2-needs-chart', lifeNeeds, { indexAxis: 'y', label: '선택 수', color: '#10b981' });
+             this._renderGroupedDistributionChart(bucket, 'intent', 'resident-v2-intent-chart', [
+                 { label: '사업 참여', dist: stats.participation?.dist || {}, color: '#10b981' },
+                 { label: '프로그램 이용', dist: stats.programIntent?.dist || {}, color: '#06b6d4' }
+             ], ['모든 활동에 참여', '일부 활동에 참여', '의견만 제시', '주민설명회 및 사업설명회 정도만 참여', '참여의사 없음', '매우 있음', '있음', '보통', '없음', '전혀없음'], { indexAxis: 'y' });
+             this._renderDoughnutChart(bucket, 'awareness', 'resident-v2-awareness-chart', this._countEntries(stats.projectAwareness, 6));
+             this._renderCountBarChart(bucket, 'demand', 'resident-v2-demand-chart', demandItems, { indexAxis: 'y', label: '상위 선택 수' });
          },
 
         renderSurveyHub(data, container) {
