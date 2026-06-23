@@ -406,7 +406,6 @@ const APP = {
       },
       tabOrder: [
           'dashboard',
-          'survey-hub',
           'visitor-admin',
           'resident-v2-admin',
           'local-analysis',
@@ -415,10 +414,34 @@ const APP = {
           'routine',
           'scenario',
           'reports',
-          'data',
-          'survey-settings'
+          'survey-settings',
+          'data'
       ],
+      tabGroups: {
+          survey: {
+              triggerId: 'admin-survey-menu-trigger',
+              currentId: 'admin-survey-current',
+              label: '설문 통계',
+              defaultLabel: '방문자설문',
+              tabs: ['visitor-admin', 'resident-v2-admin', 'local-analysis', 'prog-exec', 'linker-base']
+          },
+          ops: {
+              triggerId: 'admin-ops-menu-trigger',
+              currentId: 'admin-ops-current',
+              label: '운영보드',
+              defaultLabel: '운영루틴',
+              tabs: ['routine', 'scenario', 'reports']
+          },
+          settings: {
+              triggerId: 'admin-settings-menu-trigger',
+              currentId: 'admin-settings-current',
+              label: '환경설정',
+              defaultLabel: '설문 설정',
+              tabs: ['survey-settings', 'data']
+          }
+      },
       _hashBound: false,
+      _tabMenuBound: false,
 
       async init() {
           console.log("Initializing Admin Dashboard...");
@@ -453,9 +476,16 @@ const APP = {
           buttons.forEach((btn, index) => {
               btn.setAttribute('tabindex', btn.classList.contains('active') ? '0' : '-1');
               btn.dataset.tabNumber = String(index + 1);
-              if (!btn.dataset.boundKeyNav) {
+              if (!btn.classList.contains('admin-popover-item') && !btn.dataset.boundKeyNav) {
                   btn.addEventListener('keydown', (event) => this.handleTabKeydown(event));
                   btn.dataset.boundKeyNav = 'true';
+              }
+          });
+
+          document.querySelectorAll('.admin-tab-menu-trigger').forEach((menuTrigger) => {
+              if (!menuTrigger.dataset.boundKeyNav) {
+                  menuTrigger.addEventListener('keydown', (event) => this.handleTabKeydown(event));
+                  menuTrigger.dataset.boundKeyNav = 'true';
               }
           });
 
@@ -465,6 +495,16 @@ const APP = {
                   if (nextTab) this.showTab(nextTab, { updateHash: false });
               });
               this._hashBound = true;
+          }
+
+          if (!this._tabMenuBound) {
+              document.addEventListener('click', (event) => {
+                  if (!event.target.closest('.admin-tab-group')) this.closeTabMenus();
+              });
+              document.addEventListener('keydown', (event) => {
+                  if (event.key === 'Escape') this.closeTabMenus();
+              });
+              this._tabMenuBound = true;
           }
       },
 
@@ -482,7 +522,7 @@ const APP = {
           const keys = ['ArrowRight', 'ArrowLeft', 'Home', 'End'];
           if (!keys.includes(event.key)) return;
 
-          const buttons = Array.from(document.querySelectorAll('.admin-tabbar .tab-btn'));
+          const buttons = Array.from(document.querySelectorAll('.admin-tab-rail > .tab-btn, .admin-tab-rail > .admin-tab-group > .admin-tab-menu-trigger'));
           const currentIndex = buttons.indexOf(event.currentTarget);
           if (currentIndex < 0) return;
 
@@ -495,21 +535,66 @@ const APP = {
           if (event.key === 'End') nextIndex = buttons.length - 1;
 
           const nextButton = buttons[nextIndex];
-          const nextTab = nextButton.id.replace(/^tab-/, '');
           nextButton.focus();
-          this.showTab(nextTab);
+          if (nextButton.classList.contains('admin-tab-menu-trigger')) {
+              this.toggleTabMenu(nextButton.getAttribute('aria-controls'), true);
+          } else {
+              this.showTab(nextButton.id.replace(/^tab-/, ''));
+          }
       },
 
       updateTabSummary(tabEl, tabName) {
           const titleEl = document.getElementById('admin-current-tab-title');
           const descEl = document.getElementById('admin-current-tab-desc');
           const countEl = document.getElementById('admin-current-tab-count');
-          const buttons = Array.from(document.querySelectorAll('.admin-tabbar .tab-btn'));
-          const currentIndex = Math.max(buttons.indexOf(tabEl), 0);
-
           if (titleEl) titleEl.textContent = tabEl?.dataset?.tabTitle || tabName;
           if (descEl) descEl.textContent = tabEl?.dataset?.tabDesc || '';
-          if (countEl && buttons.length) countEl.textContent = `${currentIndex + 1} / ${buttons.length}`;
+          if (countEl) countEl.textContent = tabEl?.dataset?.navCode || '';
+      },
+
+      getTabGroup(tabName) {
+          return Object.values(this.tabGroups).find((group) => group.tabs.includes(tabName)) || null;
+      },
+
+      toggleTabMenu(menuId, forceOpen = null) {
+          const menu = document.getElementById(menuId);
+          const trigger = document.querySelector(`[aria-controls="${menuId}"]`);
+          if (!menu || !trigger) return;
+
+          const shouldOpen = forceOpen === null ? menu.classList.contains('hidden') : Boolean(forceOpen);
+          this.closeTabMenus(menuId);
+
+          menu.classList.toggle('hidden', !shouldOpen);
+          trigger.setAttribute('aria-expanded', String(shouldOpen));
+          menu.querySelectorAll('.admin-popover-item').forEach((item) => {
+              item.setAttribute('tabindex', shouldOpen ? '0' : '-1');
+          });
+      },
+
+      closeTabMenus(exceptId = null) {
+          document.querySelectorAll('.admin-tab-popover').forEach((menu) => {
+              if (exceptId && menu.id === exceptId) return;
+              menu.classList.add('hidden');
+              menu.querySelectorAll('.admin-popover-item').forEach((item) => item.setAttribute('tabindex', '-1'));
+              const trigger = document.querySelector(`[aria-controls="${menu.id}"]`);
+              if (trigger) trigger.setAttribute('aria-expanded', 'false');
+          });
+      },
+
+      syncTabGroupState(tabName, tabEl) {
+          Object.values(this.tabGroups).forEach((group) => {
+              const isActive = group.tabs.includes(tabName);
+              const trigger = document.getElementById(group.triggerId);
+              const label = document.getElementById(group.currentId);
+
+              if (trigger) {
+                  trigger.classList.toggle('active', isActive);
+                  trigger.setAttribute('aria-current', isActive ? 'page' : 'false');
+              }
+              if (label) {
+                  label.textContent = isActive ? (tabEl?.dataset?.tabTitle || group.label) : group.defaultLabel;
+              }
+          });
       },
       
       /**
@@ -575,7 +660,11 @@ const APP = {
                const isActive = btn.id === `tab-${tabName}`;
                btn.classList.toggle('active', isActive);
                if (btn.closest('.admin-tabbar')) {
-                   btn.setAttribute('aria-selected', String(isActive));
+                   if (btn.getAttribute('role') === 'tab') {
+                       btn.setAttribute('aria-selected', String(isActive));
+                   } else {
+                       btn.setAttribute('aria-current', isActive ? 'page' : 'false');
+                   }
                    btn.setAttribute('tabindex', isActive ? '0' : '-1');
                }
            });
@@ -588,11 +677,15 @@ const APP = {
            }
            if(tabEl) {
                tabEl.classList.add('active');
+               this.syncTabGroupState(tabName, tabEl);
                this.updateTabSummary(tabEl, tabName);
                if (options.scrollTab !== false) {
-                   tabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                   const tabGroup = this.getTabGroup(tabName);
+                   const scrollTarget = tabEl.classList.contains('admin-popover-item') && tabGroup ? document.getElementById(tabGroup.triggerId) : tabEl;
+                   if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
                }
            }
+           this.closeTabMenus();
 
            if (window.App && window.App.store) {
                window.App.store.set('activeTab', tabName);

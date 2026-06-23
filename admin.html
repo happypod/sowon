@@ -32,7 +32,7 @@
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   
   <style>
-    body { font-family: 'Pretendard', sans-serif; }
+    body { font-family: 'Pretendard', sans-serif; overflow-x: hidden; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
@@ -46,7 +46,9 @@
       background: rgba(248, 250, 252, 0.94);
       box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
       backdrop-filter: blur(14px);
-      overflow: hidden;
+      box-sizing: border-box;
+      max-width: 100%;
+      overflow: visible;
     }
     .admin-tabbar-head {
       display: flex;
@@ -59,17 +61,19 @@
     .admin-tab-rail {
       display: flex;
       gap: 0.5rem;
-      overflow-x: auto;
+      flex-wrap: wrap;
+      overflow: visible;
       padding: 0.75rem;
-      scroll-snap-type: x proximity;
+      max-width: 100%;
     }
-    .tab-btn {
+    .tab-btn,
+    .admin-tab-menu-trigger {
       display: inline-flex;
-      flex: 0 0 auto;
+      flex: 0 1 auto;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      min-width: 9.75rem;
+      min-width: 8.75rem;
       min-height: 2.75rem;
       padding: 0.65rem 0.8rem;
       border: 1px solid transparent;
@@ -79,26 +83,29 @@
       font-size: 0.875rem;
       font-weight: 800;
       line-height: 1.2;
-      white-space: nowrap;
-      scroll-snap-align: start;
+      white-space: normal;
       transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
     }
-    .tab-btn:hover {
+    .tab-btn:hover,
+    .admin-tab-menu-trigger:hover {
       color: #0369a1;
       border-color: #bae6fd;
       background: #f0f9ff;
     }
-    .tab-btn:focus-visible {
+    .tab-btn:focus-visible,
+    .admin-tab-menu-trigger:focus-visible {
       outline: 3px solid rgba(14, 165, 233, 0.3);
       outline-offset: 2px;
     }
-    .tab-btn.active {
+    .tab-btn.active,
+    .admin-tab-menu-trigger.active {
       color: #075985;
       border-color: #38bdf8;
       background: #e0f2fe;
       box-shadow: 0 8px 20px rgba(14, 165, 233, 0.16);
     }
-    .tab-btn .tab-index {
+    .tab-btn .tab-index,
+    .admin-tab-menu-trigger .tab-index {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -110,9 +117,86 @@
       font-size: 0.72rem;
       font-weight: 900;
     }
-    .tab-btn.active .tab-index {
+    .tab-btn.active .tab-index,
+    .admin-tab-menu-trigger.active .tab-index {
       background: #0284c7;
       color: #fff;
+    }
+    .admin-tab-group {
+      position: relative;
+      flex: 0 1 auto;
+    }
+    .admin-tab-menu-trigger {
+      position: relative;
+      min-width: 11rem;
+      padding-right: 0.65rem;
+    }
+    .admin-tab-group .admin-tab-menu-trigger {
+      width: 100%;
+    }
+    .admin-tab-menu-trigger small {
+      display: block;
+      max-width: 6rem;
+      overflow: hidden;
+      color: #64748b;
+      font-size: 0.68rem;
+      font-weight: 900;
+      line-height: 1;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .admin-tab-menu-trigger .fa-chevron-down {
+      margin-left: auto;
+      color: #94a3b8;
+      font-size: 0.7rem;
+      transition: transform 0.16s ease;
+    }
+    .admin-tab-menu-trigger[aria-expanded="true"] .fa-chevron-down {
+      transform: rotate(180deg);
+    }
+    .admin-tab-popover {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0;
+      z-index: 90;
+      width: min(22rem, calc(100vw - 2rem));
+      max-width: calc(100vw - 2rem);
+      padding: 0.5rem;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 22px 46px rgba(15, 23, 42, 0.18);
+    }
+    .admin-tab-popover::before {
+      content: "";
+      position: absolute;
+      top: -0.45rem;
+      left: 1.3rem;
+      width: 0.8rem;
+      height: 0.8rem;
+      border-top: 1px solid #dbeafe;
+      border-left: 1px solid #dbeafe;
+      background: #fff;
+      transform: rotate(45deg);
+    }
+    .admin-tab-popover.hidden {
+      display: none;
+    }
+    .admin-popover-title {
+      padding: 0.45rem 0.55rem 0.55rem;
+      color: #64748b;
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .admin-tab-popover .tab-btn {
+      width: 100%;
+      min-width: 0;
+      justify-content: flex-start;
+      margin-top: 0.25rem;
+      box-shadow: none;
+      text-align: left;
     }
     @media (max-width: 640px) {
       .admin-tabbar {
@@ -130,9 +214,20 @@
       .admin-tab-rail {
         padding: 0.65rem 1rem 0.85rem;
       }
-      .tab-btn {
-        min-width: 8.6rem;
+      .tab-btn,
+      .admin-tab-menu-trigger,
+      .admin-tab-group {
+        flex: 1 1 calc(50% - 0.5rem);
+        min-width: 9.5rem;
         font-size: 0.8125rem;
+      }
+      .admin-tab-group {
+        position: static;
+      }
+      .admin-tab-popover {
+        left: 1rem;
+        right: 1rem;
+        width: auto;
       }
     }
 
@@ -212,7 +307,7 @@
   <script defer src="assets/js/tabs/tab_prog_exec.js?v=3"></script>
   <script defer src="assets/js/tabs/tab_linker_base.js"></script>
   <script defer src="assets/js/scenario_engine.js"></script>
-  <script defer src="assets/js/app.js?v=20260623-admin-tabs"></script>
+  <script defer src="assets/js/app.js?v=20260623-admin-tabs-menu"></script>
 
   <!-- Chart.js & ECharts -->
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -245,45 +340,81 @@
             <h3 id="admin-current-tab-title" class="mt-1 text-lg md:text-xl font-black text-slate-900">전략 대시보드</h3>
             <p id="admin-current-tab-desc" class="mt-1 text-sm text-slate-500 truncate">핵심 지표와 위험 신호를 종합합니다.</p>
           </div>
-          <span id="admin-current-tab-count" class="shrink-0 rounded bg-white px-3 py-1.5 text-xs font-black text-slate-500 border border-slate-200">1 / 12</span>
+          <span id="admin-current-tab-count" class="shrink-0 rounded bg-white px-3 py-1.5 text-xs font-black text-slate-500 border border-slate-200">01</span>
         </div>
-        <div class="admin-tab-rail no-scrollbar" role="tablist" aria-label="관리자 페이지 섹션">
-          <button type="button" onclick="APP.admin.showTab('dashboard')" id="tab-dashboard" class="tab-btn active" role="tab" aria-selected="true" aria-controls="view-dashboard" data-tab-title="전략 대시보드" data-tab-desc="핵심 지표와 위험 신호를 종합합니다.">
-            <span class="tab-index">01</span><i class="fas fa-chart-line"></i><span>전략 대시보드</span>
+        <div class="admin-tab-rail" role="tablist" aria-label="관리자 페이지 섹션">
+          <button type="button" onclick="APP.admin.showTab('dashboard')" id="tab-dashboard" class="tab-btn active" role="tab" aria-selected="true" aria-controls="view-dashboard" data-nav-code="01" data-tab-title="전략보드" data-tab-desc="핵심 지표와 위험 신호를 종합합니다.">
+            <span class="tab-index">01</span><i class="fas fa-chart-line"></i><span>전략보드</span>
           </button>
-          <button type="button" onclick="APP.admin.showTab('survey-hub')" id="tab-survey-hub" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-survey-hub" data-tab-title="설문·통계" data-tab-desc="기존 설문 응답과 통계 분석을 확인합니다.">
-            <span class="tab-index">02</span><i class="fas fa-poll"></i><span>설문·통계</span>
-          </button>
-          <button type="button" onclick="APP.admin.showTab('visitor-admin')" id="tab-visitor-admin" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-visitor-admin" data-tab-title="방문객 설문" data-tab-desc="방문객 만족도 설문의 통계, 차트, 응답 표를 관리합니다.">
-            <span class="tab-index">03</span><i class="fas fa-location-dot"></i><span>방문객 설문</span>
-          </button>
-          <button type="button" onclick="APP.admin.showTab('resident-v2-admin')" id="tab-resident-v2-admin" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-resident-v2-admin" data-tab-title="주민설문 v2" data-tab-desc="주민설문 v2 응답과 쿠폰 발급 데이터를 관리합니다.">
-            <span class="tab-index">04</span><i class="fas fa-clipboard-list"></i><span>주민설문 v2</span>
-          </button>
-          <button type="button" onclick="APP.admin.showTab('local-analysis')" id="tab-local-analysis" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-local-analysis" data-tab-title="리 단위 분석" data-tab-desc="마을별 생활 수요와 지역 지표를 비교합니다.">
-            <span class="tab-index">05</span><i class="fas fa-map-marked-alt"></i><span>리 단위 분석</span>
-          </button>
-          <button type="button" onclick="APP.admin.showTab('prog-exec')" id="tab-prog-exec" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-prog-exec" data-tab-title="주민 수요·우선과제" data-tab-desc="주민 수요 기반의 실행 과제 우선순위를 검토합니다.">
-            <span class="tab-index">06</span><i class="fas fa-project-diagram"></i><span>주민 수요·우선과제</span>
-          </button>
-          <button type="button" onclick="APP.admin.showTab('linker-base')" id="tab-linker-base" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-linker-base" data-tab-title="참여기반 공동체" data-tab-desc="주민 참여 기반과 공동체 전환 가능성을 분석합니다.">
-            <span class="tab-index">07</span><i class="fas fa-users-cog"></i><span>참여기반 공동체</span>
-          </button>
-          <button type="button" onclick="APP.admin.showTab('routine')" id="tab-routine" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-routine" data-tab-title="운영 루틴" data-tab-desc="운영 일정과 월별 실행 점검 항목을 관리합니다.">
-            <span class="tab-index">08</span><i class="fas fa-tasks"></i><span>운영 루틴</span>
-          </button>
-          <button type="button" onclick="APP.admin.showTab('scenario')" id="tab-scenario" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-scenario" data-tab-title="시나리오 랩" data-tab-desc="사업 추진 시나리오와 대응 전략을 검토합니다.">
-            <span class="tab-index">09</span><i class="fas fa-flask"></i><span>시나리오 랩</span>
-          </button>
-          <button type="button" onclick="APP.admin.showTab('reports')" id="tab-reports" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-reports" data-tab-title="보고서" data-tab-desc="분석 결과와 보고서 산출물을 확인합니다.">
-            <span class="tab-index">10</span><i class="fas fa-file-alt"></i><span>보고서</span>
-          </button>
-          <button type="button" onclick="APP.admin.showTab('data')" id="tab-data" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-data" data-tab-title="데이터" data-tab-desc="원천 데이터 동기화와 무결성 상태를 점검합니다.">
-            <span class="tab-index">11</span><i class="fas fa-database"></i><span>데이터</span>
-          </button>
-          <button type="button" onclick="APP.admin.showTab('survey-settings')" id="tab-survey-settings" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-survey-settings" data-tab-title="설문 설정" data-tab-desc="설문별 접수 잠금과 노출 여부를 관리합니다.">
-            <span class="tab-index">12</span><i class="fas fa-toggle-on"></i><span>설문 설정</span>
-          </button>
+          <div class="admin-tab-group">
+            <button type="button" id="admin-survey-menu-trigger" class="admin-tab-menu-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="admin-survey-menu" onclick="APP.admin.toggleTabMenu('admin-survey-menu')">
+              <span class="tab-index">02</span><i class="fas fa-poll"></i>
+              <span>
+                설문 통계
+                <small id="admin-survey-current">방문자설문</small>
+              </span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="admin-survey-menu" class="admin-tab-popover hidden" role="menu" aria-labelledby="admin-survey-menu-trigger">
+              <div class="admin-popover-title">02 설문 통계</div>
+              <button type="button" onclick="APP.admin.showTab('visitor-admin')" id="tab-visitor-admin" class="tab-btn admin-popover-item" role="menuitem" aria-controls="view-visitor-admin" data-nav-code="02-01" data-tab-title="방문자설문" data-tab-desc="방문자 만족도 설문의 통계, 차트, 응답 표를 관리합니다.">
+                <span class="tab-index">01</span><i class="fas fa-location-dot"></i><span>방문자설문</span>
+              </button>
+              <button type="button" onclick="APP.admin.showTab('resident-v2-admin')" id="tab-resident-v2-admin" class="tab-btn admin-popover-item" role="menuitem" aria-controls="view-resident-v2-admin" data-nav-code="02-02" data-tab-title="주민 설문 v2" data-tab-desc="주민 설문 v2 응답과 쿠폰 발급 데이터를 관리합니다.">
+                <span class="tab-index">02</span><i class="fas fa-clipboard-list"></i><span>주민 설문 v2</span>
+              </button>
+              <button type="button" onclick="APP.admin.showTab('local-analysis')" id="tab-local-analysis" class="tab-btn admin-popover-item" role="menuitem" aria-controls="view-local-analysis" data-nav-code="02-03" data-tab-title="리 단위 분석" data-tab-desc="마을별 생활 수요와 지역 지표를 비교합니다.">
+                <span class="tab-index">03</span><i class="fas fa-map-marked-alt"></i><span>리 단위 분석</span>
+              </button>
+              <button type="button" onclick="APP.admin.showTab('prog-exec')" id="tab-prog-exec" class="tab-btn admin-popover-item" role="menuitem" aria-controls="view-prog-exec" data-nav-code="02-04" data-tab-title="주민 수요·우선과제" data-tab-desc="주민 수요 기반의 실행 과제 우선순위를 검토합니다.">
+                <span class="tab-index">04</span><i class="fas fa-project-diagram"></i><span>주민 수요·우선과제</span>
+              </button>
+              <button type="button" onclick="APP.admin.showTab('linker-base')" id="tab-linker-base" class="tab-btn admin-popover-item" role="menuitem" aria-controls="view-linker-base" data-nav-code="02-05" data-tab-title="참여기반 공동체" data-tab-desc="주민 참여 기반과 공동체 전환 가능성을 분석합니다.">
+                <span class="tab-index">05</span><i class="fas fa-users-cog"></i><span>참여기반 공동체</span>
+              </button>
+            </div>
+          </div>
+          <div class="admin-tab-group">
+            <button type="button" id="admin-ops-menu-trigger" class="admin-tab-menu-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="admin-ops-menu" onclick="APP.admin.toggleTabMenu('admin-ops-menu')">
+              <span class="tab-index">03</span><i class="fas fa-briefcase"></i>
+              <span>
+                운영보드
+                <small id="admin-ops-current">운영루틴</small>
+              </span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="admin-ops-menu" class="admin-tab-popover hidden" role="menu" aria-labelledby="admin-ops-menu-trigger">
+              <div class="admin-popover-title">03 운영보드</div>
+              <button type="button" onclick="APP.admin.showTab('routine')" id="tab-routine" class="tab-btn admin-popover-item" role="menuitem" aria-controls="view-routine" data-nav-code="03-01" data-tab-title="운영루틴" data-tab-desc="운영 일정과 월별 실행 점검 항목을 관리합니다.">
+                <span class="tab-index">01</span><i class="fas fa-tasks"></i><span>운영루틴</span>
+              </button>
+              <button type="button" onclick="APP.admin.showTab('scenario')" id="tab-scenario" class="tab-btn admin-popover-item" role="menuitem" aria-controls="view-scenario" data-nav-code="03-02" data-tab-title="시나리오 랩" data-tab-desc="사업 추진 시나리오와 대응 전략을 검토합니다.">
+                <span class="tab-index">02</span><i class="fas fa-flask"></i><span>시나리오 랩</span>
+              </button>
+              <button type="button" onclick="APP.admin.showTab('reports')" id="tab-reports" class="tab-btn admin-popover-item" role="menuitem" aria-controls="view-reports" data-nav-code="03-03" data-tab-title="보고서" data-tab-desc="분석 결과와 보고서 산출물을 확인합니다.">
+                <span class="tab-index">03</span><i class="fas fa-file-alt"></i><span>보고서</span>
+              </button>
+            </div>
+          </div>
+          <div class="admin-tab-group">
+            <button type="button" id="admin-settings-menu-trigger" class="admin-tab-menu-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="admin-settings-menu" onclick="APP.admin.toggleTabMenu('admin-settings-menu')">
+              <span class="tab-index">04</span><i class="fas fa-sliders"></i>
+              <span>
+                환경설정
+                <small id="admin-settings-current">설문 설정</small>
+              </span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="admin-settings-menu" class="admin-tab-popover hidden" role="menu" aria-labelledby="admin-settings-menu-trigger">
+              <div class="admin-popover-title">04 환경설정</div>
+              <button type="button" onclick="APP.admin.showTab('survey-settings')" id="tab-survey-settings" class="tab-btn admin-popover-item" role="menuitem" aria-controls="view-survey-settings" data-nav-code="04-01" data-tab-title="설문 설정" data-tab-desc="설문별 접수 잠금과 노출 여부를 관리합니다.">
+                <span class="tab-index">01</span><i class="fas fa-toggle-on"></i><span>설문 설정</span>
+              </button>
+              <button type="button" onclick="APP.admin.showTab('data')" id="tab-data" class="tab-btn admin-popover-item" role="menuitem" aria-controls="view-data" data-nav-code="04-02" data-tab-title="데이터" data-tab-desc="원천 데이터 동기화와 무결성 상태를 점검합니다.">
+                <span class="tab-index">02</span><i class="fas fa-database"></i><span>데이터</span>
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
