@@ -1009,12 +1009,14 @@ const APP = {
              const comments = rows.filter((row) => row.comment);
              const tableRows = rows;
              const commentKeywords = this._extractCommentKeywords(comments.map((row) => row.comment), 12);
+             const keywordTotal = commentKeywords.reduce((sum, item) => sum + Number(item.count || 0), 0);
+             const needEntries = this._visitorNeedEntries(rows, needs);
              const total = Number(stats.total || rows.length || 0);
              const couponCount = rows.filter((row) => row.couponCode).length;
              const topAge = this._topCountLabel(stats.age);
              const topResidence = this._topCountLabel(stats.residence);
              const topStay = this._topCountLabel(stats.stay);
-             const topNeed = needs[0] || { label: '-', count: 0 };
+             const topNeed = needEntries[0] || { label: '-', count: 0 };
              const revisitRate = Number(stats.revisit?.posRate || 0);
              const recommendRate = Number(stats.recommend?.posRate || 0);
              const lastUpdated = stats.lastUpdated || rows[0]?.timestamp;
@@ -1077,15 +1079,44 @@ const APP = {
                          </div>
                      </div>
 
-                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                             <div class="flex items-center justify-between mb-4">
-                                 <h3 class="font-black text-slate-900">필요시설 수요 TOP</h3>
-                                 <span class="text-xs font-bold text-slate-400">복수응답</span>
+                     <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+                         <div class="xl:col-span-3 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+                                 <div>
+                                     <h3 class="font-black text-slate-900">필요시설 수요 TOP</h3>
+                                     <p class="text-xs text-slate-500 mt-1">복수응답을 선택 수와 전체 응답 대비 비중으로 함께 봅니다.</p>
+                                 </div>
+                                 <span class="text-xs font-bold text-slate-400">선택 수 / 비중</span>
                              </div>
-                             <div class="h-80"><canvas id="visitor-needs-chart"></canvas></div>
+                             <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+                                 <div class="lg:col-span-3">
+                                     <div class="h-80"><canvas id="visitor-needs-chart"></canvas></div>
+                                 </div>
+                                 <div class="lg:col-span-2">
+                                     <div class="h-64"><canvas id="visitor-needs-share-chart"></canvas></div>
+                                     <div class="space-y-3 mt-4">
+                                         ${needEntries.map((item, index) => {
+                                             const pct = total ? Math.round((item.count / total) * 100) : 0;
+                                             return `
+                                                 <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                                                     <div class="flex items-center justify-between gap-3 text-sm">
+                                                         <span class="font-black text-slate-700 truncate">${index + 1}. ${this.escapeHtml(item.label)}</span>
+                                                         <span class="font-black text-slate-900">${item.count.toLocaleString()}건</span>
+                                                     </div>
+                                                     <div class="flex items-center gap-2 mt-2">
+                                                         <div class="h-2 flex-1 rounded-full bg-white overflow-hidden">
+                                                             <div class="h-full rounded-full bg-emerald-500" style="width:${Math.max(4, Math.min(100, pct))}%"></div>
+                                                         </div>
+                                                         <span class="w-12 text-right text-[11px] font-black text-emerald-700">${pct}%</span>
+                                                     </div>
+                                                 </div>
+                                             `;
+                                         }).join('') || `<p class="text-sm text-slate-400 py-6 text-center">필요시설 응답이 없습니다.</p>`}
+                                     </div>
+                                 </div>
+                             </div>
                          </div>
-                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                         <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
                              <div class="flex items-center justify-between mb-4">
                                  <h3 class="font-black text-slate-900">재방문·추천 의향 분포</h3>
                                  <span class="text-xs font-bold text-slate-400">긍정 응답 비교</span>
@@ -1107,11 +1138,11 @@ const APP = {
                          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-5">
                              <div>
                                  <h3 class="font-black text-slate-900">응답 데이터 시각화</h3>
-                                 <p class="text-xs text-slate-500 mt-1">응답표의 주요 필드를 제출 흐름, 시간대, 만족도, 교환권 상태로 변환했습니다.</p>
+                                 <p class="text-xs text-slate-500 mt-1">응답표의 주요 필드를 제출 흐름, 시간대, 만족도 구간으로 변환했습니다.</p>
                              </div>
                              <span class="text-xs font-black px-3 py-1.5 rounded-full bg-slate-100 text-slate-500">전체 ${tableRows.length.toLocaleString()}건</span>
                          </div>
-                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
                              <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
                                  <div class="flex items-center justify-between mb-3">
                                      <h4 class="text-sm font-black text-slate-800">제출일별 흐름</h4>
@@ -1132,13 +1163,6 @@ const APP = {
                                      <span class="text-[11px] font-bold text-slate-400">Polar</span>
                                  </div>
                                  <div class="h-72"><canvas id="visitor-response-score-chart"></canvas></div>
-                             </div>
-                             <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-                                 <div class="flex items-center justify-between mb-3">
-                                     <h4 class="text-sm font-black text-slate-800">교환권 발급 상태</h4>
-                                     <span class="text-[11px] font-bold text-slate-400">Doughnut</span>
-                                 </div>
-                                 <div class="h-72"><canvas id="visitor-response-coupon-chart"></canvas></div>
                              </div>
                          </div>
                      </div>
@@ -1205,26 +1229,19 @@ const APP = {
                              </div>
                              <div class="xl:col-span-2 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
                                  <div class="flex items-center justify-between mb-3">
-                                     <h4 class="text-sm font-black text-slate-800">주요 키워드</h4>
-                                     <span class="text-[11px] font-bold text-slate-400">TOP ${commentKeywords.length}</span>
+                                     <h4 class="text-sm font-black text-slate-800">키워드 요약</h4>
+                                     <span class="text-[11px] font-bold text-slate-400">${keywordTotal.toLocaleString()}회 언급</span>
                                  </div>
-                                 <div class="space-y-3">
-                                     ${commentKeywords.map((item, index) => {
-                                         const max = commentKeywords[0]?.count || 1;
-                                         const pct = Math.round((item.count / max) * 100);
-                                         return `
-                                             <div>
-                                                 <div class="flex items-center justify-between gap-3 text-sm">
-                                                     <span class="font-bold text-slate-700 truncate">${index + 1}. ${this.escapeHtml(item.label)}</span>
-                                                     <span class="font-black text-slate-900">${item.count.toLocaleString()}</span>
-                                                 </div>
-                                                 <div class="h-2 rounded-full bg-white overflow-hidden mt-1.5">
-                                                     <div class="h-full rounded-full bg-cyan-500" style="width:${Math.max(6, pct)}%"></div>
-                                                 </div>
-                                             </div>
-                                         `;
-                                     }).join('') || `<p class="text-sm text-slate-400 py-6 text-center">분석할 키워드가 없습니다.</p>`}
+                                 <div class="flex flex-wrap gap-2">
+                                     ${commentKeywords.slice(0, 10).map((item, index) => `
+                                         <span class="inline-flex items-center gap-1.5 rounded-full border border-cyan-100 bg-white px-3 py-1.5 text-xs font-black text-slate-700">
+                                             <span class="text-cyan-600">${index + 1}</span>
+                                             ${this.escapeHtml(item.label)}
+                                             <span class="text-slate-400">${Number(item.count || 0).toLocaleString()}</span>
+                                         </span>
+                                     `).join('') || `<p class="text-sm text-slate-400 py-6 text-center">분석할 키워드가 없습니다.</p>`}
                                  </div>
+                                 <p class="mt-4 text-xs leading-relaxed text-slate-500">상위 키워드만 간단히 표시합니다. 세부 빈도는 워드클라우드 크기로 확인합니다.</p>
                              </div>
                          </div>
                          <div class="space-y-3 mt-5">
@@ -1293,6 +1310,25 @@ const APP = {
          _topCountLabel(map) {
              const item = this._countEntries(map, 1)[0];
              return item || { label: '-', count: 0 };
+         },
+
+         _splitMultiValue(value) {
+             return String(value || '')
+                 .split(/[,，;；\n|]+/)
+                 .map((item) => item.trim())
+                 .filter(Boolean);
+         },
+
+         _visitorNeedEntries(rows, fallbackItems = []) {
+             const counts = {};
+             (Array.isArray(rows) ? rows : []).forEach((row) => {
+                 this._splitMultiValue(row.needs).forEach((label) => {
+                     counts[label] = (counts[label] || 0) + 1;
+                 });
+             });
+             const fromRows = this._countEntries(counts, 12);
+             if (fromRows.length) return fromRows;
+             return this._topItems(fallbackItems, 12);
          },
 
          _extractCommentKeywords(texts, limit = 20) {
@@ -1367,15 +1403,6 @@ const APP = {
                  else bands['3점 미만'] += 1;
              });
              return Object.entries(bands).map(([label, count]) => ({ label, count })).filter((item) => item.count > 0);
-         },
-
-         _visitorCouponEntries(rows) {
-             const issued = (Array.isArray(rows) ? rows : []).filter((row) => row.couponCode).length;
-             const pending = Math.max(0, (rows?.length || 0) - issued);
-             return [
-                 { label: '발급 완료', count: issued },
-                 { label: '미발급/누락', count: pending }
-             ].filter((item) => item.count > 0);
          },
 
          _surveyInsightCard(title, value, detail, icon, tone = 'sky') {
@@ -1691,11 +1718,13 @@ const APP = {
 
          _renderVisitorCharts(stats, needs, rows = [], comments = []) {
              const bucket = this._resetChartBucket('_visitorCharts');
+             const needEntries = this._visitorNeedEntries(rows, needs);
              if (typeof Chart !== 'undefined') {
                  this._renderCountBarChart(bucket, 'age', 'visitor-age-chart', this._countEntries(stats.age), { color: '#0ea5e9' });
                  this._renderDoughnutChart(bucket, 'residence', 'visitor-residence-chart', this._countEntries(stats.residence, 8));
                  this._renderCountBarChart(bucket, 'stay', 'visitor-stay-chart', this._countEntries(stats.stay), { indexAxis: 'y', color: '#f59e0b' });
-                 this._renderCountBarChart(bucket, 'needs', 'visitor-needs-chart', needs, { indexAxis: 'y', label: '선택 수', color: '#10b981' });
+                 this._renderCountBarChart(bucket, 'needs', 'visitor-needs-chart', needEntries, { indexAxis: 'y', label: '선택 수', color: needEntries.map((_, index) => this._chartPalette(index)), maxBarThickness: 34 });
+                 this._renderDoughnutChart(bucket, 'needsShare', 'visitor-needs-share-chart', needEntries);
                  this._renderGroupedDistributionChart(bucket, 'intent', 'visitor-intent-chart', [
                      { label: '재방문', dist: stats.revisit?.dist || {}, color: '#0284c7' },
                      { label: '추천', dist: stats.recommend?.dist || {}, color: '#10b981' }
@@ -1703,7 +1732,6 @@ const APP = {
                  this._renderLineChart(bucket, 'responseDate', 'visitor-response-date-chart', this._visitorResponseDateEntries(rows), { label: '제출 수', color: '#0284c7' });
                  this._renderCountBarChart(bucket, 'responseHour', 'visitor-response-hour-chart', this._visitorResponseHourEntries(rows), { color: '#14b8a6', label: '제출 수' });
                  this._renderPolarAreaChart(bucket, 'responseScore', 'visitor-response-score-chart', this._visitorScoreBandEntries(rows));
-                 this._renderDoughnutChart(bucket, 'responseCoupon', 'visitor-response-coupon-chart', this._visitorCouponEntries(rows));
              }
              this._renderVisitorCommentWordCloud(comments);
          },
