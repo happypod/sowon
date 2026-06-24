@@ -1523,6 +1523,11 @@ const APP = {
              const el = document.getElementById(id);
              if (!el || typeof Chart === 'undefined') return;
              const list = entries.length ? entries : [{ label: '데이터 없음', count: 0 }];
+             const truncateLabel = (value) => {
+                 const text = String(value || '');
+                 const max = Number(options.truncateLabels || 0);
+                 return max && text.length > max ? `${text.slice(0, max)}…` : text;
+             };
              bucket[key] = new Chart(el, {
                  type: 'bar',
                  data: {
@@ -1545,7 +1550,17 @@ const APP = {
                      },
                      scales: {
                          x: { beginAtZero: true, grid: { display: options.indexAxis === 'y' } },
-                         y: { beginAtZero: true, grid: { display: options.indexAxis !== 'y' } }
+                         y: {
+                             beginAtZero: true,
+                             grid: { display: options.indexAxis !== 'y' },
+                             ticks: options.indexAxis === 'y' && options.truncateLabels
+                                 ? {
+                                     callback(value) {
+                                         return truncateLabel(this.getLabelForValue(value));
+                                     }
+                                 }
+                                 : undefined
+                         }
                      }
                  }
              });
@@ -1768,9 +1783,25 @@ const APP = {
              const comments = rows.filter((row) => row.comment);
              const tableRows = rows;
              const lifeNeedEntries = this._residentV2NeedEntries(rows, lifeNeeds);
+             const total = Number(stats.total || rows.length || 0);
+             const lifeNeedSelectionTotal = lifeNeedEntries.reduce((sum, item) => sum + Number(item.count || 0), 0);
+             const topThreeLifeNeedTotal = lifeNeedEntries.slice(0, 3).reduce((sum, item) => sum + Number(item.count || 0), 0);
+             const topLifeNeedShare = total ? Math.round(((lifeNeedEntries[0]?.count || 0) / total) * 100) : 0;
+             const topThreeLifeNeedShare = lifeNeedSelectionTotal ? Math.round((topThreeLifeNeedTotal / lifeNeedSelectionTotal) * 100) : 0;
+             const primaryLifeNeeds = lifeNeedEntries.slice(0, 6);
+             const remainingLifeNeeds = lifeNeedEntries.slice(6);
+             const compactLifeNeedRows = remainingLifeNeeds.length
+                 ? [
+                     ...primaryLifeNeeds,
+                     {
+                         label: `그 외 ${remainingLifeNeeds.length}개 항목`,
+                         count: remainingLifeNeeds.reduce((sum, item) => sum + Number(item.count || 0), 0),
+                         isRest: true
+                     }
+                 ]
+                 : primaryLifeNeeds;
              const commentKeywords = this._extractCommentKeywords(comments.map((row) => row.comment), 12);
              const keywordTotal = commentKeywords.reduce((sum, item) => sum + Number(item.count || 0), 0);
-             const total = Number(stats.total || rows.length || 0);
              const couponCount = rows.filter((row) => row.couponCode).length;
              const topVillage = this._topCountLabel(stats.village);
              const topPeriod = this._topCountLabel(stats.residencePeriod);
@@ -1842,42 +1873,77 @@ const APP = {
                      </div>
 
                      <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
-                         <div class="xl:col-span-3 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                         <div class="xl:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
                              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
                                  <div>
                                      <h3 class="font-black text-slate-900">생활여건 개선 수요 TOP</h3>
-                                     <p class="text-xs text-slate-500 mt-1">복수응답 선택 수와 전체 응답 대비 비중을 함께 봅니다.</p>
+                                     <p class="text-xs text-slate-500 mt-1">중복 시각화를 줄이고, 복수응답의 선택 수와 우선순위를 한 화면에서 확인합니다.</p>
                                  </div>
-                                 <span class="text-xs font-bold text-slate-400">선택 수 / 비중</span>
+                                 <span class="text-xs font-bold text-slate-400">선택 수 기준</span>
                              </div>
-                             <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
-                                 <div class="lg:col-span-3">
-                                     <div class="h-80"><canvas id="resident-v2-needs-chart"></canvas></div>
+                             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                                 <div class="lg:col-span-7">
+                                     <div class="h-[30rem]"><canvas id="resident-v2-needs-chart"></canvas></div>
                                  </div>
-                                 <div class="lg:col-span-2">
-                                     <div class="h-64"><canvas id="resident-v2-needs-share-chart"></canvas></div>
-                                     <div class="space-y-3 mt-4">
-                                         ${lifeNeedEntries.map((item, index) => {
+                                 <div class="lg:col-span-5 min-w-0 space-y-4">
+                                     <div class="grid grid-cols-2 gap-3">
+                                         <div class="rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
+                                             <p class="text-[11px] font-black text-emerald-700">최다 수요</p>
+                                             <p class="mt-2 text-lg font-black text-slate-900 truncate" title="${this.escapeHtml(topLifeNeed.label)}">${this.escapeHtml(topLifeNeed.label)}</p>
+                                             <p class="mt-1 text-xs font-bold text-slate-500">${Number(topLifeNeed.count || 0).toLocaleString()}건 · 응답자 대비 ${topLifeNeedShare}%</p>
+                                         </div>
+                                         <div class="rounded-xl border border-sky-100 bg-sky-50/70 p-4">
+                                             <p class="text-[11px] font-black text-sky-700">총 선택수</p>
+                                             <p class="mt-2 text-2xl font-black text-slate-900">${lifeNeedSelectionTotal.toLocaleString()}건</p>
+                                             <p class="mt-1 text-xs font-bold text-slate-500">${lifeNeedEntries.length.toLocaleString()}개 수요 항목</p>
+                                         </div>
+                                         <div class="rounded-xl border border-amber-100 bg-amber-50/70 p-4">
+                                             <p class="text-[11px] font-black text-amber-700">TOP3 집중도</p>
+                                             <p class="mt-2 text-2xl font-black text-slate-900">${topThreeLifeNeedShare}%</p>
+                                             <p class="mt-1 text-xs font-bold text-slate-500">전체 선택수 대비</p>
+                                         </div>
+                                         <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                             <p class="text-[11px] font-black text-slate-500">응답자 수</p>
+                                             <p class="mt-2 text-2xl font-black text-slate-900">${total.toLocaleString()}명</p>
+                                             <p class="mt-1 text-xs font-bold text-slate-500">복수응답 기준</p>
+                                         </div>
+                                     </div>
+                                     <div class="rounded-xl border border-slate-100 overflow-hidden">
+                                         <div class="flex items-center justify-between bg-slate-50 px-4 py-3 border-b border-slate-100">
+                                             <h4 class="text-sm font-black text-slate-800">우선순위 요약</h4>
+                                             <span class="text-[11px] font-bold text-slate-400">상위 6개 + 기타</span>
+                                         </div>
+                                         <div class="divide-y divide-slate-100">
+                                         ${compactLifeNeedRows.map((item, index) => {
                                              const pct = total ? Math.round((item.count / total) * 100) : 0;
                                              return `
-                                                 <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
-                                                     <div class="flex items-center justify-between gap-3 text-sm">
-                                                         <span class="font-black text-slate-700 truncate">${index + 1}. ${this.escapeHtml(item.label)}</span>
-                                                         <span class="font-black text-slate-900">${item.count.toLocaleString()}건</span>
-                                                     </div>
-                                                     <div class="flex items-center gap-2 mt-2">
-                                                         <div class="h-2 flex-1 rounded-full bg-white overflow-hidden">
-                                                             <div class="h-full rounded-full bg-emerald-500" style="width:${Math.max(4, Math.min(100, pct))}%"></div>
+                                                 <div class="px-4 py-3 ${item.isRest ? 'bg-slate-50/70' : 'bg-white'}">
+                                                     <div class="flex items-center gap-3">
+                                                         <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.isRest ? 'bg-slate-200 text-slate-600' : 'bg-ocean-50 text-ocean-700'} text-xs font-black">${item.isRest ? '+' : index + 1}</span>
+                                                         <div class="min-w-0 flex-1">
+                                                             <div class="flex items-center justify-between gap-3 text-sm">
+                                                                 <span class="font-black text-slate-800 truncate" title="${this.escapeHtml(item.label)}">${this.escapeHtml(item.label)}</span>
+                                                                 <span class="shrink-0 font-black text-slate-900">${item.count.toLocaleString()}건</span>
+                                                             </div>
+                                                             <div class="flex items-center gap-2 mt-2">
+                                                                 <div class="h-2 flex-1 rounded-full bg-slate-100 overflow-hidden">
+                                                                     <div class="h-full rounded-full ${item.isRest ? 'bg-slate-400' : 'bg-emerald-500'}" style="width:${Math.max(4, Math.min(100, pct))}%"></div>
+                                                                 </div>
+                                                                 <span class="w-12 text-right text-[11px] font-black ${item.isRest ? 'text-slate-500' : 'text-emerald-700'}">${pct}%</span>
+                                                             </div>
                                                          </div>
-                                                         <span class="w-12 text-right text-[11px] font-black text-emerald-700">${pct}%</span>
                                                      </div>
                                                  </div>
                                              `;
                                          }).join('') || `<p class="text-sm text-slate-400 py-6 text-center">생활여건 수요 응답이 없습니다.</p>`}
+                                         </div>
                                      </div>
                                  </div>
                              </div>
                          </div>
+                     </div>
+
+                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
                          <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
                              <div class="flex items-center justify-between mb-4">
                                  <h3 class="font-black text-slate-900">참여·프로그램 의향 분포</h3>
@@ -2032,8 +2098,7 @@ const APP = {
                  this._renderCountBarChart(bucket, 'age', 'resident-v2-age-chart', this._countEntries(stats.age), { color: '#0284c7' });
                  this._renderDoughnutChart(bucket, 'village', 'resident-v2-village-chart', this._countEntries(stats.village, 8));
                  this._renderCountBarChart(bucket, 'period', 'resident-v2-residence-period-chart', this._countEntries(stats.residencePeriod), { indexAxis: 'y', color: '#f59e0b' });
-                 this._renderCountBarChart(bucket, 'needs', 'resident-v2-needs-chart', lifeNeedEntries, { indexAxis: 'y', label: '선택 수', color: lifeNeedEntries.map((_, index) => this._chartPalette(index)), maxBarThickness: 34 });
-                 this._renderDoughnutChart(bucket, 'needsShare', 'resident-v2-needs-share-chart', lifeNeedEntries);
+                 this._renderCountBarChart(bucket, 'needs', 'resident-v2-needs-chart', lifeNeedEntries, { indexAxis: 'y', label: '선택 수', color: lifeNeedEntries.map((_, index) => this._chartPalette(index)), maxBarThickness: 34, truncateLabels: 12 });
                  this._renderGroupedDistributionChart(bucket, 'intent', 'resident-v2-intent-chart', [
                      { label: '사업 참여', dist: stats.participation?.dist || {}, color: '#10b981' },
                      { label: '프로그램 이용', dist: stats.programIntent?.dist || {}, color: '#06b6d4' }
