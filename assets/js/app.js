@@ -1331,6 +1331,18 @@ const APP = {
              return this._topItems(fallbackItems, 12);
          },
 
+         _residentV2NeedEntries(rows, fallbackItems = []) {
+             const counts = {};
+             (Array.isArray(rows) ? rows : []).forEach((row) => {
+                 this._splitMultiValue(row.lifeNeeds).forEach((label) => {
+                     counts[label] = (counts[label] || 0) + 1;
+                 });
+             });
+             const fromRows = this._countEntries(counts, 12);
+             if (fromRows.length) return fromRows;
+             return this._topItems(fallbackItems, 12);
+         },
+
          _extractCommentKeywords(texts, limit = 20) {
              const stopwords = new Set([
                  '그리고', '그래서', '하지만', '너무', '정말', '조금', '많이', '있는', '없는', '같아요',
@@ -1661,8 +1673,8 @@ const APP = {
              });
          },
 
-         _renderVisitorCommentWordCloud(comments) {
-             const dom = document.getElementById('visitor-comment-wordcloud');
+         _renderCommentWordCloud(elementId, comments) {
+             const dom = document.getElementById(elementId);
              if (!dom) return;
              const keywords = this._extractCommentKeywords((Array.isArray(comments) ? comments : []).map((row) => row.comment), 50);
              if (!keywords.length) {
@@ -1716,6 +1728,14 @@ const APP = {
              }
          },
 
+         _renderVisitorCommentWordCloud(comments) {
+             this._renderCommentWordCloud('visitor-comment-wordcloud', comments);
+         },
+
+         _renderResidentV2CommentWordCloud(comments) {
+             this._renderCommentWordCloud('resident-v2-comment-wordcloud', comments);
+         },
+
          _renderVisitorCharts(stats, needs, rows = [], comments = []) {
              const bucket = this._resetChartBucket('_visitorCharts');
              const needEntries = this._visitorNeedEntries(rows, needs);
@@ -1745,13 +1765,16 @@ const APP = {
              const stationNeeds = this._topItems(stats.stationNeeds?.top3, 6);
              const positiveExpectations = this._topItems(stats.positiveExpectations?.top3, 6);
              const negativeConcerns = this._topItems(stats.negativeConcerns?.top3, 6);
-             const comments = rows.filter((row) => row.comment).slice(0, 20);
-             const tableRows = rows.slice(0, 200);
+             const comments = rows.filter((row) => row.comment);
+             const tableRows = rows;
+             const lifeNeedEntries = this._residentV2NeedEntries(rows, lifeNeeds);
+             const commentKeywords = this._extractCommentKeywords(comments.map((row) => row.comment), 12);
+             const keywordTotal = commentKeywords.reduce((sum, item) => sum + Number(item.count || 0), 0);
              const total = Number(stats.total || rows.length || 0);
              const couponCount = rows.filter((row) => row.couponCode).length;
              const topVillage = this._topCountLabel(stats.village);
              const topPeriod = this._topCountLabel(stats.residencePeriod);
-             const topLifeNeed = lifeNeeds[0] || { label: '-', count: 0 };
+             const topLifeNeed = lifeNeedEntries[0] || { label: '-', count: 0 };
              const awarenessTop = this._topCountLabel(stats.projectAwareness);
              const participationRate = Number(stats.participation?.posRate || 0);
              const programIntentRate = Number(stats.programIntent?.posRate || 0);
@@ -1818,15 +1841,44 @@ const APP = {
                          </div>
                      </div>
 
-                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                             <div class="flex items-center justify-between mb-4">
-                                 <h3 class="font-black text-slate-900">생활여건 개선 수요 TOP</h3>
-                                 <span class="text-xs font-bold text-slate-400">복수응답</span>
+                     <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+                         <div class="xl:col-span-3 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+                                 <div>
+                                     <h3 class="font-black text-slate-900">생활여건 개선 수요 TOP</h3>
+                                     <p class="text-xs text-slate-500 mt-1">복수응답 선택 수와 전체 응답 대비 비중을 함께 봅니다.</p>
+                                 </div>
+                                 <span class="text-xs font-bold text-slate-400">선택 수 / 비중</span>
                              </div>
-                             <div class="h-80"><canvas id="resident-v2-needs-chart"></canvas></div>
+                             <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+                                 <div class="lg:col-span-3">
+                                     <div class="h-80"><canvas id="resident-v2-needs-chart"></canvas></div>
+                                 </div>
+                                 <div class="lg:col-span-2">
+                                     <div class="h-64"><canvas id="resident-v2-needs-share-chart"></canvas></div>
+                                     <div class="space-y-3 mt-4">
+                                         ${lifeNeedEntries.map((item, index) => {
+                                             const pct = total ? Math.round((item.count / total) * 100) : 0;
+                                             return `
+                                                 <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                                                     <div class="flex items-center justify-between gap-3 text-sm">
+                                                         <span class="font-black text-slate-700 truncate">${index + 1}. ${this.escapeHtml(item.label)}</span>
+                                                         <span class="font-black text-slate-900">${item.count.toLocaleString()}건</span>
+                                                     </div>
+                                                     <div class="flex items-center gap-2 mt-2">
+                                                         <div class="h-2 flex-1 rounded-full bg-white overflow-hidden">
+                                                             <div class="h-full rounded-full bg-emerald-500" style="width:${Math.max(4, Math.min(100, pct))}%"></div>
+                                                         </div>
+                                                         <span class="w-12 text-right text-[11px] font-black text-emerald-700">${pct}%</span>
+                                                     </div>
+                                                 </div>
+                                             `;
+                                         }).join('') || `<p class="text-sm text-slate-400 py-6 text-center">생활여건 수요 응답이 없습니다.</p>`}
+                                     </div>
+                                 </div>
+                             </div>
                          </div>
-                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                         <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
                              <div class="flex items-center justify-between mb-4">
                                  <h3 class="font-black text-slate-900">참여·프로그램 의향 분포</h3>
                                  <span class="text-xs font-bold text-slate-400">실행 가능성</span>
@@ -1867,15 +1919,17 @@ const APP = {
                          ${this._surveyTopListCard('천리포 스테이션 수요 TOP', '리모델링 시설 수요', this._topItems(stats.cheonripoNeeds?.top3, 6), total)}
                      </div>
 
-                     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                         <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 overflow-hidden">
-                             <div class="flex items-center justify-between mb-4">
-                                 <h3 class="font-black text-slate-900">응답 표</h3>
-                                 <span class="text-xs text-slate-400">최근 ${tableRows.length}건</span>
+                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 overflow-hidden">
+                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+                             <div>
+                                 <h3 class="font-black text-slate-900">응답 원본 목록</h3>
+                                 <p class="text-xs text-slate-500 mt-1">세로 스크롤 없이 수집된 주민 v2 응답을 전체 나열합니다.</p>
                              </div>
-                             <div class="overflow-auto max-h-[520px] border border-slate-100 rounded-xl">
-                                 <table class="min-w-[1200px] w-full text-xs">
-                                     <thead class="bg-slate-50 sticky top-0 z-10">
+                             <span class="text-xs text-slate-400">전체 ${tableRows.length.toLocaleString()}건</span>
+                         </div>
+                         <div class="overflow-x-auto border border-slate-100 rounded-xl">
+                             <table class="min-w-[1200px] w-full text-xs">
+                                 <thead class="bg-slate-50">
                                          <tr class="text-slate-500">
                                              <th class="text-left p-3">제출시각</th>
                                              <th class="text-left p-3">뒷자리</th>
@@ -1889,53 +1943,84 @@ const APP = {
                                              <th class="text-left p-3">참여 의향</th>
                                              <th class="text-left p-3">프로그램 의향</th>
                                          </tr>
-                                     </thead>
-                                     <tbody>
-                                         ${tableRows.map((row) => `
-                                             <tr class="border-t border-slate-100 hover:bg-slate-50">
-                                                 <td class="p-3 text-slate-500">${this.escapeHtml(this._formatDateCell(row.timestamp))}</td>
-                                                 <td class="p-3 font-black text-slate-800">${this.escapeHtml(row.phoneLast4 || '-')}</td>
-                                                 <td class="p-3 font-mono text-[11px] text-ocean-700">${this.escapeHtml(row.couponCode || '-')}</td>
-                                                 <td class="p-3">${this.escapeHtml(row.age || '-')}</td>
-                                                 <td class="p-3">${this.escapeHtml(row.village || '-')}</td>
-                                                 <td class="p-3">${this.escapeHtml(row.residencePeriod || '-')}</td>
-                                                 <td class="p-3">${this._scoreBadge(row.satisfactionAvg)}</td>
-                                                 <td class="p-3 max-w-[220px] truncate" title="${this.escapeHtml(row.lifeNeeds || '')}">${this.escapeHtml(row.lifeNeeds || '-')}</td>
-                                                 <td class="p-3">${this.escapeHtml(row.projectAwareness || '-')}</td>
-                                                 <td class="p-3">${this._intentBadge(row.participation)}</td>
-                                                 <td class="p-3">${this._intentBadge(row.programIntent)}</td>
-                                             </tr>
-                                         `).join('') || `<tr><td colspan="11" class="p-8 text-center text-slate-400">응답 데이터가 없습니다.</td></tr>`}
-                                     </tbody>
-                                 </table>
+                                 </thead>
+                                 <tbody>
+                                     ${tableRows.map((row) => `
+                                         <tr class="border-t border-slate-100 hover:bg-slate-50">
+                                             <td class="p-3 text-slate-500">${this.escapeHtml(this._formatDateCell(row.timestamp))}</td>
+                                             <td class="p-3 font-black text-slate-800">${this.escapeHtml(row.phoneLast4 || '-')}</td>
+                                             <td class="p-3 font-mono text-[11px] text-ocean-700">${this.escapeHtml(row.couponCode || '-')}</td>
+                                             <td class="p-3">${this.escapeHtml(row.age || '-')}</td>
+                                             <td class="p-3">${this.escapeHtml(row.village || '-')}</td>
+                                             <td class="p-3">${this.escapeHtml(row.residencePeriod || '-')}</td>
+                                             <td class="p-3">${this._scoreBadge(row.satisfactionAvg)}</td>
+                                             <td class="p-3 max-w-[220px] truncate" title="${this.escapeHtml(row.lifeNeeds || '')}">${this.escapeHtml(row.lifeNeeds || '-')}</td>
+                                             <td class="p-3">${this.escapeHtml(row.projectAwareness || '-')}</td>
+                                             <td class="p-3">${this._intentBadge(row.participation)}</td>
+                                             <td class="p-3">${this._intentBadge(row.programIntent)}</td>
+                                         </tr>
+                                     `).join('') || `<tr><td colspan="11" class="p-8 text-center text-slate-400">응답 데이터가 없습니다.</td></tr>`}
+                                 </tbody>
+                             </table>
+                         </div>
+                     </div>
+
+                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-5">
+                             <div>
+                                 <h3 class="font-black text-slate-900">주관식 의견</h3>
+                                 <p class="text-xs text-slate-500 mt-1">워드클라우드와 원문 의견을 함께 확인합니다.</p>
+                             </div>
+                             <span class="text-xs text-slate-400">전체 ${comments.length.toLocaleString()}건</span>
+                         </div>
+                         <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+                             <div class="xl:col-span-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                                 <div class="flex items-center justify-between mb-3">
+                                     <h4 class="text-sm font-black text-slate-800">의견 워드클라우드</h4>
+                                     <span class="text-[11px] font-bold text-slate-400">Word Cloud</span>
+                                 </div>
+                                 <div id="resident-v2-comment-wordcloud" class="h-80 w-full"></div>
+                             </div>
+                             <div class="xl:col-span-2 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                                 <div class="flex items-center justify-between mb-3">
+                                     <h4 class="text-sm font-black text-slate-800">키워드 요약</h4>
+                                     <span class="text-[11px] font-bold text-slate-400">${keywordTotal.toLocaleString()}회 언급</span>
+                                 </div>
+                                 <div class="flex flex-wrap gap-2">
+                                     ${commentKeywords.slice(0, 10).map((item, index) => `
+                                         <span class="inline-flex items-center gap-1.5 rounded-full border border-cyan-100 bg-white px-3 py-1.5 text-xs font-black text-slate-700">
+                                             <span class="text-cyan-600">${index + 1}</span>
+                                             ${this.escapeHtml(item.label)}
+                                             <span class="text-slate-400">${Number(item.count || 0).toLocaleString()}</span>
+                                         </span>
+                                     `).join('') || `<p class="text-sm text-slate-400 py-6 text-center">분석할 키워드가 없습니다.</p>`}
+                                 </div>
+                                 <p class="mt-4 text-xs leading-relaxed text-slate-500">상위 키워드만 간단히 표시합니다. 세부 빈도는 워드클라우드 크기로 확인합니다.</p>
                              </div>
                          </div>
-                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                             <h3 class="font-black text-slate-900 mb-4">주관식 의견</h3>
-                             <div class="space-y-3 max-h-[520px] overflow-auto">
-                                 ${comments.map((row) => `
-                                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                         <div class="flex justify-between text-[11px] text-slate-400 mb-1">
-                                             <span>${this.escapeHtml(row.phoneLast4 || '-')}</span>
-                                             <span>${this.escapeHtml(this._formatDateCell(row.timestamp))}</span>
-                                         </div>
-                                         <p class="text-sm text-slate-700 leading-relaxed">${this.escapeHtml(row.comment)}</p>
+                         <div class="space-y-3 mt-5">
+                             ${comments.map((row) => `
+                                 <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                     <div class="flex flex-wrap justify-between gap-2 text-[11px] text-slate-400 mb-2">
+                                         <span>${this.escapeHtml(row.phoneLast4 || '-')}</span>
+                                         <span>${this.escapeHtml(this._formatDateCell(row.timestamp))}</span>
                                      </div>
-                                 `).join('') || `<p class="text-sm text-slate-400">주관식 의견이 없습니다.</p>`}
-                             </div>
+                                     <p class="text-sm text-slate-700 leading-relaxed">${this.escapeHtml(row.comment)}</p>
+                                 </div>
+                             `).join('') || `<p class="text-sm text-slate-400">주관식 의견이 없습니다.</p>`}
                          </div>
                      </div>
                  </div>
              `;
 
-             this._renderResidentV2Charts(stats, lifeNeeds);
+             this._renderResidentV2Charts(stats, lifeNeeds, rows, comments);
          },
 
-         _renderResidentV2Charts(stats, lifeNeeds) {
-             if (typeof Chart === 'undefined') return;
+         _renderResidentV2Charts(stats, lifeNeeds, rows = [], comments = []) {
              const bucket = this._resetChartBucket('_residentV2Charts');
+             const lifeNeedEntries = this._residentV2NeedEntries(rows, lifeNeeds);
              const demandItems = [
-                 { label: '생활여건', count: lifeNeeds[0]?.count || 0 },
+                 { label: '생활여건', count: lifeNeedEntries[0]?.count || 0 },
                  { label: '관광여건', count: stats.tourismNeeds?.top3?.[0]?.count || 0 },
                  { label: '만리포 스테이션', count: stats.stationNeeds?.top3?.[0]?.count || 0 },
                  { label: '천리포 스테이션', count: stats.cheonripoNeeds?.top3?.[0]?.count || 0 },
@@ -1943,16 +2028,20 @@ const APP = {
                  { label: '우려 변화', count: stats.negativeConcerns?.top3?.[0]?.count || 0 }
              ].filter((item) => item.count > 0);
 
-             this._renderCountBarChart(bucket, 'age', 'resident-v2-age-chart', this._countEntries(stats.age), { color: '#0284c7' });
-             this._renderDoughnutChart(bucket, 'village', 'resident-v2-village-chart', this._countEntries(stats.village, 8));
-             this._renderCountBarChart(bucket, 'period', 'resident-v2-residence-period-chart', this._countEntries(stats.residencePeriod), { indexAxis: 'y', color: '#f59e0b' });
-             this._renderCountBarChart(bucket, 'needs', 'resident-v2-needs-chart', lifeNeeds, { indexAxis: 'y', label: '선택 수', color: '#10b981' });
-             this._renderGroupedDistributionChart(bucket, 'intent', 'resident-v2-intent-chart', [
-                 { label: '사업 참여', dist: stats.participation?.dist || {}, color: '#10b981' },
-                 { label: '프로그램 이용', dist: stats.programIntent?.dist || {}, color: '#06b6d4' }
-             ], ['모든 활동에 참여', '일부 활동에 참여', '의견만 제시', '주민설명회 및 사업설명회 정도만 참여', '참여의사 없음', '매우 있음', '있음', '보통', '없음', '전혀없음'], { indexAxis: 'y' });
-             this._renderDoughnutChart(bucket, 'awareness', 'resident-v2-awareness-chart', this._countEntries(stats.projectAwareness, 6));
-             this._renderCountBarChart(bucket, 'demand', 'resident-v2-demand-chart', demandItems, { indexAxis: 'y', label: '상위 선택 수' });
+             if (typeof Chart !== 'undefined') {
+                 this._renderCountBarChart(bucket, 'age', 'resident-v2-age-chart', this._countEntries(stats.age), { color: '#0284c7' });
+                 this._renderDoughnutChart(bucket, 'village', 'resident-v2-village-chart', this._countEntries(stats.village, 8));
+                 this._renderCountBarChart(bucket, 'period', 'resident-v2-residence-period-chart', this._countEntries(stats.residencePeriod), { indexAxis: 'y', color: '#f59e0b' });
+                 this._renderCountBarChart(bucket, 'needs', 'resident-v2-needs-chart', lifeNeedEntries, { indexAxis: 'y', label: '선택 수', color: lifeNeedEntries.map((_, index) => this._chartPalette(index)), maxBarThickness: 34 });
+                 this._renderDoughnutChart(bucket, 'needsShare', 'resident-v2-needs-share-chart', lifeNeedEntries);
+                 this._renderGroupedDistributionChart(bucket, 'intent', 'resident-v2-intent-chart', [
+                     { label: '사업 참여', dist: stats.participation?.dist || {}, color: '#10b981' },
+                     { label: '프로그램 이용', dist: stats.programIntent?.dist || {}, color: '#06b6d4' }
+                 ], ['모든 활동에 참여', '일부 활동에 참여', '의견만 제시', '주민설명회 및 사업설명회 정도만 참여', '참여의사 없음', '매우 있음', '있음', '보통', '없음', '전혀없음'], { indexAxis: 'y' });
+                 this._renderDoughnutChart(bucket, 'awareness', 'resident-v2-awareness-chart', this._countEntries(stats.projectAwareness, 6));
+                 this._renderCountBarChart(bucket, 'demand', 'resident-v2-demand-chart', demandItems, { indexAxis: 'y', label: '상위 선택 수' });
+             }
+             this._renderResidentV2CommentWordCloud(comments);
          },
 
         renderSurveyHub(data, container) {
