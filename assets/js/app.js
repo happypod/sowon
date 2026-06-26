@@ -1571,6 +1571,28 @@ const APP = {
              if (!el || typeof Chart === 'undefined') return;
              const hasData = entries.length > 0;
              const list = hasData ? entries : [{ label: '데이터 없음', count: 1 }];
+             const total = list.reduce((sum, item) => sum + Number(item.count || 0), 0);
+             const topItem = hasData
+                 ? [...list].sort((a, b) => Number(b.count || 0) - Number(a.count || 0))[0]
+                 : list[0];
+             const topPercent = hasData && total ? Math.round((Number(topItem.count || 0) / total) * 100) : 0;
+             const tooltipHost = el.parentElement;
+             if (tooltipHost) {
+                 tooltipHost.style.position = 'relative';
+                 tooltipHost.style.overflow = 'visible';
+                 let pinnedTooltip = tooltipHost.querySelector(`[data-doughnut-tooltip-for="${id}"]`);
+                 if (!pinnedTooltip) {
+                     pinnedTooltip = document.createElement('div');
+                     pinnedTooltip.dataset.doughnutTooltipFor = id;
+                     tooltipHost.appendChild(pinnedTooltip);
+                 }
+                 pinnedTooltip.className = 'pointer-events-none absolute left-1/2 top-1/2 z-20 w-[9.5rem] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-center shadow-lg backdrop-blur';
+                 pinnedTooltip.innerHTML = `
+                     <div class="text-[10px] font-black uppercase tracking-wide text-slate-400">${hasData ? '최다 응답' : '상태'}</div>
+                     <div class="mt-1 truncate text-sm font-black text-slate-900" title="${this.escapeHtml(topItem.label)}">${this.escapeHtml(topItem.label)}</div>
+                     <div class="mt-1 text-xs font-black text-ocean-600">${hasData ? `${Number(topItem.count || 0).toLocaleString()}건 · ${topPercent}%` : '응답 없음'}</div>
+                 `;
+             }
              bucket[key] = new Chart(el, {
                  type: 'doughnut',
                  data: {
@@ -1587,7 +1609,16 @@ const APP = {
                      cutout: '58%',
                      plugins: {
                          legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true } },
-                         tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${Number(ctx.raw || 0).toLocaleString()}` } }
+                         tooltip: {
+                             enabled: true,
+                             displayColors: true,
+                             backgroundColor: 'rgba(15, 23, 42, 0.94)',
+                             titleFont: { weight: '800' },
+                             bodyFont: { weight: '700' },
+                             padding: 10,
+                             caretSize: 6,
+                             callbacks: { label: (ctx) => `${ctx.label}: ${Number(ctx.raw || 0).toLocaleString()}` }
+                         }
                      }
                  }
              });
