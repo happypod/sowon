@@ -1572,27 +1572,68 @@ const APP = {
              const hasData = entries.length > 0;
              const list = hasData ? entries : [{ label: '데이터 없음', count: 1 }];
              const total = list.reduce((sum, item) => sum + Number(item.count || 0), 0);
-             const topItem = hasData
-                 ? [...list].sort((a, b) => Number(b.count || 0) - Number(a.count || 0))[0]
-                 : list[0];
-             const topPercent = hasData && total ? Math.round((Number(topItem.count || 0) / total) * 100) : 0;
              const tooltipHost = el.parentElement;
              if (tooltipHost) {
                  tooltipHost.style.position = 'relative';
                  tooltipHost.style.overflow = 'visible';
-                 let pinnedTooltip = tooltipHost.querySelector(`[data-doughnut-tooltip-for="${id}"]`);
-                 if (!pinnedTooltip) {
-                     pinnedTooltip = document.createElement('div');
-                     pinnedTooltip.dataset.doughnutTooltipFor = id;
-                     tooltipHost.appendChild(pinnedTooltip);
-                 }
-                 pinnedTooltip.className = 'pointer-events-none absolute left-1/2 top-1/2 z-20 w-[9.5rem] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-center shadow-lg backdrop-blur';
-                 pinnedTooltip.innerHTML = `
-                     <div class="text-[10px] font-black uppercase tracking-wide text-slate-400">${hasData ? '최다 응답' : '상태'}</div>
-                     <div class="mt-1 truncate text-sm font-black text-slate-900" title="${this.escapeHtml(topItem.label)}">${this.escapeHtml(topItem.label)}</div>
-                     <div class="mt-1 text-xs font-black text-ocean-600">${hasData ? `${Number(topItem.count || 0).toLocaleString()}건 · ${topPercent}%` : '응답 없음'}</div>
-                 `;
+                 tooltipHost.querySelectorAll(`[data-doughnut-tooltip-for="${id}"], [data-doughnut-slice-tooltip-for="${id}"]`).forEach((node) => node.remove());
              }
+             const renderSliceTooltips = (chart) => {
+                 if (!tooltipHost || !hasData) return;
+                 tooltipHost.querySelectorAll(`[data-doughnut-slice-tooltip-for="${id}"]`).forEach((node) => node.remove());
+                 const canvasRect = el.getBoundingClientRect();
+                 const hostRect = tooltipHost.getBoundingClientRect();
+                 const meta = chart.getDatasetMeta(0);
+                 list.forEach((item, index) => {
+                     const arc = meta.data[index];
+                     if (!arc) return;
+                     const props = arc.getProps(['startAngle', 'endAngle', 'outerRadius', 'x', 'y'], true);
+                     const angle = (props.startAngle + props.endAngle) / 2;
+                     const directionX = Math.cos(angle);
+                     const directionY = Math.sin(angle);
+                     const anchorRadius = props.outerRadius + 16;
+                     const left = canvasRect.left - hostRect.left + props.x + directionX * anchorRadius;
+                     const top = canvasRect.top - hostRect.top + props.y + directionY * anchorRadius;
+                     const percent = total ? Math.round((Number(item.count || 0) / total) * 100) : 0;
+                     const label = document.createElement('div');
+                     label.dataset.doughnutSliceTooltipFor = id;
+                     label.className = 'pointer-events-none absolute z-20 max-w-[8.25rem] rounded-lg border border-white/80 bg-white/95 px-2.5 py-1.5 text-[11px] leading-tight shadow-lg backdrop-blur';
+                     label.style.maxWidth = `${Math.round(Math.max(92, Math.min(132, hostRect.width * 0.42)))}px`;
+                     label.style.left = `${Math.round(left)}px`;
+                     label.style.top = `${Math.round(top)}px`;
+                     label.style.transform = Math.abs(directionX) < 0.25
+                         ? 'translate(-50%, -50%)'
+                         : `translate(${directionX < 0 ? '-100%' : '0'}, -50%)`;
+                     label.innerHTML = `
+                         <div class="flex items-center gap-1.5">
+                             <span class="h-2 w-2 shrink-0 rounded-full" style="background:${this._chartPalette(index)}"></span>
+                             <span class="truncate font-black text-slate-800" title="${this.escapeHtml(item.label)}">${this.escapeHtml(item.label)}</span>
+                         </div>
+                         <div class="mt-0.5 font-black text-ocean-600">${Number(item.count || 0).toLocaleString()}건 · ${percent}%</div>
+                     `;
+                     tooltipHost.appendChild(label);
+                     const labelRect = label.getBoundingClientRect();
+                     let leftDelta = 0;
+                     let topDelta = 0;
+                     if (labelRect.left < hostRect.left + 4) leftDelta = hostRect.left + 4 - labelRect.left;
+                     else if (labelRect.right > hostRect.right - 4) leftDelta = hostRect.right - 4 - labelRect.right;
+                     if (labelRect.top < hostRect.top + 4) topDelta = hostRect.top + 4 - labelRect.top;
+                     else if (labelRect.bottom > hostRect.bottom - 4) topDelta = hostRect.bottom - 4 - labelRect.bottom;
+                     if (leftDelta || topDelta) {
+                         label.style.left = `${Math.round(left + leftDelta)}px`;
+                         label.style.top = `${Math.round(top + topDelta)}px`;
+                     }
+                 });
+             };
+             const sliceTooltipPlugin = {
+                 id: `${id}-slice-tooltips`,
+                 afterDatasetsDraw: (chart) => renderSliceTooltips(chart),
+                 resize: (chart) => setTimeout(() => renderSliceTooltips(chart), 0),
+                 afterDestroy: () => {
+                     if (!tooltipHost) return;
+                     tooltipHost.querySelectorAll(`[data-doughnut-slice-tooltip-for="${id}"]`).forEach((node) => node.remove());
+                 }
+             };
              bucket[key] = new Chart(el, {
                  type: 'doughnut',
                  data: {
@@ -1620,7 +1661,8 @@ const APP = {
                              callbacks: { label: (ctx) => `${ctx.label}: ${Number(ctx.raw || 0).toLocaleString()}` }
                          }
                      }
-                 }
+                 },
+                 plugins: [sliceTooltipPlugin]
              });
          },
 
