@@ -70,7 +70,7 @@ const RESIDENT_V2_SECTIONS = [
 
 const RESIDENT_V2_SCALE = ["매우 만족", "만족", "보통", "불만족", "매우 불만족"];
 const RESIDENT_V2_COUPON_TEMPLATE_URL = "assets/coupon-sample.svg";
-const RESIDENT_V2_SURVEY_URL = "https://script.google.com/macros/s/AKfycbxeaWneUbjCBfAu3LbiEZqYAVZ5zsogH-fmxCztQPDU4OvZJ6IaoUIdhrfmmUX6EbaG/exec";
+const RESIDENT_V2_FALLBACK_SURVEY_URL = "https://script.google.com/macros/s/AKfycbyQlf6KWqqSnNGaDE7S_7wbooNHrTgY1jD434vQSIRSa5JPkrvk0nV_fbZdeE6QW7Wq/exec";
 let residentV2GiftEnabled = true;
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -361,12 +361,22 @@ async function submitResidentV2Form() {
 }
 
 function ensureResidentV2Endpoint() {
-  if (window.CONFIG) window.CONFIG.SURVEY_SCRIPT_URL = RESIDENT_V2_SURVEY_URL;
-  if (window.App && window.App.config) window.App.config.SURVEY_SCRIPT_URL = RESIDENT_V2_SURVEY_URL;
+  const endpoint = getResidentV2Endpoint();
+  if (window.CONFIG) window.CONFIG.SURVEY_SCRIPT_URL = endpoint;
+  if (window.App && window.App.config) window.App.config.SURVEY_SCRIPT_URL = endpoint;
   if (typeof APP !== "undefined") {
-    APP.ADMIN_URL = RESIDENT_V2_SURVEY_URL;
-    APP.SURVEY_URL = RESIDENT_V2_SURVEY_URL;
+    APP.ADMIN_URL = endpoint;
+    APP.SURVEY_URL = endpoint;
   }
+}
+
+function getResidentV2Endpoint() {
+  if (typeof APP !== "undefined" && APP.SURVEY_URL) return APP.SURVEY_URL;
+  if (window.App && window.App.config && window.App.config.SURVEY_SCRIPT_URL) {
+    return window.App.config.SURVEY_SCRIPT_URL;
+  }
+  if (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) return window.CONFIG.SURVEY_SCRIPT_URL;
+  return RESIDENT_V2_FALLBACK_SURVEY_URL;
 }
 
 async function configureResidentV2GiftOption() {
