@@ -18,6 +18,7 @@ const SATISFACTION_SCALE = [
 ];
 const INTENT_SCALE = ["매우 있다", "있다", "보통이다", "별로 없다", "전혀 없다"];
 const COUPON_TEMPLATE_URL = "assets/coupon-sample.svg";
+let visitorGiftEnabled = true;
 const VISITOR_REQUIRED_STEPS = [
   { kind: "choice", name: "entry.Q1", label: "Q1. 성별" },
   { kind: "choice", name: "entry.Q2", label: "Q2. 연령" },
@@ -43,6 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   UI.init("visitor");
   renderSatisfactionGrid();
   renderIntentGroups();
+  await configureVisitorGiftOption();
   initVisitorMobileProgress();
   fetchStats();
   setInterval(fetchStats, 60000);
@@ -107,8 +109,9 @@ function initVisitorMobileProgress() {
   if (!form || !progressCount || !progressBar) return;
 
   const updateProgress = () => {
-    const completed = VISITOR_REQUIRED_STEPS.filter(isStepComplete).length;
-    const total = VISITOR_REQUIRED_STEPS.length;
+    const steps = getVisitorRequiredSteps();
+    const completed = steps.filter(isStepComplete).length;
+    const total = steps.length;
     const pct = total ? Math.round((completed / total) * 100) : 0;
     progressCount.textContent = `${completed}/${total}`;
     progressBar.style.width = `${pct}%`;
@@ -137,8 +140,8 @@ async function submitForm() {
     formData[key] = getVal(`entry.${key}`);
   });
 
-  const phoneLast4 = document.getElementById("phone_last4").value.trim();
-  const couponCode = makeCouponCode(phoneLast4);
+  const phoneLast4 = visitorGiftEnabled ? document.getElementById("phone_last4").value.trim() : "";
+  const couponCode = visitorGiftEnabled ? makeCouponCode(phoneLast4) : "";
   formData.PHONE_LAST4 = phoneLast4;
   formData.COUPON_CODE = couponCode;
   formData.consent = document.getElementById("consent_chk").checked;
@@ -147,7 +150,11 @@ async function submitForm() {
     await APP.submitSurvey("visitor", formData, { skipReload: true, silent: true });
     completed = true;
     disableFormAfterSubmit();
-    await showCoupon(phoneLast4, couponCode);
+    if (visitorGiftEnabled) {
+      await showCoupon(phoneLast4, couponCode);
+    } else {
+      showCompletionMessage();
+    }
     await fetchStats();
   } catch (error) {
     const message = error?.message || "";
@@ -187,7 +194,7 @@ function getVal(name) {
 }
 
 function validateForm() {
-  for (const step of VISITOR_REQUIRED_STEPS) {
+  for (const step of getVisitorRequiredSteps()) {
     if (!isStepComplete(step)) {
       if (step.kind === "choice") {
         alert(`${step.label}에서 1개 이상 선택해 주세요.`);
@@ -202,6 +209,10 @@ function validateForm() {
   }
 
   return true;
+}
+
+function getVisitorRequiredSteps() {
+  return VISITOR_REQUIRED_STEPS.filter((step) => visitorGiftEnabled || step.kind !== "phone");
 }
 
 function isStepComplete(step) {
@@ -235,6 +246,20 @@ function scrollToStep(step) {
   if (step.kind !== "choice" && typeof el.focus === "function") {
     setTimeout(() => el.focus({ preventScroll: true }), 350);
   }
+}
+
+async function configureVisitorGiftOption() {
+  const settings = await APP.fetchSurveySettings();
+  visitorGiftEnabled = settings?.surveys?.visitor?.giftEnabled !== false;
+
+  const phoneInput = document.getElementById("phone_last4");
+  const giftBlock = phoneInput ? phoneInput.closest(".visitor-final-block") : null;
+  if (!phoneInput || !giftBlock) return;
+
+  phoneInput.required = visitorGiftEnabled;
+  phoneInput.disabled = !visitorGiftEnabled;
+  if (!visitorGiftEnabled) phoneInput.value = "";
+  giftBlock.classList.toggle("hidden", !visitorGiftEnabled);
 }
 
 function makeCouponCode(phoneLast4) {
@@ -283,6 +308,30 @@ async function showCoupon(phoneLast4, couponCode) {
           </a>
           <p class="text-[11px] text-slate-500 text-center">표기 정보: 휴대폰 뒷자리 ${phoneLast4} / 코드 ${couponCode}</p>
         </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function showCompletionMessage() {
+  const existing = document.getElementById("coupon-modal");
+  if (existing) existing.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "coupon-modal";
+  modal.className = "fixed inset-0 z-[300] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4";
+  modal.innerHTML = `
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+      <div class="p-6 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+          <i class="fas fa-check text-xl"></i>
+        </div>
+        <h2 class="text-xl font-black text-slate-900">설문 제출이 완료되었습니다</h2>
+        <p class="mt-2 text-sm leading-relaxed text-slate-500">소중한 의견을 남겨주셔서 감사합니다.</p>
+        <button type="button" onclick="document.getElementById('coupon-modal')?.remove()" class="mt-5 w-full rounded-xl bg-ocean-600 py-3 font-black text-white transition hover:bg-ocean-700">
+          확인
+        </button>
       </div>
     </div>
   `;

@@ -237,30 +237,35 @@ const DEFAULT_SURVEY_SETTINGS = {
   resident: {
     enabled: false,
     hidden: false,
+    giftEnabled: false,
     label: "지역주민대상",
     description: "지역 주민 생활 여건 및 수요 조사",
   },
   tourist: {
     enabled: false,
     hidden: false,
+    giftEnabled: false,
     label: "관광객방문자대상",
     description: "관광객 방문·체류 조사",
   },
   lodging: {
     enabled: false,
     hidden: false,
+    giftEnabled: false,
     label: "숙박업 관계자대상",
     description: "숙박 운영 실태 및 비수기 공실 구조 조사",
   },
   visitor: {
     enabled: true,
     hidden: false,
+    giftEnabled: true,
     label: "소원면 방문객 대상",
     description: "방문 환경 만족도 및 필요시설 수요 조사",
   },
   resident_v2: {
     enabled: true,
     hidden: false,
+    giftEnabled: true,
     label: "주민설문 v2",
     description: "서비스 수요 및 자원활용 조사",
   },
@@ -603,7 +608,7 @@ function doPost(e) {
             : formType) + " 설문은 현재 접수 중이 아닙니다.",
       });
     }
-    if (formType === "visitor" || formType === "resident_v2") {
+    if ((formType === "visitor" || formType === "resident_v2") && isGiftEnabled_(formType)) {
       const phoneLast4 = String(
         payload.PHONE_LAST4 || payload.phoneLast4 || payload.phone_last4 || "",
       ).trim();
@@ -739,6 +744,9 @@ function getSurveySettings_() {
     };
     surveys[key].enabled = surveys[key].enabled === true;
     surveys[key].hidden = surveys[key].hidden === true;
+    surveys[key].giftEnabled =
+      (key === "visitor" || key === "resident_v2") &&
+      surveys[key].giftEnabled !== false;
   });
 
   return {
@@ -762,10 +770,15 @@ function updateSurveySettings_(payload) {
 
   Object.keys(DEFAULT_SURVEY_SETTINGS).forEach((key) => {
     if (!incoming[key]) return;
+    const supportsGift = key === "visitor" || key === "resident_v2";
     current[key] = {
       ...current[key],
       enabled: incoming[key].enabled === true || incoming[key].enabled === "true",
       hidden: incoming[key].hidden === true || incoming[key].hidden === "true",
+      giftEnabled:
+        supportsGift && incoming[key].giftEnabled !== undefined
+          ? incoming[key].giftEnabled === true || incoming[key].giftEnabled === "true"
+          : supportsGift && current[key].giftEnabled === true,
       updatedAt: new Date().toISOString(),
     };
   });
@@ -781,6 +794,12 @@ function isSurveyEnabled_(formType) {
   const settings = getSurveySettings_();
   const item = settings.surveys && settings.surveys[formType];
   return !!(item && item.enabled);
+}
+
+function isGiftEnabled_(formType) {
+  const settings = getSurveySettings_();
+  const item = settings.surveys && settings.surveys[formType];
+  return !!(item && item.giftEnabled);
 }
 
 function normalizeFormType_(t) {

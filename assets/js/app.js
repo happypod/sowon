@@ -907,6 +907,7 @@ const APP = {
          renderSurveySettingsTab(data, container) {
              const surveys = data?.surveys || {};
              const order = ['visitor', 'resident_v2', 'resident', 'tourist', 'lodging'];
+             const giftSurveys = new Set(['visitor', 'resident_v2']);
              const fallbackLabels = {
                  visitor: '소원면 방문객 대상',
                  resident_v2: '주민설문 v2',
@@ -933,6 +934,8 @@ const APP = {
                              const item = surveys[key] || {};
                              const enabled = item.enabled === true;
                              const hidden = item.hidden === true;
+                             const supportsGift = giftSurveys.has(key);
+                             const giftEnabled = item.giftEnabled !== false;
                              return `
                                  <div class="bg-white rounded-2xl border ${enabled ? 'border-ocean-200' : 'border-slate-200'} shadow-sm p-5">
                                      <div class="flex items-start justify-between gap-3 mb-5">
@@ -943,6 +946,7 @@ const APP = {
                                          <div class="flex flex-col items-end gap-1">
                                              <span id="survey-state-${key}" class="text-[11px] font-black px-2.5 py-1 rounded-full ${enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${enabled ? '접수중' : '잠금'}</span>
                                              <span class="text-[11px] font-black px-2.5 py-1 rounded-full ${hidden ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700'}">${hidden ? '숨김' : '노출'}</span>
+                                             ${supportsGift ? `<span class="text-[11px] font-black px-2.5 py-1 rounded-full ${giftEnabled ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-500'}">${giftEnabled ? '기념품 제공' : '기념품 중지'}</span>` : ''}
                                          </div>
                                      </div>
                                      <label class="flex items-center justify-between cursor-pointer rounded-xl bg-slate-50 border border-slate-100 p-3 mb-2">
@@ -953,6 +957,14 @@ const APP = {
                                          <span class="text-sm font-bold text-slate-700">홈/네비 숨김</span>
                                          <input type="checkbox" data-survey-hidden="${key}" class="w-6 h-6 text-amber-600 rounded border-slate-300 focus:ring-amber-500" ${hidden ? 'checked' : ''}>
                                      </label>
+                                     ${supportsGift ? `
+                                     <label class="mt-2 flex items-center justify-between cursor-pointer rounded-xl bg-violet-50 border border-violet-100 p-3">
+                                         <span>
+                                             <span class="block text-sm font-bold text-slate-700">기념품 제공</span>
+                                             <span class="block text-[11px] text-slate-500 mt-0.5">휴대폰 뒷자리 수집 및 교환권 발급</span>
+                                         </span>
+                                         <input type="checkbox" data-survey-gift="${key}" class="w-6 h-6 text-violet-600 rounded border-violet-200 focus:ring-violet-500" ${giftEnabled ? 'checked' : ''}>
+                                     </label>` : ''}
                                  </div>
                              `;
                          }).join('')}
@@ -975,6 +987,12 @@ const APP = {
                  settings[input.dataset.surveyHidden] = {
                      ...(settings[input.dataset.surveyHidden] || {}),
                      hidden: input.checked
+                 };
+             });
+             document.querySelectorAll('[data-survey-gift]').forEach((input) => {
+                 settings[input.dataset.surveyGift] = {
+                     ...(settings[input.dataset.surveyGift] || {}),
+                     giftEnabled: input.checked
                  };
              });
 
@@ -1032,6 +1050,9 @@ const APP = {
                          <div class="flex flex-wrap items-center gap-2">
                              <span class="text-xs font-black px-3 py-1.5 rounded-full ${settings.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
                                  ${settings.enabled ? '방문객 설문 접수중' : '방문객 설문 종료'}
+                             </span>
+                             <span class="text-xs font-black px-3 py-1.5 rounded-full ${settings.giftEnabled !== false ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-500'}">
+                                 ${settings.giftEnabled !== false ? '기념품 제공중' : '기념품 중지'}
                              </span>
                              <button onclick="APP.admin.showTab('survey-settings')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-bold transition">
                                  <i class="fas fa-toggle-on mr-1"></i>접수 설정
@@ -1898,6 +1919,9 @@ const APP = {
                              </span>
                              <span class="text-xs font-black px-3 py-1.5 rounded-full ${settings.hidden ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700'}">
                                  ${settings.hidden ? '홈/네비 숨김' : '홈/네비 노출'}
+                             </span>
+                             <span class="text-xs font-black px-3 py-1.5 rounded-full ${settings.giftEnabled !== false ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-500'}">
+                                 ${settings.giftEnabled !== false ? '기념품 제공중' : '기념품 중지'}
                              </span>
                              <button onclick="APP.admin.showTab('survey-settings')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-bold transition">
                                  <i class="fas fa-toggle-on mr-1"></i>설정

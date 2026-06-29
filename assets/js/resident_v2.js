@@ -71,11 +71,13 @@ const RESIDENT_V2_SECTIONS = [
 const RESIDENT_V2_SCALE = ["매우 만족", "만족", "보통", "불만족", "매우 불만족"];
 const RESIDENT_V2_COUPON_TEMPLATE_URL = "assets/coupon-sample.svg";
 const RESIDENT_V2_SURVEY_URL = "https://script.google.com/macros/s/AKfycbxeaWneUbjCBfAu3LbiEZqYAVZ5zsogH-fmxCztQPDU4OvZJ6IaoUIdhrfmmUX6EbaG/exec";
+let residentV2GiftEnabled = true;
 
 document.addEventListener("DOMContentLoaded", async () => {
   ensureResidentV2Endpoint();
   UI.init("resident_v2");
   renderResidentV2Form();
+  await configureResidentV2GiftOption();
   initResidentV2Progress();
   fetchResidentV2Stats();
   setInterval(fetchResidentV2Stats, 60000);
@@ -199,28 +201,30 @@ function renderSatisfactionItem(item) {
 function renderCouponSection() {
   return `
     <section class="survey-section">
-      <div class="section-heading">
-        <span>05</span>
-        <div>
-          <h2>기념품 교환권 발급</h2>
-          <p>중복 발급 방지를 위해 휴대폰 뒷자리 4자리만 수집합니다.</p>
+      <div id="resident-v2-gift-block">
+        <div class="section-heading">
+          <span>05</span>
+          <div>
+            <h2>기념품 교환권 발급</h2>
+            <p>중복 발급 방지를 위해 휴대폰 뒷자리 4자리만 수집합니다.</p>
+          </div>
         </div>
-      </div>
-      <div class="question-card">
-        <label class="block text-sm font-black text-slate-700 mb-2" for="resident_v2_phone_last4">휴대폰 뒷자리 4자리</label>
-        <input id="resident_v2_phone_last4" class="phone-input" type="tel" inputmode="numeric" maxlength="4" pattern="\\d{4}" placeholder="예: 1649">
-        <p class="mt-2 text-xs text-slate-500">설문 완료 후 생성되는 이미지에는 이 4자리만 표시됩니다.</p>
+        <div class="question-card">
+          <label class="block text-sm font-black text-slate-700 mb-2" for="resident_v2_phone_last4">휴대폰 뒷자리 4자리</label>
+          <input id="resident_v2_phone_last4" class="phone-input" type="tel" inputmode="numeric" maxlength="4" pattern="\\d{4}" placeholder="예: 1649">
+          <p class="mt-2 text-xs text-slate-500">설문 완료 후 생성되는 이미지에는 이 4자리만 표시됩니다.</p>
+        </div>
       </div>
       <label class="consent-card">
         <input id="resident_v2_consent" type="checkbox">
         <span>
           <strong>개인정보 수집 및 통계자료 활용에 동의합니다.</strong>
-          <small>수집 항목은 설문 응답과 휴대폰 뒷자리 4자리이며, 사업 기초자료 및 교환권 중복 확인 용도로만 활용됩니다.</small>
+          <small data-resident-v2-consent-help>수집 항목은 설문 응답과 휴대폰 뒷자리 4자리이며, 사업 기초자료 및 교환권 중복 확인 용도로만 활용됩니다.</small>
         </span>
       </label>
       <button type="submit" class="submit-button">
         <i class="fas fa-paper-plane"></i>
-        설문 제출 및 교환권 받기
+        <span data-resident-v2-submit-label>설문 제출 및 교환권 받기</span>
       </button>
     </section>
   `;
@@ -256,7 +260,9 @@ function getResidentV2RequiredSteps() {
       }
     });
   });
-  steps.push({ kind: "phone", selector: "#resident_v2_phone_last4", label: "휴대폰 뒷자리 4자리" });
+  if (residentV2GiftEnabled) {
+    steps.push({ kind: "phone", selector: "#resident_v2_phone_last4", label: "휴대폰 뒷자리 4자리" });
+  }
   steps.push({ kind: "checked", selector: "#resident_v2_consent", label: "개인정보 수집 및 활용 동의" });
   return steps;
 }
@@ -308,8 +314,8 @@ async function submitResidentV2Form() {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 제출 중...';
   }
 
-  const phoneLast4 = document.getElementById("resident_v2_phone_last4").value.trim();
-  const couponCode = makeResidentV2CouponCode(phoneLast4);
+  const phoneLast4 = residentV2GiftEnabled ? document.getElementById("resident_v2_phone_last4").value.trim() : "";
+  const couponCode = residentV2GiftEnabled ? makeResidentV2CouponCode(phoneLast4) : "";
   const formData = {};
   for (let q = 1; q <= 38; q++) {
     formData[`Q${q}`] = getResidentV2Value(`entry.Q${q}`);
@@ -323,7 +329,11 @@ async function submitResidentV2Form() {
 
   try {
     await APP.submitSurvey("resident_v2", formData, { skipReload: true, silent: true, timeoutMs: 25000 });
-    await showResidentV2Coupon(phoneLast4, couponCode);
+    if (residentV2GiftEnabled) {
+      await showResidentV2Coupon(phoneLast4, couponCode);
+    } else {
+      showResidentV2CompletionMessage();
+    }
     completed = true;
     disableResidentV2Form();
     await fetchResidentV2Stats();
@@ -356,6 +366,28 @@ function ensureResidentV2Endpoint() {
   if (typeof APP !== "undefined") {
     APP.ADMIN_URL = RESIDENT_V2_SURVEY_URL;
     APP.SURVEY_URL = RESIDENT_V2_SURVEY_URL;
+  }
+}
+
+async function configureResidentV2GiftOption() {
+  const settings = await APP.fetchSurveySettings();
+  residentV2GiftEnabled = settings?.surveys?.resident_v2?.giftEnabled !== false;
+
+  const giftBlock = document.getElementById("resident-v2-gift-block");
+  const phoneInput = document.getElementById("resident_v2_phone_last4");
+  const consentHelp = document.querySelector("[data-resident-v2-consent-help]");
+  const submitLabel = document.querySelector("[data-resident-v2-submit-label]");
+
+  if (giftBlock) giftBlock.classList.toggle("hidden", !residentV2GiftEnabled);
+  if (phoneInput) {
+    phoneInput.disabled = !residentV2GiftEnabled;
+    if (!residentV2GiftEnabled) phoneInput.value = "";
+  }
+  if (consentHelp && !residentV2GiftEnabled) {
+    consentHelp.textContent = "수집 항목은 설문 응답이며, 사업 기초자료 및 통계자료 작성 용도로만 활용됩니다.";
+  }
+  if (submitLabel) {
+    submitLabel.textContent = residentV2GiftEnabled ? "설문 제출 및 교환권 받기" : "설문 제출하기";
   }
 }
 
@@ -422,6 +454,24 @@ async function showResidentV2Coupon(phoneLast4, couponCode) {
   img.src = dataUrl;
   link.href = dataUrl;
   link.download = `sowon-resident-v2-coupon-${phoneLast4}.png`;
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function showResidentV2CompletionMessage() {
+  const modal = ensureResidentV2CouponModal();
+  modal.innerHTML = `
+    <div class="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl">
+      <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+        <i class="fas fa-check text-xl"></i>
+      </div>
+      <h2 class="text-xl font-black text-slate-900">설문 제출이 완료되었습니다</h2>
+      <p class="mt-2 text-sm leading-relaxed text-slate-500">소중한 의견을 남겨주셔서 감사합니다.</p>
+      <button type="button" class="mt-5 w-full rounded-2xl bg-slate-900 px-4 py-3 font-black text-white" onclick="document.getElementById('resident-v2-coupon-modal').classList.add('hidden')">
+        확인
+      </button>
+    </div>
+  `;
   modal.classList.remove("hidden");
   modal.classList.add("flex");
 }
