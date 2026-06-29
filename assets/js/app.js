@@ -88,8 +88,8 @@ AdminDataService.loadScenarioMap = AdminDataService.loadScenarioMap || (async fu
 });
 
 const APP = {
-  ADMIN_URL: (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) || "https://script.google.com/macros/s/AKfycbxeaWneUbjCBfAu3LbiEZqYAVZ5zsogH-fmxCztQPDU4OvZJ6IaoUIdhrfmmUX6EbaG/exec",
-  SURVEY_URL: (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) || "https://script.google.com/macros/s/AKfycbxeaWneUbjCBfAu3LbiEZqYAVZ5zsogH-fmxCztQPDU4OvZJ6IaoUIdhrfmmUX6EbaG/exec",
+  ADMIN_URL: (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) || "https://script.google.com/macros/s/AKfycbyQlf6KWqqSnNGaDE7S_7wbooNHrTgY1jD434vQSIRSa5JPkrvk0nV_fbZdeE6QW7Wq/exec",
+  SURVEY_URL: (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) || "https://script.google.com/macros/s/AKfycbyQlf6KWqqSnNGaDE7S_7wbooNHrTgY1jD434vQSIRSa5JPkrvk0nV_fbZdeE6QW7Wq/exec",
   SURVEY_SETTING_OVERRIDES_KEY: 'sowon_survey_setting_overrides_v1',
   GIFT_SURVEY_TYPES: ['visitor', 'resident_v2'],
   // AUTH-03: State Management

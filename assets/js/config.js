@@ -8,7 +8,7 @@ window.App = window.App || {};
 
 App.config = {
     // GAS WebApp URL
-    SURVEY_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxeaWneUbjCBfAu3LbiEZqYAVZ5zsogH-fmxCztQPDU4OvZJ6IaoUIdhrfmmUX6EbaG/exec",
+    SURVEY_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyQlf6KWqqSnNGaDE7S_7wbooNHrTgY1jD434vQSIRSa5JPkrvk0nV_fbZdeE6QW7Wq/exec",
     
     // Feature Flags
     ENABLE_MOCK_DATA: false,
