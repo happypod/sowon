@@ -443,7 +443,10 @@ const AdminDataService = {
     },
 
     async loadSurveySettings() {
-        return await this._fetchGas('survey_settings', {}, 0);
+        const settings = await this._fetchGas('survey_settings', {}, 0);
+        return window.APP && typeof window.APP.normalizeSurveySettings === 'function'
+            ? window.APP.normalizeSurveySettings(settings)
+            : settings;
     },
 
     async saveSurveySettings(settings) {

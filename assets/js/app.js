@@ -90,6 +90,8 @@ AdminDataService.loadScenarioMap = AdminDataService.loadScenarioMap || (async fu
 const APP = {
   ADMIN_URL: (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) || "https://script.google.com/macros/s/AKfycbxeaWneUbjCBfAu3LbiEZqYAVZ5zsogH-fmxCztQPDU4OvZJ6IaoUIdhrfmmUX6EbaG/exec",
   SURVEY_URL: (window.CONFIG && window.CONFIG.SURVEY_SCRIPT_URL) || "https://script.google.com/macros/s/AKfycbxeaWneUbjCBfAu3LbiEZqYAVZ5zsogH-fmxCztQPDU4OvZJ6IaoUIdhrfmmUX6EbaG/exec",
+  SURVEY_SETTING_OVERRIDES_KEY: 'sowon_survey_setting_overrides_v1',
+  GIFT_SURVEY_TYPES: ['visitor', 'resident_v2'],
   // AUTH-03: State Management
   auth: {
       role: sessionStorage.getItem('ops_role') || null,
@@ -244,11 +246,54 @@ const APP = {
 
   async fetchSurveySettings() {
     try {
-      return await App.api.callAction('survey_settings', { ts: Date.now() });
+      const settings = await App.api.callAction('survey_settings', { ts: Date.now() });
+      return this.normalizeSurveySettings(settings);
     } catch (error) {
       console.warn('[APP] Failed to fetch survey settings:', error);
       return null;
     }
+  },
+
+  loadSurveySettingOverrides() {
+    try {
+      return JSON.parse(localStorage.getItem(this.SURVEY_SETTING_OVERRIDES_KEY) || '{}') || {};
+    } catch (_) {
+      return {};
+    }
+  },
+
+  saveSurveySettingOverrides(settings = {}) {
+    const current = this.loadSurveySettingOverrides();
+    this.GIFT_SURVEY_TYPES.forEach((key) => {
+      if (settings[key] && typeof settings[key].giftEnabled === 'boolean') {
+        current[key] = {
+          ...(current[key] || {}),
+          giftEnabled: settings[key].giftEnabled,
+          updatedAt: new Date().toISOString()
+        };
+      }
+    });
+    localStorage.setItem(this.SURVEY_SETTING_OVERRIDES_KEY, JSON.stringify(current));
+  },
+
+  normalizeSurveySettings(settings, preferredOverrides = null) {
+    if (!settings || !settings.surveys) return settings;
+    const overrides = preferredOverrides || this.loadSurveySettingOverrides();
+    const normalized = {
+      ...settings,
+      surveys: { ...settings.surveys }
+    };
+    this.GIFT_SURVEY_TYPES.forEach((key) => {
+      const item = { ...(normalized.surveys[key] || {}) };
+      const override = overrides[key];
+      if (override && typeof override.giftEnabled === 'boolean') {
+        item.giftEnabled = override.giftEnabled;
+      } else if (typeof item.giftEnabled !== 'boolean') {
+        item.giftEnabled = true;
+      }
+      normalized.surveys[key] = item;
+    });
+    return normalized;
   },
 
   async guardSurveyOpen(formType) {
@@ -1002,11 +1047,18 @@ const APP = {
              }
 
              try {
+                 APP.saveSurveySettingOverrides(settings);
                  const res = await AdminDataService.saveSurveySettings(settings);
                  if (!res || !res.ok) throw new Error(res?.error || '설정 저장 실패');
+                 const normalized = APP.normalizeSurveySettings(res, settings);
+                 const serverHasGiftSetting = APP.GIFT_SURVEY_TYPES.every((key) =>
+                     Object.prototype.hasOwnProperty.call((res.surveys && res.surveys[key]) || {}, 'giftEnabled')
+                 );
                  App.cache.clear('survey_settings');
-                 App.utils.showSuccess('설문 접수 설정이 저장되었습니다.');
-                 this.renderSurveySettingsTab(res, document.querySelector('#view-survey-settings .tab-content-area') || document.getElementById('view-survey-settings'));
+                 App.utils.showSuccess(serverHasGiftSetting
+                     ? '설문 접수 설정이 저장되었습니다.'
+                     : '설정은 화면에 반영했습니다. 운영 Apps Script 배포 후 모든 기기에서 동일하게 적용됩니다.');
+                 this.renderSurveySettingsTab(normalized, document.querySelector('#view-survey-settings .tab-content-area') || document.getElementById('view-survey-settings'));
              } catch (error) {
                  App.utils.showError(error.message || '설정 저장에 실패했습니다.');
              } finally {
