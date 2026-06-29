@@ -286,10 +286,10 @@ const APP = {
     this.GIFT_SURVEY_TYPES.forEach((key) => {
       const item = { ...(normalized.surveys[key] || {}) };
       const override = overrides[key];
-      if (override && typeof override.giftEnabled === 'boolean') {
-        item.giftEnabled = override.giftEnabled;
-      } else if (typeof item.giftEnabled !== 'boolean') {
-        item.giftEnabled = true;
+      if (typeof item.giftEnabled !== 'boolean') {
+        item.giftEnabled = override && typeof override.giftEnabled === 'boolean'
+          ? override.giftEnabled
+          : true;
       }
       normalized.surveys[key] = item;
     });
