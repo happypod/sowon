@@ -149,6 +149,9 @@ async function submitForm() {
   try {
     await APP.submitSurvey("visitor", formData, { skipReload: true, silent: true });
     completed = true;
+    if (submitBtn) {
+      submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>제출 완료';
+    }
     disableFormAfterSubmit();
     if (visitorGiftEnabled) {
       await showCoupon(phoneLast4, couponCode);

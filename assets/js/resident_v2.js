@@ -335,6 +335,9 @@ async function submitResidentV2Form() {
       showResidentV2CompletionMessage();
     }
     completed = true;
+    if (submitBtn) {
+      submitBtn.innerHTML = '<i class="fas fa-check"></i> 제출 완료';
+    }
     disableResidentV2Form();
     await fetchResidentV2Stats();
   } catch (error) {
